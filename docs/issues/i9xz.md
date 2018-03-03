@@ -42,5 +42,9 @@ root
 
 ## History
 
+`old1.end.md` のように、 status が end となったものについてはファイル名に識別子を設けることでこの条件以外の検索の効率化に寄与するのではないか  
+ファイル名で除外できてしまえば、ファイルの中身 `|Status|end` を評価するコストはかからない。  
+New or in progress が最もよく使う且つデフォルトの条件なのでこのような施策は効果的である可能性が高い  
+
 ---
 *this document has been generated & accessed from computer program, named "icol"*
