@@ -3,8 +3,14 @@
 # start Virtual Machine
 vm() {
 
-  VMX=`find . | grep -E '\.vmx$'`
+  while getopts h OPT ; do
+    case $OPT in
+      h) echo "help contents not available yet"
+      return 0;
+    esac
+  done
 
+  VMX=`find . | grep -E '\.vmx$'`
 
   if [ -n "$VMX" ]; then
 
