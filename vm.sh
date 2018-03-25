@@ -1,11 +1,24 @@
 #!/bin/zsh
 
+help() {
+  printf "# control virtual machines\n"
+  printf "# VMWare player or VirtualBox are supported\n"
+  printf "\n"
+
+  printf "usage: vm [OPTONS]\n"
+  printf "no args  start vm described in current directory if such objects like .vmx/.vbox exests \n"
+  printf "     -h  show this help\n"
+  printf "     -i  show info\n"
+  printf "     -s  shutdown vm\n"
+  printf "     -k  kill vm\n"
+}
+
 # start Virtual Machine
 vm() {
 
   while getopts h OPT ; do
     case $OPT in
-      h) echo "help contents not available yet"
+      h) help
       return 0;
     esac
   done
