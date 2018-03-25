@@ -16,13 +16,6 @@ help() {
 # start Virtual Machine
 vm() {
 
-  while getopts h OPT ; do
-    case $OPT in
-      h) help
-      return 0;
-    esac
-  done
-
   VMX=`find . | grep -E '\.vmx$'`
 
   if [ -n "$VMX" ]; then
@@ -35,15 +28,18 @@ vm() {
     # http://www.japan-secure.com/entry/how_to_add_a_snapshot_function_in_vmware_workstation_player.html
     ENABLED=`grep -E '^scsi0:0.mode = "independent-nonpersistent' $VMX`
 
-    while getopts d:DhHlrsSt:R OPT
+    while getopts hiskd:DlrSt:R OPT
     do
       case $OPT in
+        h)  help
+            return 0
+            ;;
         D)
             vmrun -T $HOST stop $VMX hard
             vmrun -T $HOST deleteVM $VMX
             return 0
             ;;
-        s)  vmrun -T $HOST list
+        i)  vmrun -T $HOST list
             vmrun -T $HOST listSnapshots $VMX true
             echo toolsstate=`vmrun -T $HOST checkToolsState $VMX`
             cat $VMX | grep independent
@@ -62,11 +58,11 @@ vm() {
           vmrun -T $HOST reset $VMX hard
           return 0
           ;;
-        h) echo halt Virtual Machine..
+        s) echo halt Virtual Machine..
           vmrun -T $HOST stop $VMX soft
           return 0
           ;;
-        H) echo halt Virtual Machine..
+        k) echo halt Virtual Machine..
           vmrun -T $HOST stop $VMX hard
           return 0
           ;;
@@ -102,14 +98,17 @@ vm() {
   if [ -n "$VBOX" ]; then
     VBOXPATH=`pwd`/`echo $VBOX | sed -e 's/^\.\///'`
 
-    while getopts hHrRs OPT
+    while getopts hiskrR OPT
     do
       case $OPT in
-        h) echo halt Virtual Machine..
+        h)  help
+            return 0
+            ;;
+        s) echo halt Virtual Machine..
            VBoxManage controlvm $VBOXPATH acpipowerbutton
            return 0
            ;;
-        H) echo halt Virtual Machine..
+        k) echo halt Virtual Machine..
            VBoxManage controlvm $VBOXPATH poweroff
            return 0
            ;;
@@ -128,7 +127,7 @@ vm() {
         # http://qiita.com/heignamerican/items/fe02f61853f0217e238b
         # vboxmanage storageattach pde --storagectl SATA --port 0 --device 0 --type hdd --medium none
         # vboxmanage storageattach pde --storagectl SATA --port 0 --device 0 --type hdd --medium pde.vdi --mtype immutable
-        s) VBoxManage showvminfo $VBOXPATH | grep State
+        i) VBoxManage showvminfo $VBOXPATH | grep State
            return 0
            ;;
       esac
