@@ -1,12 +1,9 @@
 #!/bin/zsh
 
 help() {
-  printf "# control virtual machines\n"
-  printf "# VMWare player or VirtualBox are supported\n"
-  printf "\n"
-
+  printf "# wrapper script of vmrun or VBoxManage\n"
   printf "usage: vm [OPTONS]\n"
-  printf "no args  start vm described in current directory if such objects like .vmx/.vbox exests \n"
+  printf "no args  start vm if any of such objects (like .vmx/.vbox) was found in current directory \n"
   printf "     -h  show this help\n"
   printf "     -i  show info\n"
   printf "     -s  shutdown vm\n"
