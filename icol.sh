@@ -57,7 +57,7 @@ get_status() {
 
 get_duedate() {
   local re="^|Due\sdate|"
-  [ -z `get_item $1 $re` ] && echo "0000-00-00" || get_item $1 $re
+  [ -z "`get_item $1 $re`" ] && echo "0000-00-00" || get_item $1 $re
 }
 
 get_category() {
@@ -75,7 +75,7 @@ get_gitroot() {
 }
 
 summary() {
-  local _id=`basename --suffix=.md $1`
+  local _id=`basename $1 .md`
   local _st=`get_status $1`
   local _st_color="\e[m"
   local _date=`get_duedate $1`
