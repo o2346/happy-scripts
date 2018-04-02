@@ -29,6 +29,12 @@ help() {
   return 0
 }
 
+# http://takafumi-s.hatenablog.com/entry/2017/12/12/230143
+if [ "$(uname)" = "Darwin" ]; then
+  shopt -s expand_aliases
+  alias sed='gsed'
+fi
+
 get_directories() {
   for _repo in `find $1 -type d | grep .git`; do
     local _target=`echo $_repo | sed -e 's/\.git/docs\/issues/'`
@@ -81,7 +87,7 @@ summary() {
   local _date=`get_duedate $1`
   local _date_color="\e[m"
   local _color_end="\e[m"
-  echo -e "\e[0m$_id\e[0m" "$_st_color$_st$_color_end" "$_date_color$_date$_color_end" `get_gitroot $2`  `get_category $1` \'`get_subject $1`\'
+  printf "\e[0m$_id\e[0m $_st_color$_st$_color_end $_date_color$_date$_color_end `get_gitroot $2` `get_category $1` `get_subject $1`\n"
   return 0
 }
 
