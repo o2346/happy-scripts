@@ -80,12 +80,24 @@ get_gitroot() {
   echo `basename ${_basename}`/
 }
 
+colorize() {
+  local color="\e[29;m"
+  local today=`date "+%Y%m%d"`
+  local argdate=`echo $1 | sed -e 's/-//g'`
+  if [ $today -gt $argdate ]; then
+    color="\e[31;1m"
+  elif [ $(expr $argdate - $today) -le 3 ]; then
+    color="\e[33;2m"
+  fi
+  echo $color
+}
+
 summary() {
   local _id=`basename $1 .md`
   local _st=`get_status $1`
   local _st_color="\e[m"
   local _date=`get_duedate $1`
-  local _date_color="\e[m"
+  local _date_color=`colorize $_date`
   local _color_end="\e[m"
   printf "\e[0m$_id\e[0m $_st_color$_st$_color_end $_date_color$_date$_color_end `get_gitroot $2` `get_category $1` `get_subject $1`\n"
   return 0
