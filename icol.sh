@@ -76,7 +76,7 @@ get_subject() {
 }
 
 get_gitroot() {
-  _basename=`echo $1 | sed -e 's/\/docs\/issues//'`
+  local _basename=`echo $1 | sed -e 's/\/docs\/issues//'`
   echo `basename ${_basename}`/
 }
 
