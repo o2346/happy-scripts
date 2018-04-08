@@ -80,6 +80,7 @@ get_gitroot() {
   echo `basename ${_basename}`/
 }
 
+# colorize due date
 colorize() {
   local color="\e[29;m"
   local today=`date "+%Y%m%d"`
@@ -109,7 +110,6 @@ browse() {
       if [ -z "`grep -e "$2" $_file`" ]; then
         continue
       fi
-      #echo -e "\e[32mHello World\e[0m"
       summary $_file $_repos
       if [ ${FUNCNAME[1]} = "search_keyword" ];then
         grep -e "$2" $_file
