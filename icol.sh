@@ -26,6 +26,7 @@ help() {
   echo "  Works same as uppercase instead"
   echo "about uppercase options:  sweep issues in the all git repos recursively under $top_dir"
   echo "  filtered by same conditions as it's lowercase option"
+  echo "note: It's designed for one-man project. If you have got several members in your group or something, you may want to use proper management system instead of this"
   return 0
 }
 
