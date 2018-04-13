@@ -8,14 +8,14 @@
 |Category|<!-- optional -->|
 |Target version|<!-- optional, any of git tags recommended -->|
 |Start date|2018-04-13|
-|Due date||
-|estimated|hours|
+|Due date|2018-04-30|
+|estimated|8hours|
 |% Done|0%|
 |worked|hours|
 
 ## Description
 
-Ascending or Descending
+Ascending or Descending  
 Should resent comments are lower, or being kept upper like now
 
 ## Related to
