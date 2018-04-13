@@ -10,6 +10,7 @@ help() {
   echo "ICOL - Issue COntrOLLer Light"
   echo "Issue management system inspired from Redmine. Git based"
   echo ""
+  echo "[ISSUE_ID]   if valid id was given, vi the target file & other options below will be ignored"
   echo "-h           show this help"
   echo "-n [TITLE]   create new issue file"
   echo "-p           browse issues which state was new or in progress. "
