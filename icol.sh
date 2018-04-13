@@ -212,8 +212,25 @@ test () {
   return 0
 }
 
+compose() {
+  local file=`find ~/Documents -name $1.md`
+  if [ -z "$file" ]; then
+    echo "no file found"
+    return 1
+  fi
+  cd `dirname $file`
+  vi $file
+  return 0
+}
+
 # main
 main() {
+  local IDRE="^\w{4}$"
+  if [[ $1 =~ $IDRE ]]; then
+    compose $1
+    return 0
+  fi
+
   while getopts hnpPeEaAs:S:t OPT
   do case $OPT in
       h) help
