@@ -215,7 +215,7 @@ test () {
 }
 
 compose() {
-  local file=`find ~/Documents -name $1.md`
+  local file=`find $top_dir -name $1.md`
   if [ -z "$file" ]; then
     echo "no file found"
     return 1
