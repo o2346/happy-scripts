@@ -227,9 +227,8 @@ compose() {
 
 # main
 main() {
-  local IDRE="^\w{4}$"
-  #if [[ $1 =~ $IDRE ]]; then
-  if [[ -n $1 && [$1] =~ [$IDRE] ]]; then
+  local IDRE="^[0-9a-z]{4}$"
+  if [[ $1 =~ $IDRE ]]; then
     compose $1
     return 0
   fi
