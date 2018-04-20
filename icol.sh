@@ -82,6 +82,11 @@ get_gitroot() {
   echo `basename ${_basename}`/
 }
 
+get_id() {
+  local _id=`basename $1 .md | grep '^[0-9a-z]\\{4\\}$'`
+  [ -z $_id ] && printf "" || printf "#$_id"
+}
+
 # colorize due date
 colorize() {
   local color="\e[29;m"
@@ -233,7 +238,7 @@ main() {
     return 0
   fi
 
-  while getopts hnpPeEaAs:S:t OPT
+  while getopts hnpPeEaAs:S:ti: OPT
   do case $OPT in
       h) help
         return 0
@@ -266,6 +271,9 @@ main() {
         return 0
         ;;
       t) test
+        return 0
+        ;;
+      i) get_id $OPTARG
         return 0
         ;;
   esac done
