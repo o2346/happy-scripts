@@ -84,7 +84,7 @@ get_gitroot() {
 
 get_id() {
   local _id=`basename $1 .md | grep '^[0-9a-z]\\{4\\}$'`
-  [ -z $_id ] && printf "" || printf "#$_id"
+  [ -z $_id ] && printf "" || printf "#$_id "
 }
 
 # colorize due date
