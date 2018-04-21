@@ -40,16 +40,13 @@ crap(){
       h)  help
           return 0
         ;;
-      f) printf "fetching each repos\n"
-         FETCH=true
+      f)  FETCH=true
         ;;
       \?) help
           return 0
         ;;
     esac
   done
-
-  printf "crawling \e[37;4m${PARENT}\e[m recursively...\n"
 
   for REPO in `find $PARENT -type d | grep -e ".git$"`; do
     cd `dirname $REPO`
@@ -59,7 +56,7 @@ crap(){
 
 
     if [ "$FETCH" = "true" ]; then
-      printf "\e[37;40;5m[FETCH]\e[m \e[29;1m`basename ${WD}`\e[m =>  \e[37;4m${WD}\e[m\n"
+      #[ -n $(git fetch --dry-run) ] && printf "\e[37;40;5m[FETCH]\e[m \e[29;1m`basename ${WD}`\e[m =>  \e[37;4m${WD}\e[m\n"
       git fetch --dry-run
       continue
     fi
