@@ -9,8 +9,8 @@ help() {
   printf "     -s  shutdown vm\n"
   printf "     -k  kill vm\n"
   printf "     -n  [DISTRIBUSION.iso] create new vm from given image\n"
-  printf "     --name=[VMNAME] specify name of vm newly creating with option -n\n"
-  printf "     --hpv=[kind] specify hypervisor with option -n. One of "vbox" "vmx"\n"
+  printf "     -N  [VMNAME_as_you_like] specify name of vm newly creating with option -n\n"
+  printf "     -p  [kind] specify hypervisor with option -n. One of \"vbox\" \"vmx\"\n"
 }
 
 # start Virtual Machine
