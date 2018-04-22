@@ -61,5 +61,4 @@ do
       ;;
   esac
 done
-newvm $*
 
