@@ -8,6 +8,7 @@ help() {
   printf "     -i  show info\n"
   printf "     -s  shutdown vm\n"
   printf "     -k  kill vm\n"
+  printf "     -D  delete vm\n"
   printf "     -n  [DISTRIBUSION.iso] create new instance from given image\n"
   printf "     --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
   printf "     --hpv=[kind] specify hypervisor with option -n.\n"
@@ -284,7 +285,7 @@ vm() {
   if [ -n "$VBOX" ]; then
     VBOXPATH=`pwd`/`echo $VBOX | sed -e 's/^\.\///'`
 
-    while getopts iskrR OPT
+    while getopts iskrRD OPT
     do
       case $OPT in
         s) echo halt Virtual Machine..
@@ -311,6 +312,9 @@ vm() {
         # vboxmanage storageattach pde --storagectl SATA --port 0 --device 0 --type hdd --medium none
         # vboxmanage storageattach pde --storagectl SATA --port 0 --device 0 --type hdd --medium pde.vdi --mtype immutable
         i) VBoxManage showvminfo $VBOXPATH | grep State
+           return 0
+           ;;
+        D) vboxmanage unregistervm $(basename `pwd`) --delete
            return 0
            ;;
       esac
