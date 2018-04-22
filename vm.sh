@@ -29,12 +29,9 @@ vm() {
     # http://www.japan-secure.com/entry/how_to_add_a_snapshot_function_in_vmware_workstation_player.html
     ENABLED=`grep -E '^scsi0:0.mode = "independent-nonpersistent' $VMX`
 
-    while getopts hiskd:DlrSt:R OPT
+    while getopts iskd:DlrSt:R OPT
     do
       case $OPT in
-        h)  help
-            return 0
-            ;;
         D)
             vmrun -T $HOST stop $VMX hard
             vmrun -T $HOST deleteVM $VMX
@@ -99,12 +96,9 @@ vm() {
   if [ -n "$VBOX" ]; then
     VBOXPATH=`pwd`/`echo $VBOX | sed -e 's/^\.\///'`
 
-    while getopts hiskrR OPT
+    while getopts iskrR OPT
     do
       case $OPT in
-        h)  help
-            return 0
-            ;;
         s) echo halt Virtual Machine..
            VBoxManage controlvm $VBOXPATH acpipowerbutton
            return 0
@@ -147,6 +141,17 @@ vm() {
     return 0
   fi
 
+  while getopts hn: OPT
+  do
+    case $OPT in
+      h)  help
+          return 0
+          ;;
+      #n)  newvm $OPTARG $*
+      #    exit 0
+      #    ;;
+    esac
+  done
 }
 
 vm $*
