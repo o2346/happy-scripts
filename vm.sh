@@ -14,6 +14,193 @@ help() {
   printf "                  One of \"vboxmanage\" \"vmrun\" acceptable\n"
 }
 
+get_hpv() {
+  if [ -n "`which $1`" ] && [ $1 = "vmrun" ]; then
+    echo "vmx" && return 0
+  fi
+  if [ -n "`which $1`" ] && [ $1 = "vboxmanage" ]; then
+    echo "vbox" && return 0
+  fi
+  if [ -n "`which vmrun`" ]; then
+    echo "vmx" && return 0
+  fi
+  if [ -n "`which vboxmanage`" ]; then
+    echo "vbox" && return 0
+  fi
+}
+
+getramsizemb() {
+  if [ "$(uname)" = 'Darwin' ]; then
+    #Memory: 16 GB
+    system_profiler SPHardwareDataType | grep 'Memory:' | sed -e 's/GB/000/' | tr -dc 0-9
+  else
+    expr `cat /proc/meminfo | grep 'MemTotal:' | sed -e 's/kb//' | tr -dc 0-9` / 1000
+  fi
+}
+
+getEthFace() {
+  if [ "$(uname)" = 'Darwin' ]; then
+    echo "en0"
+  else
+    itMayBeOneOf=("eth0\nenp3s0")
+    echo $itMayBeOneOf | while read line; do
+      if ifconfig | grep $line > /dev/null; then
+        echo $line
+      fi
+    done
+  fi
+}
+# https://nakkaya.com/2012/08/30/create-manage-virtualBox-vms-from-the-command-line/
+# create new vm of VirtualBox with some spec
+# usage:
+#  new_vbox VMNAME PATH_TO_LIVECD_DVD.iso
+# depends on:
+#  vboxmanage
+new_vbox() {
+  ethface=`getEthFace`
+
+  # http://zeblog.co/?p=390
+  if [[ $2 =~ "mint" ]]; then
+    local ostype="Ubuntu_64"
+  elif [[ $2 =~ "kali" ]]; then
+    local ostype="Debian_64"
+  elif echo $2 | grep -i "fedora" > /dev/null; then
+    local ostype="Fedora_64"
+  elif echo $2 | grep -i "cent" > /dev/null; then
+    local ostype="RedHat_64"
+  elif echo $2 | grep -i "windows" > /dev/null; then
+    local ostype="WindowsNT"
+  else
+    local ostype="Ubuntu_64"
+  fi
+
+  #local targetdir="`mktemp -d`/$1"
+  #mkdir $targetdir
+  local parentdir=`mktemp -d`
+  local targetdir=$parentdir/$1
+
+  local uuid=`vboxmanage createvm --register --name "$1" --ostype $ostype --basefolder $parentdir | grep UUID: | sed 's/UUID: //'`
+
+  #vboxmanage createvm --name "$1" --ostype $ostype --basefolder $targetdir
+  local memrate=8
+  local hostramsize=`getramsizemb`
+
+  vboxmanage modifyvm "$uuid" --memory `expr $hostramsize / $memrate` --acpi on --boot1 dvd \
+    --nic1 bridged --bridgeadapter1 $ethface \
+    --cpus 2 \
+    --clipboard bidirectional \
+    --vram 32
+  vboxmanage storagectl "$uuid" --name "ide" --add ide
+
+  # I have no idea why they don't allow the same name of vdi created later and saying like "It is collision id" or something.
+  # Anyway It will be accepted when it comes with  different name
+  hddname="$targetdir/primary.`uuidgen | awk '{print tolower($0)}'| tail -c -5`.vdi"
+  vboxmanage createhd --filename "$hddname" --size 18000
+
+  VBoxManage storageattach "$uuid" --storagectl "ide" \
+    --port 0 --device 0 --type hdd --medium "$hddname"
+  VBoxManage storageattach "$uuid" --storagectl "ide" \
+    --port 1 --device 0 --type dvddrive --medium $2
+  #vboxmanage modifyvm "$1" --macaddress1 XXXXXXXXXXXX
+  #currdir=`pwd`
+  cd $targetdir && vm
+  #cd $currdir
+}
+
+# create new vm of VMWare player with some spec
+# usage:
+#  new_vmx VMNAME PATH_TO_LIVECD_DVD.iso
+# depends on:
+#  vmrun
+#  repo in gist (means also network)
+# Only support player, not for Fusion.
+# Fusion7 can't handle the resource files created by newer version of Player which is 12
+# And it requires to buy newer one
+# Why do I have to do something special further for "Fusion" so foolishly
+new_vmx() {
+  local HOST="player"
+
+  # Name of predefined resource files
+  local srcname="struct_vmx"
+
+  # get predefined resource files
+  local getsrc() {
+    src="$HOME/Downloads/$srcname"
+    if [ -d $src ]; then
+      cwd=`pwd`
+      cd $src
+      git pull > /dev/null
+      cd $cwd
+    else
+      git clone https://gist.github.com/whateverjp/ca42f920f4fab4031a6238f63ca4f29c $src
+    fi
+    echo $src
+  }
+
+  local srcpath=`getsrc`
+
+  # Copy resource files for "instance" from predefined one.
+  # src itself is not dedicated to be changed
+  local getinstancedir() {
+    tmpdir=`mktemp -d`
+    mkdir $tmpdir/$1
+    cp $srcpath/$srcname*.* $tmpdir/$1
+    echo $tmpdir/$1
+  }
+
+  local instancedir=`getinstancedir $1`
+
+  # change file name and contents into given name
+  # *.vmx supposed to indicate location of liveCD/DVD image that user gave this func
+  local getinstance() {
+    for file in $instancedir/$srcname.* ; do
+      sed -i "s/$srcname/$1/g" $file
+    done
+    rename "s/$srcname/$1/" $instancedir/*
+
+    vmx="$instancedir/$1.vmx"
+    sed -i 's|/dev/null/dummy.iso|'$2'|g' $vmx # ofcourse it must be replaced with proper name..
+    echo $vmx
+  }
+
+  local VMX=`getinstance $*`
+  echo $VMX
+  cd $instancedir
+  vmrun -T $HOST start $VMX
+}
+
+get_vmname() {
+  if [ -n "$1" ]; then
+    echo $1
+    return 0
+  fi
+  echo tmp_`LANG=c < /dev/urandom tr -dc a-z0-9 | head -c${1:-6};echo`
+}
+
+get_arghpv() {
+  for opt in "$@"; do
+    if [ "`echo $opt | grep -e '--hpv=*'`" ]; then
+      echo $opt | sed -e 's/--hpv=//'
+    fi
+  done
+}
+
+get_argvname() {
+  for opt in "$@"; do
+    if [ "`echo $opt | grep -e '--name=*'`" ]; then
+      echo $opt | sed -e 's/--name=//'
+    fi
+  done
+}
+
+newvm() {
+  local arghpv=`get_arghpv $*`
+  [ -z "`get_hpv $arghpv 2> /dev/null`" ] && echo "no hypervisor found" >&2 && return 1
+  local vname=$(get_vmname `get_argvname $*`)
+  local new_cmd="new_`get_hpv $arghpv`"
+  $new_cmd "$vname" "$1"
+}
+
 # start Virtual Machine
 vm() {
 
@@ -147,11 +334,12 @@ vm() {
       h)  help
           return 0
           ;;
-      #n)  newvm $OPTARG $*
-      #    exit 0
-      #    ;;
+      n)  newvm $OPTARG $*
+          exit 0
+          ;;
     esac
   done
+
 }
 
 vm $*
