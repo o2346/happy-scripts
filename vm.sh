@@ -50,6 +50,7 @@ getEthFace() {
     done
   fi
 }
+
 # https://nakkaya.com/2012/08/30/create-manage-virtualBox-vms-from-the-command-line/
 # create new vm of VirtualBox with some spec
 # usage:
@@ -104,6 +105,7 @@ new_vbox() {
   #vboxmanage modifyvm "$1" --macaddress1 XXXXXXXXXXXX
   #currdir=`pwd`
   cd $targetdir && vm
+  echo $targetdir
   #cd $currdir
 }
 
@@ -164,9 +166,8 @@ new_vmx() {
   }
 
   local VMX=`getinstance $*`
-  echo $VMX
-  cd $instancedir
   vmrun -T $HOST start $VMX
+  echo $instancedir
 }
 
 get_vmname() {
@@ -343,4 +344,3 @@ vm() {
 }
 
 vm $*
-
