@@ -22,10 +22,10 @@ get_hpv() {
   if [ -n "`which $1`" ] && [ $1 = "vboxmanage" ]; then
     echo "vbox" && return 0
   fi
-  if [ -n "`which vmrun`" ]; then
+  if [ -n "`which vmrun`" ] && [ -n "`which vmrun | grep -v 'not found'`" ]; then
     echo "vmx" && return 0
   fi
-  if [ -n "`which vboxmanage`" ]; then
+  if [ -n "`which vboxmanage`" ] && [ -n "`which vboxmanage | grep -v 'not found'`" ]; then
     echo "vbox" && return 0
   fi
 }
