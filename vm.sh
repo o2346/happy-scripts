@@ -206,7 +206,7 @@ newvm() {
 # start Virtual Machine
 vm() {
 
-  VMX=`find . | grep -E '\.vmx$'`
+  VMX=`find . -maxdepth 0 -name *.vmx`
 
   if [ -n "$VMX" ]; then
 
@@ -280,7 +280,7 @@ vm() {
     return 0
   fi
 
-  VBOX=`find . | grep -E '\.vbox$'`
+  VBOX=`find . -maxdepth 0 -name *.vbox`
 
   if [ -n "$VBOX" ]; then
     VBOXPATH=`pwd`/`echo $VBOX | sed -e 's/^\.\///'`
