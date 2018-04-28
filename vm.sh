@@ -121,7 +121,11 @@ new_vbox() {
 # And it requires to buy newer one
 # Why do I have to do something special further for "Fusion" so foolishly
 new_vmx() {
-  local HOST="player"
+  if [ "$(uname)" = 'Darwin' ]; then
+    local HOST="fusion"
+  else
+    local HOST="player"
+  fi
 
   # Name of predefined resource files
   local srcname="struct_vmx"
@@ -206,7 +210,7 @@ newvm() {
 # start Virtual Machine
 vm() {
 
-  VMX=`find . -maxdepth 1 -name *.vmx`
+  VMX=`find . -maxdepth 1 -name *.vmx` 2> /dev/null
 
   if [ -n "$VMX" ]; then
 
@@ -280,7 +284,7 @@ vm() {
     return 0
   fi
 
-  VBOX=`find . -maxdepth 1 -name *.vbox`
+  VBOX=`find . -maxdepth 1 -name *.vbox` 2> /dev/null
 
   if [ -n "$VBOX" ]; then
     VBOXPATH=`pwd`/`echo $VBOX | sed -e 's/^\.\///'`
