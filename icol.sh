@@ -87,6 +87,10 @@ get_id() {
   [ -z $_id ] && printf "" || printf "#$_id "
 }
 
+get_locate() {
+  find ~/Documents/ -name $1.md
+}
+
 # colorize due date
 colorize() {
   local color="\e[29;m"
@@ -238,7 +242,7 @@ main() {
     return 0
   fi
 
-  while getopts hnpPeEaAs:S:ti: OPT
+  while getopts hnpPeEaAs:S:ti:l: OPT
   do case $OPT in
       h) help
         return 0
@@ -274,6 +278,9 @@ main() {
         return 0
         ;;
       i) get_id $OPTARG
+        return 0
+        ;;
+      l) get_locate $OPTARG
         return 0
         ;;
   esac done
