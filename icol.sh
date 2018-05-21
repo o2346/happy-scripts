@@ -21,6 +21,7 @@ help() {
   echo "-A           upper case option"
   echo "-s [KEYWORD] search issues. [KEYWORD] will be grepped"
   echo "-S [KEYWORD] upper case option"
+  echo "-l [ISSUE_ID] find location of issue file"
   echo "NO OPTION    same as -P"
   echo ""
   echo "about lowercase browsing options: If current dir was a repo the one is the target."
