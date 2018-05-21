@@ -8,7 +8,7 @@
 |Category|icol<!-- optional -->|
 |Target version|future<!-- optional, any of git tags recommended -->|
 |Start date|2018-03-03|
-|Due date|2018-04-30|
+|Due date|2018-06-30|
 |% Done|10%|
 |worked|1hours|
 
