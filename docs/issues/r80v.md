@@ -8,7 +8,7 @@
 |Category|<!-- optional -->|
 |Target version|<!-- optional, any of git tags recommended -->|
 |Start date|2018-04-18|
-|Due date|2018-04-22|
+|Due date|2018-06-30|
 |estimated|4hours|
 |% Done|0%|
 |worked|hours|
