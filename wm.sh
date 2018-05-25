@@ -59,7 +59,7 @@ makeif() {
 }
 
 # main func
-_wm() (
+_wm() {
 
   # the first time execution
   make $*
@@ -80,7 +80,7 @@ _wm() (
   else
     `dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
   fi
-)
+}
 
 if echo "$-" | grep -q "i"; then
   :
