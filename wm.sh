@@ -8,7 +8,7 @@
 # Confirmed functional with GNU Make 4.x on macos Sierra & Linux Mint18.x
 # depends on inotify-tools or fswatch
 # modified from http://zgp.org/~dmarti/tips/automatically-run-make/#.WY6eoDeRVhE
-wm() (
+_wm() (
 
   make_prereqs() {
     # Make "make" figure out what files it's interested in.
@@ -77,4 +77,10 @@ wm() (
     `dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
   fi
 )
-wm $*
+
+#https://qiita.com/b4b4r07/items/d4b64227084f1209285a
+if echo "$-" | grep -q "i"; then
+  :
+else
+  _wm $*
+fi
