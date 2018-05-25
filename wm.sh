@@ -66,6 +66,8 @@ _wm() (
     # you may need to install beforehand
     # brew install make --with-default-names ## you would like newer version
     # brew install fswatch
+    # shebang is not valid in this condition so
+    # node `dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
     fswatch -0 --monitor=kqueue_monitor `prereq_files` | while read -d "" event ; do
       if echo $event | grep -i 'makefile' > /dev/null ;then
         make -B $*
