@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# @(#) This script is watch make
+
 # Watch Make
 # usage:
 #   wm [Any optons that would be passed to the make]
