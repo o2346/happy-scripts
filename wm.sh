@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# @(#) This script is watch make
+# @(#) Automatically run make when a file changes
 
 # Watch Make
 # usage:
 #   wm [Any optons that would be passed to the make]
 # Confirmed functional with GNU Make 4.x on macos Sierra & Linux Mint18.x
-# depends on inotify-tools or fswatch
+# depends on node.js(wm.js in the same directory) or fswatch
 # modified from http://zgp.org/~dmarti/tips/automatically-run-make/#.WY6eoDeRVhE
 _wm() (
 
@@ -80,7 +80,6 @@ _wm() (
   fi
 )
 
-#https://qiita.com/b4b4r07/items/d4b64227084f1209285a
 if echo "$-" | grep -q "i"; then
   :
 else
