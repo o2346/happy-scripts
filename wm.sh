@@ -58,6 +58,7 @@ makeif() {
   fi
 }
 
+# main func
 _wm() (
 
   # the first time execution
