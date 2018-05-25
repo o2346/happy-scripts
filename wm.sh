@@ -47,18 +47,12 @@ wm() (
 
   # say something if make say like
   isup() {
-    state=`make -n`
-    itMaySayLike=("Nothing to be done for\nis up to date")
-    echo $itMaySayLike | while read line; do
-      if [[ "$state" =~ "${line}" ]]; then
-        echo "it_is_up"
-      fi
-    done
+    make -n | egrep -i '(Nothing to be done for)|(is up to date)'
   }
 
   # execute what to do if needed
   makeif() {
-    if test -z `isup`; then
+    if test -z "`isup`"; then
       make $*
     fi
   }
