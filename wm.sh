@@ -78,7 +78,16 @@ _wm() {
       fi
     done
   else
-    `dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
+    local files='('`prereq_files | tr ' ' '|'`')'
+    echo $files
+    # node.js version
+    #`dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
+
+    inotifywait -mr -e MODIFY --format '%w%f %e' ./ | while read event; do
+      if echo $event | awk '{print $1}' | egrep "$files" > /dev/null; then
+        makeif $*
+      fi
+    done
   fi
 }
 
