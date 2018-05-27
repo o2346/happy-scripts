@@ -90,8 +90,16 @@ _wm() {
     #`dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
 
     # https://www.ibm.com/developerworks/jp/linux/library/l-inotify/index.html
-    inotifywait -mr -e MODIFY --format '%w%f %e' ./ | while read event; do
-      echo $event | makeif $*
+    # https://web.chaperone.jp/w/index.php?inotify-tools
+    inotifywait -mr -e ATTRIB --format '%w%f %e' ./ | while [ 1 ]; do
+      event="";
+      while read -t 0.01 line; do
+        event=$line
+      done
+      if [ -n "$event" ]; then
+        echo $event
+        echo $event | makeif $*
+      fi
     done
   fi
 }
