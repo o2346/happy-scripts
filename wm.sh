@@ -89,6 +89,7 @@ _wm() {
     # node.js version
     #`dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
 
+    # https://www.ibm.com/developerworks/jp/linux/library/l-inotify/index.html
     inotifywait -mr -e MODIFY --format '%w%f %e' ./ | while read event; do
       echo $event | makeif $*
     done
