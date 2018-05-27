@@ -9,6 +9,14 @@
 # depends on node.js(wm.js in the same directory) or fswatch
 # modified from http://zgp.org/~dmarti/tips/automatically-run-make/#.WY6eoDeRVhE
 
+# "-b" as debug flag on wm. make itself will ignore this
+echo $* | grep '\-b' > /dev/null
+DEBUG=$?
+
+if [ $DEBUG = 0 ]; then
+  echo "[WM] DEBUG mode option transmitted"
+fi
+
 make_prereqs() {
   # Make "make" figure out what files it's interested in.
   echo "Makefile"
@@ -62,6 +70,7 @@ makeif() {
     return 0
   fi
   stdin=`cat -`
+  [ $DEBUG = 0 ] && echo $stdin
   if echo $stdin | grep -i "makefile" > /dev/null; then
     make -B $*
     return 0
