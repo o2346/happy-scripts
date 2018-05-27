@@ -9,7 +9,7 @@
 # depends on node.js(wm.js in the same directory) or fswatch
 # modified from http://zgp.org/~dmarti/tips/automatically-run-make/#.WY6eoDeRVhE
 
-# "-b" as debug flag on wm. make itself will ignore this
+# user's debug flag
 echo $* | grep 'DEBUG=0' > /dev/null
 DEBUG=$?
 
