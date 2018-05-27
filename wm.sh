@@ -61,7 +61,12 @@ makeif() {
   if test "`isup`"; then
     return 0
   fi
-  if cat - | isevent > /dev/null ; then
+  stdin=`cat -`
+  if echo $stdin | grep -i "makefile" > /dev/null; then
+    make -B $*
+    return 0
+  fi
+  if echo $stdin | isevent > /dev/null ; then
     make $*
   fi
 }
@@ -69,6 +74,7 @@ makeif() {
 # main func
 _wm() {
 
+  echo '[ '`prereq_files | tr ' ' ','`' ]'
   # the first time execution
   make $*
 
@@ -97,7 +103,6 @@ _wm() {
         event=$line
       done
       if [ -n "$event" ]; then
-        echo $event
         echo $event | makeif $*
       fi
     done
