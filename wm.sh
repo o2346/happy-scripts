@@ -95,6 +95,7 @@ _wm() {
     fswatch -0 ./ | while read -d "" event ; do
       echo $event | makeif $*
     done
+    # https://gerolian.xyz/2015/01/14/1564/
   else
     # node.js version
     #`dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
