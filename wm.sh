@@ -10,7 +10,7 @@
 # modified from http://zgp.org/~dmarti/tips/automatically-run-make/#.WY6eoDeRVhE
 
 # "-b" as debug flag on wm. make itself will ignore this
-echo $* | grep '\-b' > /dev/null
+echo $* | grep 'DEBUG=0' > /dev/null
 DEBUG=$?
 
 if [ $DEBUG = 0 ]; then
