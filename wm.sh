@@ -51,9 +51,17 @@ isup() {
   make -n | egrep -i '(Nothing to be done for)|(is up to date)'
 }
 
+isevent() {
+  local expr='('`prereq_files | tr ' ' '|'`')'
+  cat - | awk '{print $1}' | egrep "$expr"
+}
+
 # execute what to do if needed
 makeif() {
-  if test -z "`isup`"; then
+  if test "`isup`"; then
+    return 0
+  fi
+  if cat - | isevent > /dev/null ; then
     make $*
   fi
 }
@@ -78,15 +86,11 @@ _wm() {
       fi
     done
   else
-    local files='('`prereq_files | tr ' ' '|'`')'
-    echo $files
     # node.js version
     #`dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
 
     inotifywait -mr -e MODIFY --format '%w%f %e' ./ | while read event; do
-      if echo $event | awk '{print $1}' | egrep "$files" > /dev/null; then
-        makeif $*
-      fi
+      echo $event | makeif $*
     done
   fi
 }
