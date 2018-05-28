@@ -64,11 +64,6 @@ prereq_files() {
   echo $(prereq_files_verbose | grep -v "^\\.\+$" | sort | uniq)
 }
 
-# show target files to watch
-if echo $* | grep -e '--debug' > /dev/null; then
-  printf "Watching following Files..\n`prereq_files | tr ' ' '\n' | sort`\n" >&2
-fi
-
 # say something if make say like
 isup() {
   make -n | egrep -i '(Nothing to be done for)|(is up to date)'
