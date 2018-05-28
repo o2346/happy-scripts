@@ -42,11 +42,13 @@ prereq_files_verbose() {
       done
     fi
   done
+  make ls > /dev/null
+  [ $? ] && make ls
 }
 
 # omit verbose
 prereq_files() {
-  echo `prereq_files_verbose | tr ' ' '\n' | sort | uniq`
+  echo `prereq_files_verbose | tr ' ' '\n' | grep -v "^\\.\+$" | sort | uniq`
 }
 
 # show target files to watch
@@ -101,7 +103,7 @@ _wm() {
     #  fi
     #done
     # read current dir, how to call makeif, ommit some options
-    fswatch -0 ./ | while read -d "" event ; do
+    fswatch -0x ./ | while read -d "" event ; do
       echo $event | makeif $*
     done
     # https://gerolian.xyz/2015/01/14/1564/
