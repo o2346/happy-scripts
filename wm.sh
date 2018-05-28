@@ -2,12 +2,24 @@
 
 # @(#) Automatically run make when a file changes
 
-# Watch Make
+# Watchify Make
 # usage:
 #   wm [Any optons that would be passed to the make]
 # Confirmed functional with GNU Make 4.x on macos Sierra & Linux Mint18.x
 # depends on node.js(wm.js in the same directory) or fswatch
 # modified from http://zgp.org/~dmarti/tips/automatically-run-make/#.WY6eoDeRVhE
+
+# user can add files to be monitored by "make ls"
+# for example,
+#
+# .PHONY: ls
+# ls: ## list files
+# 	@ls -a | grep "^\."
+#
+# in this case, any dotfiles located in the same directory with the Makefile also will be monitored
+# since the action would print them properly
+# current directory & parent "..","." will be ignored
+# duplicates also be ignored
 
 # user's debug flag
 echo $* | grep 'DEBUG=0' > /dev/null
