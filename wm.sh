@@ -41,17 +41,16 @@ make_prereqs() {
 prereq_files_verbose() {
   # prerequisites mentioned in a Makefile
   # that are extant files
-  echo ' '
   for f in `make_prereqs $* | sort -u`; do
     if [ -f $f ]; then
-      echo -n "$f "
+      echo "$f"
 
       # file names defined in the target source like #include "hoge.h" also should be a target
       # If they ware actually exists.
       # This may cause of slow
       find . -type f -follow -print | sed -e 's/^\.\///g' | while read line; do
         if cat $f | grep $line > /dev/null ; then
-          echo "$line "
+          echo "$line"
         fi
       done
     fi
@@ -62,7 +61,7 @@ prereq_files_verbose() {
 
 # omit verbose
 prereq_files() {
-  echo `prereq_files_verbose | tr ' ' '\n' | grep -v "^\\.\+$" | sort | uniq`
+  echo $(prereq_files_verbose | grep -v "^\\.\+$" | sort | uniq)
 }
 
 # show target files to watch
