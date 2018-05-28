@@ -13,15 +13,17 @@
 # for example,
 #
 # .PHONY: ls
-# ls: ## list files
+# ls: ## list any files user demands
 # 	@ls -a | grep "^\."
 #
 # in this case, any dotfiles located in the same directory with the Makefile also will be monitored
-# since the action would print them properly
-# current directory & parent "..","." will be ignored
-# duplicates also be ignored
+#   current directory & parent "..","." will be ignored
+#   duplicates would be taken as uniqe
 
-# user's debug flag
+# DEBUG=0
+# debug flag
+# wm would print some additional info
+# it will be passed to make itself as an argument also
 echo $* | grep 'DEBUG=0' > /dev/null
 DEBUG=$?
 
