@@ -8,7 +8,7 @@
 # Confirmed functional with GNU Make 4.x on macos Sierra or Linux Mint18.x
 # modified from http://zgp.org/~dmarti/tips/automatically-run-make/#.WY6eoDeRVhE
 
-# user can add files to be monitored by "make ls"
+# user can add files to be monitored by "make ls" in Makefile
 # for example,
 #
 # .PHONY: ls
@@ -16,8 +16,8 @@
 # 	@ls -a | grep "^\."
 #
 # in this case, any dotfiles located in the same directory with the Makefile also will be monitored
-#   current directory & parent "..","." will be ignored
-#   duplicates would be taken as uniqe
+#   though current directory & parent "..","." will be ignored
+#   duplicates would be taken care of as uniqe
 
 # DEBUG=0
 # debug flag
