@@ -131,6 +131,8 @@ _wm() {
       fi
     done
   fi
+  # alternative if inotifywait was unavailable
+  # https://qiita.com/tamanobi/items/74b62e25506af394eae5
 }
 
 if echo "$-" | grep -q "i"; then
