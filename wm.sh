@@ -5,7 +5,7 @@
 # Watchify Make
 # usage:
 #   wm [Any optons that would be passed to the make]
-# Confirmed functional with GNU Make 4.x on macos Sierra & Linux Mint18.x
+# Confirmed functional with GNU Make 4.x on macos Sierra or Linux Mint18.x
 # depends on node.js(wm.js in the same directory) or fswatch
 # modified from http://zgp.org/~dmarti/tips/automatically-run-make/#.WY6eoDeRVhE
 
