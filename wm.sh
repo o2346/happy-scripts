@@ -55,8 +55,8 @@ prereq_files_verbose() {
       done
     fi
   done
-  make ls > /dev/null
-  [ $? ] && make ls
+  make ls &> /dev/null
+  [ $? = 0 ] && make ls
 }
 
 # omit verbose
