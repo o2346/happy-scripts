@@ -106,7 +106,7 @@ _wm() {
     # shebang is not valid in this condition so
     # node `dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
     fswatch -0 -x -r ./ | while read -d "" event ; do
-      echo $event | grep "Removed" > /dev/null
+      echo $event | grep " Removed " > /dev/null
       [ $? != 0 ] && echo $event | makeif $*
     done
     # https://gerolian.xyz/2015/01/14/1564/
