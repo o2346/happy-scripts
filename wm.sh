@@ -71,6 +71,8 @@ isup() {
 isevent() {
   local expr='('`prereq_files | tr ' ' '|'`')'
   cat - | awk '{print $1}' | egrep "$expr"
+  make ls &> /dev/null
+  [ $? = 0 ] && make ls
 }
 
 # execute what to do if needed
@@ -84,7 +86,8 @@ makeif() {
     make -B $*
     return 0
   fi
-  if echo $stdin | isevent > /dev/null ; then
+  events=`echo $stdin | isevent`
+  if [ -n $events ] ; then
     make $*
   fi
 }
@@ -102,7 +105,7 @@ _wm() {
     # brew install fswatch
     # shebang is not valid in this condition so
     # node `dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
-    fswatch -0x ./ | while read -d "" event ; do
+    fswatch -0x -r ./ | while read -d "" event ; do
       echo $event | makeif $*
     done
     # https://gerolian.xyz/2015/01/14/1564/
