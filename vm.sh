@@ -13,7 +13,7 @@ help() {
   printf "     --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
   printf "     --hpv=[kind] specify hypervisor with option -n.\n"
   printf "                  One of \"vboxmanage\" \"vmrun\" acceptable\n"
-  printf "     -e  [COMMAND ARGS1 2..] execute command on the guest"
+  printf "     -e  [COMMAND ARGS1 2..] execute command on the guest\n"
   printf "     -a  enable ssh & pubkey auto on the guest"
 }
 
@@ -291,7 +291,7 @@ vm() {
   if [ -n "$VBOX" ]; then
     VBOXPATH=`pwd`/`echo $VBOX | sed -e 's/^\.\///'`
 
-    while getopts iskrRD OPT
+    while getopts iskrRDe: OPT
     do
       case $OPT in
         s) echo halt Virtual Machine..
@@ -321,6 +321,10 @@ vm() {
            return 0
            ;;
         D) vboxmanage unregistervm $(basename `pwd`) --delete
+           return 0
+           ;;
+        e)
+           #vboxmanage guestcontrol "$VBOXPATH" run --exe "/bin/bash" --username mint --password "" --wait-stdout --wait-stderr -- $*
            return 0
            ;;
       esac
