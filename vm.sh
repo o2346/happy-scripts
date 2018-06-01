@@ -13,6 +13,8 @@ help() {
   printf "     --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
   printf "     --hpv=[kind] specify hypervisor with option -n.\n"
   printf "                  One of \"vboxmanage\" \"vmrun\" acceptable\n"
+  printf "     -e  [COMMAND ARGS1 2..] execute command on the guest"
+  printf "     -a  enable ssh & pubkey auto on the guest"
 }
 
 get_hpv() {
