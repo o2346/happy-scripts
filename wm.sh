@@ -5,11 +5,10 @@
 # Watchify Make
 # usage:
 #   wm [Any optons that would be passed to the make]
-# Confirmed functional with GNU Make 4.x on macos Sierra & Linux Mint18.x
-# depends on node.js(wm.js in the same directory) or fswatch
+# Confirmed functional with GNU Make 4.x on macos Sierra or Linux Mint18.x
 # modified from http://zgp.org/~dmarti/tips/automatically-run-make/#.WY6eoDeRVhE
 
-# user can add files to be monitored by "make ls"
+# user can add files to be monitored by "make ls" in Makefile
 # for example,
 #
 # .PHONY: ls
@@ -17,8 +16,8 @@
 # 	@ls -a | grep "^\."
 #
 # in this case, any dotfiles located in the same directory with the Makefile also will be monitored
-#   current directory & parent "..","." will be ignored
-#   duplicates would be taken as uniqe
+#   though current directory & parent "..","." will be ignored
+#   duplicates would be taken care of as uniqe
 
 # DEBUG=0
 # debug flag
@@ -103,14 +102,6 @@ _wm() {
     # brew install fswatch
     # shebang is not valid in this condition so
     # node `dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
-    #fswatch -0 --monitor=kqueue_monitor `prereq_files` | while read -d "" event ; do
-    #  if echo $event | grep -i 'makefile' > /dev/null ;then
-    #    make -B $*
-    #  else
-    #    makeif $*
-    #  fi
-    #done
-    # read current dir, how to call makeif, ommit some options
     fswatch -0x ./ | while read -d "" event ; do
       echo $event | makeif $*
     done
@@ -131,6 +122,8 @@ _wm() {
       fi
     done
   fi
+  # alternative if inotifywait was unavailable
+  # https://qiita.com/tamanobi/items/74b62e25506af394eae5
 }
 
 if echo "$-" | grep -q "i"; then
