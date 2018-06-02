@@ -87,7 +87,6 @@ makeif() {
     return 0
   fi
   events=`echo $stdin | isevent`
-	echo events=$events
   if [ -n "$events" ] ; then
     make $*
   fi
