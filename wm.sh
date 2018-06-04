@@ -105,7 +105,7 @@ _wm() {
     # brew install fswatch
     # shebang is not valid in this condition so
     # node `dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
-    fswatch -0 -x -r ./ | while read -d "" event ; do
+    fswatch -0 -x -r -m kqueue_monitor ./ | while read -d "" event ; do
       echo $event | grep " Removed " > /dev/null
       [ $? != 0 ] && echo $event | makeif $*
     done
