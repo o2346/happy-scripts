@@ -92,20 +92,22 @@ makeif() {
   fi
 }
 
-TIMEOUT=`mktemp`
-echo "console.log( Date.now() );" | node > $TIMEOUT
+gettime() {
+  echo "console.log( Date.now() );" | node
+}
+TIMEOUT=`gettime`
 isTimeout() {
-  local now=`echo "console.log( Date.now() );" | node`
-  local til=`cat $TIMEOUT`
-  #echo til=$((til + 300))
+  local now=`gettime`
+  #echo '----'
+  #echo tmo=$TIMEOUT
   #echo now=$now
   #echo file=$TIMEOUT
-  if [ "$now" -gt "$((til + 300))" ]; then
+  if [ "$now" -gt "$TIMEOUT" ]; then
     #echo timeout [ $TIMEOUT ]
-    echo "$now" > $TIMEOUT
+    TIMEOUT=$((now + 400))
     return 0
   else
-    #echo NOT timeout [ $TIMEOUT ]
+    # echo NOT timeout yet
     return 1
   fi
 }
