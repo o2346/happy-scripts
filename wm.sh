@@ -92,6 +92,24 @@ makeif() {
   fi
 }
 
+TIMEOUT=`mktemp`
+echo "console.log( Date.now() );" | node > $TIMEOUT
+isTimeout() {
+  local now=`echo "console.log( Date.now() );" | node`
+  local til=`cat $TIMEOUT`
+  #echo til=$((til + 300))
+  #echo now=$now
+  #echo file=$TIMEOUT
+  if [ "$now" -gt "$((til + 300))" ]; then
+    #echo timeout [ $TIMEOUT ]
+    echo "$now" > $TIMEOUT
+    return 0
+  else
+    #echo NOT timeout [ $TIMEOUT ]
+    return 1
+  fi
+}
+
 # main func
 _wm() {
 
@@ -106,7 +124,9 @@ _wm() {
     # shebang is not valid in this condition so
     # node `dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
     fswatch -0 -x -r -m kqueue_monitor ./ | while read -d "" event ; do
-      echo $event | grep " Attrib" > /dev/null
+      #echo $event | egrep " Attrib" > /dev/null
+      [ $DEBUG = 0 ] && echo $event
+      isTimeout
       [ $? = 0 ] && echo $event | makeif $*
     done
     # https://gerolian.xyz/2015/01/14/1564/
