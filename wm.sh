@@ -104,7 +104,7 @@ isTimeout() {
   #echo file=$TIMEOUT
   if [ "$now" -gt "$TIMEOUT" ]; then
     #echo timeout [ $TIMEOUT ]
-    TIMEOUT=$((now + 400))
+    TIMEOUT=$((now + 350))
     return 0
   else
     # echo NOT timeout yet
