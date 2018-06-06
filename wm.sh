@@ -123,19 +123,12 @@ _wm() {
     # you may need to install beforehand
     # brew install make --with-default-names ## you would like newer version
     # brew install fswatch
-    # shebang is not valid in this condition so
-    # node `dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
     fswatch -0 -x -r -m kqueue_monitor ./ | while read -d "" event ; do
-      #echo $event | egrep " Attrib" > /dev/null
-      [ $DEBUG = 0 ] && echo $event
       isTimeout
       [ $? = 0 ] && echo $event | makeif $*
     done
     # https://gerolian.xyz/2015/01/14/1564/
   else
-    # node.js version
-    #`dirname $0`/wm.js "`pwd`" "`prereq_files`" "$*"
-
     # https://www.ibm.com/developerworks/jp/linux/library/l-inotify/index.html
     # https://web.chaperone.jp/w/index.php?inotify-tools
     inotifywait -mr -e ATTRIB --format '%w%f %e' ./ | while [ 1 ]; do
