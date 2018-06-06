@@ -125,8 +125,7 @@ _wm() {
     # brew install fswatch
     fswatch -0 -x -r -m kqueue_monitor ./ | while read -d "" event ; do
       [ -d "$(echo $event | awk '{print $1}')" ] && continue
-      isTimeout
-      [ $? = 0 ] && echo $event | makeif $*
+      isTimeout; [ $? = 0 ] && echo $event | makeif $*
     done
     # https://gerolian.xyz/2015/01/14/1564/
   else
