@@ -93,14 +93,15 @@ makeif() {
 }
 
 gettime() {
-  echo "console.log( Date.now() );" | node
+  #echo "console.log( Date.now() );" | node
+  echo "import time; print int(round(time.time() * 1000))" | python
 }
 TIMEOUT=`gettime`
 isTimeout() {
   local now=`gettime`
   if [ "$now" -gt "$TIMEOUT" ]; then
     #echo timeout [ $TIMEOUT ]
-    TIMEOUT=$((now + 400))
+    TIMEOUT=$((now + 600))
     return 0
   else
     #echo NOT timeout yet
