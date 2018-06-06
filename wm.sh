@@ -92,11 +92,14 @@ makeif() {
   fi
 }
 
+#msec
 gettime() {
   #echo "console.log( Date.now() );" | node
   echo "import time; print int(round(time.time() * 1000))" | python
 }
+
 TIMEOUT=`gettime`
+
 isTimeout() {
   local now=`gettime`
   if [ "$now" -gt "$TIMEOUT" ]; then
