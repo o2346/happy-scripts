@@ -104,7 +104,7 @@ isTimeout() {
   #echo file=$TIMEOUT
   if [ "$now" -gt "$TIMEOUT" ]; then
     #echo timeout [ $TIMEOUT ]
-    TIMEOUT=$((now + 350))
+    TIMEOUT=$((now + 400))
     return 0
   else
     # echo NOT timeout yet
@@ -124,6 +124,7 @@ _wm() {
     # brew install make --with-default-names ## you would like newer version
     # brew install fswatch
     fswatch -0 -x -r -m kqueue_monitor ./ | while read -d "" event ; do
+      [ -d "$(echo $event | awk '{print $1}')" ] && continue
       isTimeout
       [ $? = 0 ] && echo $event | makeif $*
     done
