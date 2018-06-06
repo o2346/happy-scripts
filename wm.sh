@@ -98,16 +98,12 @@ gettime() {
 TIMEOUT=`gettime`
 isTimeout() {
   local now=`gettime`
-  #echo '----'
-  #echo tmo=$TIMEOUT
-  #echo now=$now
-  #echo file=$TIMEOUT
   if [ "$now" -gt "$TIMEOUT" ]; then
     #echo timeout [ $TIMEOUT ]
     TIMEOUT=$((now + 400))
     return 0
   else
-    # echo NOT timeout yet
+    #echo NOT timeout yet
     return 1
   fi
 }
