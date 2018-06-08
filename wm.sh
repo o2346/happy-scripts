@@ -126,7 +126,7 @@ _wm() {
     fswatch -0 -x -r --exclude=.git/ -m kqueue_monitor ./ | cat | while read -d "" event ; do
       [ -d "$(echo $event | awk '{print $1}')" ] && continue
       isTimeout; [ $? = 0 ] && echo $event | makeif $*
-      isTimeout
+      isTimeout & wait
     done
     # https://gerolian.xyz/2015/01/14/1564/
   else
