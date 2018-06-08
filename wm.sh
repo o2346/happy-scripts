@@ -104,7 +104,7 @@ isTimeout() {
   local now=`gettime`
   if [ "$now" -gt "$TIMEOUT" ]; then
     #echo timeout [ $TIMEOUT ]
-    TIMEOUT=$((now + 600))
+    TIMEOUT=$((now + 900))
     return 0
   else
     #echo NOT timeout yet
@@ -123,7 +123,7 @@ _wm() {
     # you may need to install beforehand
     # brew install make --with-default-names ## you would like newer version
     # brew install fswatch
-    fswatch -0 -x -r -m kqueue_monitor ./ | while read -d "" event ; do
+    fswatch -0 -x -r --exclude=.git/ -m kqueue_monitor ./ | while read -d "" event ; do
       [ -d "$(echo $event | awk '{print $1}')" ] && continue
       isTimeout; [ $? = 0 ] && echo $event | makeif $*
     done
