@@ -123,9 +123,10 @@ _wm() {
     # you may need to install beforehand
     # brew install make --with-default-names ## you would like newer version
     # brew install fswatch
-    fswatch -0 -x -r --exclude=.git/ -m kqueue_monitor ./ | while read -d "" event ; do
+    fswatch -0 -x -r --exclude=.git/ -m kqueue_monitor ./ | cat | while read -d "" event ; do
       [ -d "$(echo $event | awk '{print $1}')" ] && continue
       isTimeout; [ $? = 0 ] && echo $event | makeif $*
+      isTimeout
     done
     # https://gerolian.xyz/2015/01/14/1564/
   else
