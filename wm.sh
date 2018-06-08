@@ -93,19 +93,18 @@ makeif() {
 }
 
 #msec
-gettime() {
-  #echo "console.log( Date.now() );" | node
-  #echo "import time; print int(round(time.time() * 1000))" | python
-  echo $SECONDS
-}
+#gettime() {
+#  #echo "console.log( Date.now() );" | node
+#  #echo "import time; print int(round(time.time() * 1000))" | python
+#  echo $SECONDS
+#}
 
-TIMEOUT=`gettime`
+TIMEOUT=$SECONDS
 
 isTimeout() {
-  local now=`gettime`
-  if [ "$now" -gt "$TIMEOUT" ]; then
+  if [ "$SECONDS" -gt "$TIMEOUT" ]; then
     #echo timeout [ $TIMEOUT ]
-    TIMEOUT=$((now + 0))
+    TIMEOUT=$((SECONDS + 1))
     return 0
   else
     #echo NOT timeout yet
