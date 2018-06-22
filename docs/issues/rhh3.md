@@ -8,7 +8,7 @@
 |Category|<!-- optional -->|
 |Target version|<!-- optional, any of git tags recommended -->|
 |Start date|2018-06-01|
-|Due date|2018-06-08|
+|Due date|2018-07-31|
 |estimated|16hours|
 |% Done|10%|
 |worked|1hours|
@@ -17,6 +17,7 @@
 
 wrap command to do subject
 option candidate: `-a`
+vm?
 
 ## Related to
 
