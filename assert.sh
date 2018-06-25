@@ -22,12 +22,16 @@ assert() {
 
 . $1
 
-set | grep 'on_' | awk '{print $1}' | while read cmd; do
+exit_code=0
+
+while read cmd; do
   eval $cmd
   affirmative=$?
   printf ' -- '$cmd'\n'
-  [ "$affirmative" != 0 ] && cat $_diff >&2
-done
+  [ "$affirmative" != 0 ] && cat $_diff >&2 && ((exit_code++))
+done < <(set | grep 'on_' | awk '{print $1}')
+
+exit $exit_code
 
 # test.sh
 # #!/bin/bash
