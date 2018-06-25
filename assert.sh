@@ -1,6 +1,15 @@
 #!/bin/bash
 
-_diff=`mktemp`
+tmpdir=`mktemp -d`
+trap "rm -rf $tmpdir" 0 1 2 3
+
+#mktemp At Exit
+mktempae() {
+  local tmp=`mktemp $tmpdir/assert.XXXXXX`
+  echo $tmp
+}
+
+_diff=`mktempae`
 
 # assert arg1 arg2
 assert() {
@@ -9,14 +18,18 @@ assert() {
   else
     [ "$1" = "$2" ]
   fi
+
   local _is_affirmative=$?
-  #"\e[29;1m`basename ${WD}`\e[m  \e[37;4m${WD}\e[m\n"
+
   local _ok="\e[32;1m[_____ok]\e[m"
   local _failure="\e[31;1m[FAILURE]\e[m"
-  [ "$_is_affirmative" = 0 ] && printf $_ok || printf $_failure
-  if [ "$_is_affirmative" != 0 ]; then
-    local _1=`mktemp`
-    local _2=`mktemp`
+
+  if [ "$_is_affirmative" = 0 ]; then
+    printf $_ok
+  else
+    printf $_failure
+    local _1=`mktempae`
+    local _2=`mktempae`
     local cmd=`[ -f "$1" ] && echo 'cat' || echo 'echo'`
     $cmd $1 > $_1
     $cmd $2 > $_2
