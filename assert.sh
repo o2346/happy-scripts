@@ -51,8 +51,7 @@ done < <(set | grep 'on_' | awk '{print $1}')
 
 exit $exit_code
 
-# test.sh
-# #!/bin/bash
+#!/bin/bash
 # on_func1() {
 #   assert hoge fuga
 # }
@@ -67,3 +66,11 @@ exit $exit_code
 #     echo hoge fuga\
 #   `"
 # }
+# on_func4() {
+#   local a=`mktemp`
+#   local b=`mktemp`
+#   printf 'hoge' > $a
+#   printf 'hoge' > $b
+#   assert $a $b
+# }
+# 
