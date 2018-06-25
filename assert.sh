@@ -43,11 +43,14 @@ assert() {
 exit_code=0
 
 while read cmd; do
-  eval $cmd
+  #filter a func directly defined in arg script
+  cat $1 | grep $cmd > /dev/null || continue
+
+  $cmd
   is_affirmative=$?
   printf ' -- '$cmd'\n'
   [ "$is_affirmative" != 0 ] && cat $_diff >&2 && ((exit_code++))
-done < <(set | grep 'on_' | awk '{print $1}')
+done < <(set | grep -e '^on_' | awk '{print $1}')
 
 exit $exit_code
 
