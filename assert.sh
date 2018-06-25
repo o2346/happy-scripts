@@ -1,6 +1,6 @@
 #!/bin/bash
 
-tmpdir=`mktemp -d`
+tmpdir=`[ -d /dev/shm ] && mktemp -d /dev/shm/assert.XXXXXX || mktemp -d`
 trap "rm -rf $tmpdir" 0 1 2 3
 
 #mktemp At Exit
