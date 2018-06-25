@@ -4,7 +4,11 @@ _diff=`mktemp`
 
 # assert arg1 arg2
 assert() {
-  [ "$1" = "$2" ]
+  if [ -f "$1" ]; then
+    diff $1 $2 > /dev/null
+  else
+    [ "$1" = "$2" ]
+  fi
   local _is_affirmative=$?
   #"\e[29;1m`basename ${WD}`\e[m  \e[37;4m${WD}\e[m\n"
   local _ok="\e[32;1m[_____ok]\e[m"
@@ -13,8 +17,9 @@ assert() {
   if [ "$_is_affirmative" != 0 ]; then
     local _1=`mktemp`
     local _2=`mktemp`
-    echo $1 > $_1
-    echo $2 > $_2
+    local cmd=`[ -f "$1" ] && echo 'cat' || echo 'echo'`
+    $cmd $1 > $_1
+    $cmd $2 > $_2
     diff $_1 $_2 > $_diff
   fi
   return $_is_affirmative
