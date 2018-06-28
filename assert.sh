@@ -15,6 +15,8 @@ _diff=`mktempae`
 assert() {
   if [ -f "$1" ]; then
     diff $1 $2 > /dev/null
+  elif [ $# != 2 ]; then
+    [ $# = 2 ]
   else
     [ "$1" = "$2" ]
   fi
