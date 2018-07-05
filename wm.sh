@@ -34,13 +34,13 @@ make_prereqs() {
   # Make "make" figure out what files it's interested in.
   echo "Makefile"
   make -dnr $* | tr ' ' '\n' | \
-      grep ".*'.$" | grep -o '\w.*\b' | sed "s/'\.//"
+      grep ".*'.$" | grep -o '\w.*\b' | sed "s/'\.//" | sort -u
 }
 
 prereq_files_verbose() {
   # prerequisites mentioned in a Makefile
   # that are extant files
-  for f in `make_prereqs $* | sort -u`; do
+  for f in `make_prereqs $*`; do
     if [ -f $f ]; then
       echo "$f"
 
@@ -48,9 +48,8 @@ prereq_files_verbose() {
       # If they ware actually exists.
       # This may cause of slow
       find . -type f -follow -print | sed -e 's/^\.\///g' | while read line; do
-        if cat $f | grep $line > /dev/null ; then
-          echo "$line"
-        fi
+        cat $f | grep "$line" > /dev/null
+        [ "$?" = 0 ] && echo "$line"
       done
     fi
   done
@@ -104,7 +103,7 @@ TIMEOUT=$SECONDS
 isTimeout() {
   if [ "$SECONDS" -gt "$TIMEOUT" ]; then
     #echo timeout [ $TIMEOUT ]
-    TIMEOUT=$((SECONDS + 1))
+    TIMEOUT=$((SECONDS + 5))
     return 0
   else
     #echo NOT timeout yet
@@ -123,9 +122,10 @@ _wm() {
     # you may need to install beforehand
     # brew install make --with-default-names ## you would like newer version
     # brew install fswatch
-    fswatch -0 -x -r --exclude=.git/ -m kqueue_monitor ./ | cat | while read -d "" event ; do
+    fswatch -0 -x -r --exclude=.git/ ./ | cat | while read -d "" event ; do
+      echo [event]=$event
       [ -d "$(echo $event | awk '{print $1}')" ] && continue
-      isTimeout; [ $? = 0 ] && echo $event | makeif $*
+      isTimeout; if [ $? = 0 ]; then echo $event | makeif $*; fi
       isTimeout & wait
     done
     # https://gerolian.xyz/2015/01/14/1564/
