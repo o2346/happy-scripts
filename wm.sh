@@ -47,10 +47,9 @@ prereq_files_verbose() {
       # file names defined in the target source like #include "hoge.h" also should be a target
       # If they ware actually exists.
       # This may cause of slow
-      find . -type f -follow -print | sed -e 's/^\.\///g' | while read line; do
-        cat $f | grep "$line" > /dev/null
-        [ "$?" = 0 ] && echo "$line"
-      done
+      tree -f |
+      sed -e 's/^.*\.\///' |
+      if [ "$(cat $f | grep "$line" > /dev/null)" ]; then echo "$line"; else :; fi
     fi
   done
   make ls &> /dev/null
@@ -123,7 +122,6 @@ _wm() {
     # brew install make --with-default-names ## you would like newer version
     # brew install fswatch
     fswatch -0 -x -r --exclude=.git/ ./ | cat | while read -d "" event ; do
-      echo [event]=$event
       [ -d "$(echo $event | awk '{print $1}')" ] && continue
       isTimeout; if [ $? = 0 ]; then echo $event | makeif $*; fi
       isTimeout & wait
