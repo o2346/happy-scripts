@@ -113,7 +113,7 @@ isTimeout() {
 # main func
 _wm() {
 
-  echo '[ '`prereq_files | tr ' ' ','`' ]'
+  #echo '[ '`prereq_files | tr ' ' ','`' ]'
   # the first time execution
   make $*
 
