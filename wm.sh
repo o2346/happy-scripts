@@ -49,7 +49,7 @@ prereq_files_verbose() {
       # This may cause of slow
       tree -f              |
       sed -e 's/^.*\.\///' |
-      if [ "$(cat $f | grep "$line" > /dev/null)" ]; then echo "$line"; else :; fi
+      cat -
     fi
   done
   make ls &> /dev/null
