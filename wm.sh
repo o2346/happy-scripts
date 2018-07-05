@@ -102,7 +102,7 @@ TIMEOUT=$SECONDS
 isTimeout() {
   if [ "$SECONDS" -gt "$TIMEOUT" ]; then
     #echo timeout [ $TIMEOUT ]
-    TIMEOUT=$((SECONDS + 5))
+    TIMEOUT=$((SECONDS + 2))
     return 0
   else
     #echo NOT timeout yet
