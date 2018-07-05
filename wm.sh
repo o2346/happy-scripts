@@ -47,7 +47,7 @@ prereq_files_verbose() {
       # file names defined in the target source like #include "hoge.h" also should be a target
       # If they ware actually exists.
       # This may cause of slow
-      tree -f |
+      tree -f              |
       sed -e 's/^.*\.\///' |
       if [ "$(cat $f | grep "$line" > /dev/null)" ]; then echo "$line"; else :; fi
     fi
