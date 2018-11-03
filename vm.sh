@@ -201,16 +201,29 @@ get_argvname() {
   done
 }
 
+aws_profile=`echo $* | tr ' ' '\n' | grep -e '--profile=' | sed 's/--profile=//'`
+
+delete_security_group() {
+  aws $aws_profile ec2 delete-security-group --group-name $1
+}
+
 operation_aws() {
-  local profile=`echo $* | tr ' ' '\n' | grep -e '--profile=' | sed 's/--profile=//'`
   # if ec2 was unreachable, return as an error
-  aws $profile ec2 describe-instances > /dev/null || return 1
+  echo $1 > vmname
+  aws $aws_profile ec2 describe-instances > /dev/null || return 1
+  aws $aws_profile ec2 create-security-group \
+  --description "dedicated for instance $1. ask the user who create this, he may not need this anymore" \
+  --group-name "$1" \
+  > ./securitygroup
+  aws ec2 describe-security-groups --group-names $1
+  echo $*
   #aws ec2 run-instances    \
   #--image-id $ami_id  \
   #--count 1                \
   #--instance-type t2.micro \
   #--key-name $keypair      \
   #--security-groups $securitygroup
+  delete_security_group $1
 }
 
 newvm() {
