@@ -203,9 +203,15 @@ get_argvname() {
 
 aws_profile=`echo $* | tr ' ' '\n' | grep -e '--profile=' | sed 's/--profile=//'`
 
-delete_security_group() {
-  aws $aws_profile ec2 delete-security-group --group-name $1
+delete_instance() {
+  aws $aws_profile ec2 delete-security-group --group-name `cat vmname`
+  aws ec2 $aws_profile delete-key-pair --key-name  `cat vmname`
 }
+
+ip_permissions() {
+  echo '[{"IpProtocol": "tcp", "FromPort": '$1', "ToPort": '$1', "IpRanges": [{"CidrIp": "'`curl -s http://checkip.amazonaws.com/`'/32", "Description": "ask user"}]}]'
+}
+
 
 operation_aws() {
   # if ec2 was unreachable, return as an error
@@ -215,15 +221,25 @@ operation_aws() {
   --description "dedicated for instance $1. ask the user who create this, he may not need this anymore" \
   --group-name "$1" \
   > ./securitygroup
-  aws ec2 describe-security-groups --group-names $1
+  aws ec2 $aws_profile describe-security-groups --group-names $1
+  local ami=`aws ec2 $aws_profile describe-images --owners amazon --filters 'Name=name,Values=amzn-ami-hvm-????.??.?.x86_64-gp2' 'Name=state,Values=available' | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId'`
+  aws ec2 $aws_profile create-key-pair --key-name $1 > keypair.json
+
+  echo "console.log( JSON.parse( process.argv[ 2 ] ).KeyMaterial );" |
+  node - "`cat keypair.json`" > key_rsa
+
+  echo $ami
   echo $*
   #aws ec2 run-instances    \
-  #--image-id $ami_id  \
+  #--image-id $ami \
   #--count 1                \
   #--instance-type t2.micro \
-  #--key-name $keypair      \
-  #--security-groups $securitygroup
-  delete_security_group $1
+  #--key-name $1      \
+  #--security-groups $securitygroup \
+  #> ec2.instance
+  #
+  aws ec2 $aws_profile describe-key-pairs
+  delete_instance $1
 }
 
 newvm() {
@@ -369,6 +385,33 @@ vm() {
     return 0
   fi
 
+  ec2=`find . -maxdepth 1 -name ec2.instance` 2> /dev/null
+
+  if [ -n "$ec2" ]; then
+    echo 'ec2'
+
+    while getopts iskrDe: OPT
+    do
+      case $OPT in
+        s) echo halt Virtual Machine..
+           return 0
+           ;;
+        k) echo kill Virtual Machine..
+           return 0
+           ;;
+        r) echo restart Virtual Machine..
+           return 0
+           ;;
+        i)
+           return 0
+           ;;
+        D) delete_instance $*
+           return 0
+           ;;
+        *) ;;
+      esac
+    done
+  fi
 }
 
 while getopts hn: 2> /dev/null OPT
