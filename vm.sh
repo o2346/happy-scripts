@@ -21,7 +21,7 @@ help() {
 get_hpv() {
   which $1 > /dev/null && echo "operation_$1" && return 0
   local _default='qemu-system-x86_64'
-  which "$_default" > /dev/null && echo "Operation_$_default" && return 0
+  which "$_default" > /dev/null && echo "operation_$_default" && return 0
   return 1
 }
 
@@ -201,12 +201,18 @@ get_argvname() {
   done
 }
 
+operation_aws() {
+  echo 'aws called!!'
+  echo $*
+}
+
 newvm() {
-  local arghpv=`get_arghpv $*`
+  local arghpv=`get_arghpv $* | awk '{print $1}'`
   [ -z "`get_hpv $arghpv 2> /dev/null`" ] && echo "no hypervisor found" >&2 && return 1
   local vname=$(get_vmname `get_argvname $*`)
   local operation_cmd="`get_hpv $arghpv`"
-  $operation_cmd "$vname" "$1"
+  echo $operation_cmd
+  $operation_cmd "$vname" "$*"
 }
 
 # start Virtual Machine
