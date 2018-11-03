@@ -269,6 +269,9 @@ operation_aws() {
   #aws ec2 $aws_profile describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id`
   aws ec2 $aws_profile describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
 
+  #https://stackoverflow.com/questions/35772757/how-to-rename-ec2-instance-name
+  aws $aws_profile ec2 create-tags --resources `cat instance.id` --tag "Key=Name,Value=$1"
+
   while true
   do
     ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa 'uname' 2> /dev/null
