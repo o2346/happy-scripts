@@ -201,7 +201,7 @@ get_argvname() {
   done
 }
 
-aws_profile=`echo $* | tr ' ' '\n' | grep -e '--profile=' | sed 's/--profile=//'`
+aws_profile=`echo $* | tr ' ' '\n' | grep -e '--profile=' | tr '=' ' '`
 
 delete_instance() {
   aws $aws_profile ec2 delete-security-group --group-name `cat vmname`
@@ -212,6 +212,17 @@ ip_permissions() {
   echo '[{"IpProtocol": "tcp", "FromPort": '$1', "ToPort": '$1', "IpRanges": [{"CidrIp": "'`curl -s http://checkip.amazonaws.com/`'/32", "Description": "ask user"}]}]'
 }
 
+get_security_id() {
+  local id=$(echo "console.log( JSON.parse( process.argv[ 2 ] ).GroupId );" | node - "`cat securitygroup`")
+  echo $id
+}
+
+auth() {
+  aws $aws_profile ec2                        \
+  authorize-security-group-ingress            \
+  --group-id `get_security_id`                \
+  --ip-permissions "`ip_permissions $1`"
+}
 
 operation_aws() {
   # if ec2 was unreachable, return as an error
@@ -221,6 +232,11 @@ operation_aws() {
   --description "dedicated for instance $1. ask the user who create this, he may not need this anymore" \
   --group-name "$1" \
   > ./securitygroup
+
+  auth 80
+  auth 443
+  auth 22 
+
   aws ec2 $aws_profile describe-security-groups --group-names $1
   local ami=`aws ec2 $aws_profile describe-images --owners amazon --filters 'Name=name,Values=amzn-ami-hvm-????.??.?.x86_64-gp2' 'Name=state,Values=available' | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId'`
   aws ec2 $aws_profile create-key-pair --key-name $1 > keypair.json
