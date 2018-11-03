@@ -236,8 +236,10 @@ auth() {
 
 operation_aws() {
   cd `mktemp -d`
+  pwd
   # if ec2 was unreachable, return as an error
   echo $1 > vmname
+  echo $1
   aws $aws_profile ec2 describe-instances > /dev/null || return 1
   aws $aws_profile ec2 create-security-group \
   --description "dedicated for instance $1. ask the user who create this, he may not need this anymore" \
@@ -274,14 +276,13 @@ operation_aws() {
 
   while true
   do
-    ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa 'uname' 2> /dev/null
+    ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa 'uname' > /dev/null 2>&1
     [ "$?" = 0 ] && break
     sleep 1
   done
   echo "\"ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa\" to ssh the one"
   #aws ec2 $aws_profile describe-key-pairs
   #delete_instance $1
-  pwd
   exec $SHELL
 }
 
