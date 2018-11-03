@@ -202,8 +202,15 @@ get_argvname() {
 }
 
 operation_aws() {
-  echo 'aws called!!'
-  echo $* | tr ' ' '\n' | grep -e '--profile=' | sed 's/--profile=//'
+  local profile=`echo $* | tr ' ' '\n' | grep -e '--profile=' | sed 's/--profile=//'`
+  # if ec2 was unreachable, return as an error
+  aws $profile ec2 describe-instances > /dev/null || return 1
+  #aws ec2 run-instances    \
+  #--image-id $ami_id  \
+  #--count 1                \
+  #--instance-type t2.micro \
+  #--key-name $keypair      \
+  #--security-groups $securitygroup
 }
 
 newvm() {
