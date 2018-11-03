@@ -126,11 +126,12 @@ operation_vmrun() {
   fi
 
   # Name of predefined resource files
+  local boilerplate_name="vmx_boilerplate"
   local srcname="struct_vmx"
 
   # get predefined resource files
   local getsrc() {
-    src="$HOME/Downloads/$srcname"
+    local src="/var/tmp/$boilerplate_name"
     if [ -d $src ]; then
       cwd=`pwd`
       cd $src
@@ -171,7 +172,7 @@ operation_vmrun() {
 
   local VMX=`getinstance $*`
   vmrun -T $HOST start $VMX
-  echo $instancedir
+  #echo $instancedir
   # http://d.hatena.ne.jp/kitokitoki/20120101/p2
   cd $instancedir
   #echo "vmrun -T $HOST -gu USER -gp PASSWORD runProgramInGuest ./`ls | grep .vmx$` CMMAND"
