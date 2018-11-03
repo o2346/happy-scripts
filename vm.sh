@@ -203,7 +203,7 @@ get_argvname() {
 
 operation_aws() {
   echo 'aws called!!'
-  echo $*
+  echo $* | tr ' ' '\n' | grep -e '--profile=' | sed 's/--profile=//'
 }
 
 newvm() {
@@ -211,7 +211,6 @@ newvm() {
   [ -z "`get_hpv $arghpv 2> /dev/null`" ] && echo "no hypervisor found" >&2 && return 1
   local vname=$(get_vmname `get_argvname $*`)
   local operation_cmd="`get_hpv $arghpv`"
-  echo $operation_cmd
   $operation_cmd "$vname" "$*"
 }
 
