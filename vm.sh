@@ -102,7 +102,9 @@ operation_vboxmanage() {
   #currdir=`pwd`
   cd $targetdir && vm
   echo $targetdir
-  #cd $currdir
+  # http://d.hatena.ne.jp/kitokitoki/20120101/p2
+  exec $SHELL
+  return 0
 }
 
 # create new vm of VMWare player with some spec
@@ -168,6 +170,10 @@ operation_vmrun() {
   local VMX=`getinstance $*`
   vmrun -T $HOST start $VMX
   echo $instancedir
+  # http://d.hatena.ne.jp/kitokitoki/20120101/p2
+  cd $instancedir
+  exec $SHELL
+  return 0
 }
 
 get_vmname() {
