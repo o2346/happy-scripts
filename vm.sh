@@ -96,8 +96,9 @@ operation_vboxmanage() {
 
   VBoxManage storageattach "$uuid" --storagectl "ide" \
     --port 0 --device 0 --type hdd --medium "$hddname"
+  local medium=`echo $* | tr ' ' '\n' | grep -e '.iso$' | tail -1`
   VBoxManage storageattach "$uuid" --storagectl "ide" \
-    --port 1 --device 0 --type dvddrive --medium $2
+    --port 1 --device 0 --type dvddrive --medium "$medium"
   #vboxmanage modifyvm "$1" --macaddress1 XXXXXXXXXXXX
   #currdir=`pwd`
   cd $targetdir && vm
