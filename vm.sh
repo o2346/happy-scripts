@@ -205,7 +205,15 @@ aws_profile=`echo $* | tr ' ' '\n' | grep -e '--profile=' | tr '=' ' '`
 
 delete_instance() {
   aws $aws_profile ec2 terminate-instances --instance-ids `cat instance.id`
-  aws $aws_profile ec2 delete-security-group --group-name `cat vmname`
+
+  while true
+  do
+    #[ $(aws $aws_profile ec2 delete-security-group --group-name `cat vmname`) > /dev/null ] && break
+    local is_deleted=$(aws $aws_profile ec2 delete-security-group --group-name `cat vmname` 2>&1 | grep 'does not exist'; printf "$?")
+    echo $is_deleted
+    [ "$is_deleted" = "0" ] && echo $? || echo $?
+  done
+
   aws ec2 $aws_profile delete-key-pair --key-name  `cat vmname`
 }
 
@@ -259,7 +267,12 @@ operation_aws() {
   #aws ec2 $aws_profile describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id`
   aws ec2 $aws_profile describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
 
-  ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa 'uname'; echo $?
+  while true
+  do
+    ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa 'uname' 2> /dev/null
+    [ "$?" = 0 ] && break
+    sleep 1
+  done
   #aws ec2 $aws_profile describe-key-pairs
   #delete_instance $1
 }
