@@ -164,7 +164,8 @@ operation_vmrun() {
     rename "s/$srcname/$1/" $instancedir/*
 
     vmx="$instancedir/$1.vmx"
-    sed -i 's|/dev/null/dummy.iso|'$2'|g' $vmx # ofcourse it must be replaced with proper name..
+    local medium=`echo $* | tr ' ' '\n' | grep -e '.iso$' | tail -1`
+    sed -i 's|/dev/null/dummy.iso|'$medium'|g' $vmx # ofcourse it must be replaced with proper name..
     echo $vmx
   }
 
