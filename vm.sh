@@ -15,6 +15,7 @@ help() {
   printf "                  One of \"vboxmanage\" \"vmrun\" acceptable\n"
   printf "     -e  [COMMAND ARGS1 2..] execute command on the guest\n"
   printf "     -a  enable ssh & pubkey auto on the guest"
+  printf "     -S  switch Persistent mode(only for vmware)"
 }
 
 get_hpv() {
