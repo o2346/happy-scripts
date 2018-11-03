@@ -234,6 +234,7 @@ auth() {
 }
 
 operation_aws() {
+  cd `mktemp -d`
   # if ec2 was unreachable, return as an error
   echo $1 > vmname
   aws $aws_profile ec2 describe-instances > /dev/null || return 1
@@ -273,15 +274,22 @@ operation_aws() {
     [ "$?" = 0 ] && break
     sleep 1
   done
+  echo "\"ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa\" to ssh the one"
   #aws ec2 $aws_profile describe-key-pairs
   #delete_instance $1
+  pwd
+  exec $SHELL
 }
 
 newvm() {
   local arghpv=`get_arghpv $* | awk '{print $1}'`
   [ -z "`get_hpv $arghpv 2> /dev/null`" ] && echo "no hypervisor found" >&2 && return 1
   local vname=$(get_vmname `get_argvname $*`)
-  local operation_cmd="`get_hpv $arghpv`"
+  if [ "$1" = "ec2" ]; then
+    local operation_cmd='operation_aws'
+  else
+    local operation_cmd="`get_hpv $arghpv`"
+  fi
   $operation_cmd "$vname" "$*"
 }
 
@@ -423,8 +431,6 @@ vm() {
   ec2=`find . -maxdepth 1 -name ec2.instance` 2> /dev/null
 
   if [ -n "$ec2" ]; then
-    echo 'ec2'
-
     while getopts iskrDe: OPT
     do
       case $OPT in
