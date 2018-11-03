@@ -14,8 +14,8 @@ help() {
   printf "     --hpv=[kind] specify hypervisor with option -n.\n"
   printf "                  One of \"vboxmanage\" \"vmrun\" acceptable\n"
   printf "     -e  [COMMAND ARGS1 2..] execute command on the guest\n"
-  printf "     -a  enable ssh & pubkey auto on the guest"
-  printf "     -S  switch Persistent mode(only for vmware)"
+  printf "     -a  enable ssh & pubkey auto on the guest\n"
+  printf "     -S  switch Persistent mode(only for vmware)\n"
 }
 
 get_hpv() {
@@ -213,6 +213,7 @@ newvm() {
 # start Virtual Machine
 vm() {
 
+
   VMX=`find . -maxdepth 1 -name *.vmx` 2> /dev/null
 
   if [ -n "$VMX" ]; then
@@ -344,18 +345,19 @@ vm() {
     return 0
   fi
 
-  while getopts hn: OPT
-  do
-    case $OPT in
-      h)  help
-          return 0
-          ;;
-      n)  newvm $OPTARG $*
-          exit 0
-          ;;
-    esac
-  done
-
 }
 
+while getopts hn: OPT
+do
+  case $OPT in
+    h)  help
+        return 0
+        ;;
+    n)  newvm $OPTARG $*
+        exit 0
+        ;;
+  esac
+done
+
 vm $*
+
