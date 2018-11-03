@@ -209,9 +209,9 @@ delete_instance() {
   while true
   do
     #[ $(aws $aws_profile ec2 delete-security-group --group-name `cat vmname`) > /dev/null ] && break
-    local is_deleted=$(aws $aws_profile ec2 delete-security-group --group-name `cat vmname` 2>&1 | grep 'does not exist'; printf "$?")
-    echo $is_deleted
-    [ "$is_deleted" = "0" ] && echo $? || echo $?
+    aws $aws_profile ec2 delete-security-group --group-name `cat vmname` 2> /dev/null
+    [ "`aws ec2 describe-security-groups | grep $(cat vmname) 2> /dev/null`" ] || break
+    sleep 2
   done
 
   aws ec2 $aws_profile delete-key-pair --key-name  `cat vmname`
