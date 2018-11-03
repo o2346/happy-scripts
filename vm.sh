@@ -235,25 +235,25 @@ operation_aws() {
 
   auth 80
   auth 443
-  auth 22 
+  auth 22
 
   aws ec2 $aws_profile describe-security-groups --group-names $1
   local ami=`aws ec2 $aws_profile describe-images --owners amazon --filters 'Name=name,Values=amzn-ami-hvm-????.??.?.x86_64-gp2' 'Name=state,Values=available' | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId'`
+  #local ami=ami-00f9d04b3b3092052
   aws ec2 $aws_profile create-key-pair --key-name $1 > keypair.json
 
   echo "console.log( JSON.parse( process.argv[ 2 ] ).KeyMaterial );" |
   node - "`cat keypair.json`" > key_rsa
+  chmod 600 key_rsa
 
-  echo $ami
-  echo $*
-  #aws ec2 run-instances    \
-  #--image-id $ami \
-  #--count 1                \
-  #--instance-type t2.micro \
-  #--key-name $1      \
-  #--security-groups $securitygroup \
-  #> ec2.instance
-  #
+  aws ec2 run-instances               \
+  --image-id $ami                     \
+  --count 1                           \
+  --instance-type t2.micro            \
+  --key-name $1                       \
+  --security-groups $1 \
+  > ec2.instance
+
   aws ec2 $aws_profile describe-key-pairs
   delete_instance $1
 }
