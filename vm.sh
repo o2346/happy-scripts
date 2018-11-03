@@ -19,18 +19,10 @@ help() {
 }
 
 get_hpv() {
-  if [ -n "`which $1`" ] && [ $1 = "vmrun" ]; then
-    echo "vmx" && return 0
-  fi
-  if [ -n "`which $1`" ] && [ $1 = "vboxmanage" ]; then
-    echo "vbox" && return 0
-  fi
-  if [ -n "`which vmrun`" ] && [ -n "`which vmrun | grep -v 'not found'`" ]; then
-    echo "vmx" && return 0
-  fi
-  if [ -n "`which vboxmanage`" ] && [ -n "`which vboxmanage | grep -v 'not found'`" ]; then
-    echo "vbox" && return 0
-  fi
+  which $1 > /dev/null && echo "operation_$1" && return 0
+  local _default='qemu-system-x86_64'
+  which "$_default" > /dev/null && echo "Operation_$_default" && return 0
+  return 1
 }
 
 getramsizemb() {
@@ -58,10 +50,10 @@ getEthFace() {
 # https://nakkaya.com/2012/08/30/create-manage-virtualBox-vms-from-the-command-line/
 # create new vm of VirtualBox with some spec
 # usage:
-#  new_vbox VMNAME PATH_TO_LIVECD_DVD.iso
+#  operation_vboxmanage VMNAME PATH_TO_LIVECD_DVD.iso
 # depends on:
 #  vboxmanage
-new_vbox() {
+operation_vboxmanage() {
   ethface=`getEthFace`
 
   # http://zeblog.co/?p=390
@@ -115,7 +107,7 @@ new_vbox() {
 
 # create new vm of VMWare player with some spec
 # usage:
-#  new_vmx VMNAME PATH_TO_LIVECD_DVD.iso
+#  operation_vmrun VMNAME PATH_TO_LIVECD_DVD.iso
 # depends on:
 #  vmrun
 #  repo in gist (means also network)
@@ -123,7 +115,7 @@ new_vbox() {
 # Fusion7 can't handle the resource files created by newer version of Player which is 12
 # And it requires to buy newer one
 # Why do I have to do something special further for "Fusion" so foolishly
-new_vmx() {
+operation_vmrun() {
   if [ "$(uname)" = 'Darwin' ]; then
     local HOST="fusion"
   else
@@ -206,8 +198,8 @@ newvm() {
   local arghpv=`get_arghpv $*`
   [ -z "`get_hpv $arghpv 2> /dev/null`" ] && echo "no hypervisor found" >&2 && return 1
   local vname=$(get_vmname `get_argvname $*`)
-  local new_cmd="new_`get_hpv $arghpv`"
-  $new_cmd "$vname" "$1"
+  local operation_cmd="`get_hpv $arghpv`"
+  $operation_cmd "$vname" "$1"
 }
 
 # start Virtual Machine
@@ -347,7 +339,7 @@ vm() {
 
 }
 
-while getopts hn: OPT
+while getopts hn: 2> /dev/null OPT
 do
   case $OPT in
     h)  help
