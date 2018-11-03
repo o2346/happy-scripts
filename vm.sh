@@ -172,6 +172,7 @@ operation_vmrun() {
   echo $instancedir
   # http://d.hatena.ne.jp/kitokitoki/20120101/p2
   cd $instancedir
+  #echo "vmrun -T $HOST -gu USER -gp PASSWORD runProgramInGuest ./`ls | grep .vmx$` CMMAND"
   exec $SHELL
   return 0
 }
