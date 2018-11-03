@@ -204,6 +204,7 @@ get_argvname() {
 aws_profile=`echo $* | tr ' ' '\n' | grep -e '--profile=' | tr '=' ' '`
 
 delete_instance() {
+  aws $aws_profile ec2 terminate-instances --instance-ids `cat instance.id`
   aws $aws_profile ec2 delete-security-group --group-name `cat vmname`
   aws ec2 $aws_profile delete-key-pair --key-name  `cat vmname`
 }
@@ -237,7 +238,7 @@ operation_aws() {
   auth 443
   auth 22
 
-  aws ec2 $aws_profile describe-security-groups --group-names $1
+  #aws ec2 $aws_profile describe-security-groups --group-names $1
   local ami=`aws ec2 $aws_profile describe-images --owners amazon --filters 'Name=name,Values=amzn-ami-hvm-????.??.?.x86_64-gp2' 'Name=state,Values=available' | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId'`
   #local ami=ami-00f9d04b3b3092052
   aws ec2 $aws_profile create-key-pair --key-name $1 > keypair.json
@@ -254,8 +255,13 @@ operation_aws() {
   --security-groups $1 \
   > ec2.instance
 
-  aws ec2 $aws_profile describe-key-pairs
-  delete_instance $1
+  cat ec2.instance | grep InstanceId | sed -e 's/"InstanceId"://' | sed -e 's/[", ]//g' > instance.id
+  #aws ec2 $aws_profile describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id`
+  aws ec2 $aws_profile describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
+
+  ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa 'uname'; echo $?
+  #aws ec2 $aws_profile describe-key-pairs
+  #delete_instance $1
 }
 
 newvm() {
