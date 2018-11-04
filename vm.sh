@@ -20,9 +20,9 @@ help() {
 }
 
 get_hpv() {
-  which $1 > /dev/null && echo "operation_$1" && return 0
+  which $1 > /dev/null && echo "new_instance_$1" && return 0
   local _default='qemu-system-x86_64'
-  which "$_default" > /dev/null && echo "operation_$_default" && return 0
+  which "$_default" > /dev/null && echo "new_instance_$_default" && return 0
   return 1
 }
 
@@ -49,7 +49,7 @@ getEthFace() {
 }
 
 #https://fosspost.org/tutorials/use-qemu-test-operating-systems-distributions
-operation_qemu-system-x86_64() {
+new_instance_qemu-system-x86_64() {
   cd `mktemp -d`
   pwd
   local medium=`echo $* | tr ' ' '\n' | grep -e '.iso$' | tail -1`
@@ -90,10 +90,10 @@ operation_qemu-system-x86_64() {
 # https://nakkaya.com/2012/08/30/create-manage-virtualBox-vms-from-the-command-line/
 # create new vm of VirtualBox with some spec
 # usage:
-#  operation_vboxmanage VMNAME PATH_TO_LIVECD_DVD.iso
+#  new_instance_vboxmanage VMNAME PATH_TO_LIVECD_DVD.iso
 # depends on:
 #  vboxmanage
-operation_vboxmanage() {
+new_instance_vboxmanage() {
   ethface=`getEthFace`
 
   # http://zeblog.co/?p=390
@@ -150,7 +150,7 @@ operation_vboxmanage() {
 
 # create new vm of VMWare player with some spec
 # usage:
-#  operation_vmrun VMNAME PATH_TO_LIVECD_DVD.iso
+#  new_instance_vmrun VMNAME PATH_TO_LIVECD_DVD.iso
 # depends on:
 #  vmrun
 #  repo in gist (means also network)
@@ -158,7 +158,7 @@ operation_vboxmanage() {
 # Fusion7 can't handle the resource files created by newer version of Player which is 12
 # And it requires to buy newer one
 # Why do I have to do something special further for "Fusion" so foolishly
-operation_vmrun() {
+new_instance_vmrun() {
   if [ "$(uname)" = 'Darwin' ]; then
     local HOST="fusion"
   else
@@ -276,7 +276,7 @@ auth() {
   --ip-permissions "`ip_permissions $1`"
 }
 
-operation_aws() {
+new_instance_aws() {
   cd `mktemp -d`
   pwd
   # if ec2 was unreachable, return as an error
@@ -333,11 +333,11 @@ newvm() {
   [ -z "`get_hpv $arghpv 2> /dev/null`" ] && echo "no hypervisor found" >&2 && return 1
   local vname=$(get_vmname `get_argvname $*`)
   if [ "$1" = "ec2" ]; then
-    local operation_cmd='operation_aws'
+    local new_instance_cmd='new_instance_aws'
   else
-    local operation_cmd="`get_hpv $arghpv`"
+    local new_instance_cmd="`get_hpv $arghpv`"
   fi
-  $operation_cmd "$vname" "$*"
+  $new_instance_cmd "$vname" "$*"
 }
 
 # start Virtual Machine
