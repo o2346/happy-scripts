@@ -10,7 +10,7 @@ help() {
   printf "     -k  kill vm\n"
   printf "     -D  delete vm\n"
   printf "     -n  [DISTRIBUSION.iso] create new instance from given image\n"
-  printf "         for aws ec2, 'vm -n ec2 [--profile=YOURS]'\n"
+  printf "         for aws ec2, 'vm -n awsec2 [--profile=YOURS]'\n"
   printf "     --hpv=[kind] specify hypervisor with option -n.\n"
   printf "         One of \"kvm\" \"vboxmanage\" \"vmrun\" acceptable\n"
   printf "     --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
@@ -332,7 +332,7 @@ newvm() {
   local arghpv=`get_arghpv $* | awk '{print $1}'`
   [ -z "`get_hpv $arghpv 2> /dev/null`" ] && echo "no hypervisor found" >&2 && return 1
   local vname=$(get_vmname `get_argvname $*`)
-  if [ "$1" = "ec2" ]; then
+  if [ `echo $* | grep awsec2` ]; then
     local new_instance_cmd='new_instance_aws'
   else
     local new_instance_cmd="`get_hpv $arghpv`"
