@@ -21,12 +21,12 @@ help() {
 
 get_hpv() {
   which $1 > /dev/null && echo "operation_$1" && return 0
-  local _default='kvm'
+  local _default='qemu-system-x86_64'
   which "$_default" > /dev/null && echo "operation_$_default" && return 0
   return 1
 }
 
-getramsizemb() {
+get_host_ram_size() {
   if [ "$(uname)" = 'Darwin' ]; then
     #Memory: 16 GB
     system_profiler SPHardwareDataType | grep 'Memory:' | sed -e 's/GB/000/' | tr -dc 0-9
@@ -46,6 +46,37 @@ getEthFace() {
       fi
     done
   fi
+}
+
+#https://fosspost.org/tutorials/use-qemu-test-operating-systems-distributions
+operation_qemu-system-x86_64() {
+  cd `mktemp -d`
+  pwd
+  local medium=`echo $* | tr ' ' '\n' | grep -e '.iso$' | tail -1`
+  local memrate=8
+  local hostramsize=`get_host_ram_size`
+  local ramsize=`bc <<< "$hostramsize/$memrate"`
+  local hostcpus=`cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l`
+  local cpurate=4
+  local cpus=`bc <<< "$hostcpus/$cpurate"+1`
+  local info_file='vm.info'
+
+  echo "cpus $cpus"       >> $info_file
+  echo "ramsize $ramsize" >> $info_file
+  echo "name $1"          >> $info_file
+  echo "disk $1.img"      >> $info_file
+
+  return 0
+  qemu-img create -f qcow2 $1.img 20
+  qemu-system-x86_64                \
+    -m $ramsize                     \
+    -boot d -enable-kvm             \
+    -smp $cpus                      \
+    -net nic -net user              \
+    -hda $1.img                     \
+    -name $1 \
+    -cdrom $medium
+  exec $SHELL
 }
 
 # https://nakkaya.com/2012/08/30/create-manage-virtualBox-vms-from-the-command-line/
@@ -81,7 +112,7 @@ operation_vboxmanage() {
 
   #vboxmanage createvm --name "$1" --ostype $ostype --basefolder $targetdir
   local memrate=8
-  local hostramsize=`getramsizemb`
+  local hostramsize=`get_host_ram_size`
 
   vboxmanage modifyvm "$uuid" --memory `expr $hostramsize / $memrate` --acpi on --boot1 dvd \
     --nic1 bridged --bridgeadapter1 $ethface \
@@ -469,11 +500,12 @@ do
     h)  help
         return 0
         ;;
-    n)  newvm $OPTARG $*
+    n)  newvm $*
         exit 0
         ;;
   esac
 done
 
 vm $*
+
 
