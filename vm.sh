@@ -13,6 +13,7 @@ help() {
   printf "     --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
   printf "     --hpv=[kind] specify hypervisor with option -n.\n"
   printf "                  One of \"vboxmanage\" \"vmrun\" acceptable\n"
+  printf "         'vm -n ec2 [--profile=YOURS]' create instance in awscli"
   printf "     -e  [COMMAND ARGS1 2..] execute command on the guest\n"
   printf "     -a  enable ssh & pubkey auto on the guest\n"
   printf "     -S  switch Persistent mode(only for vmware)\n"
@@ -450,7 +451,7 @@ vm() {
         r) echo restart Virtual Machine..
            return 0
            ;;
-        i)
+        i)  aws $aws_profile ec2 describe-instances --instance-ids `cat instance.id`
            return 0
            ;;
         D) delete_instance $*
