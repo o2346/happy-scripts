@@ -10,10 +10,10 @@ help() {
   printf "     -k  kill vm\n"
   printf "     -D  delete vm\n"
   printf "     -n  [DISTRIBUSION.iso] create new instance from given image\n"
-  printf "     --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
+  printf "         for aws ec2, 'vm -n ec2 [--profile=YOURS]'\n"
   printf "     --hpv=[kind] specify hypervisor with option -n.\n"
-  printf "                  One of \"vboxmanage\" \"vmrun\" acceptable\n"
-  printf "         'vm -n ec2 [--profile=YOURS]' create instance in awscli"
+  printf "         One of \"kvm\" \"vboxmanage\" \"vmrun\" acceptable\n"
+  printf "     --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
   printf "     -e  [COMMAND ARGS1 2..] execute command on the guest\n"
   printf "     -a  enable ssh & pubkey auto on the guest\n"
   printf "     -S  switch Persistent mode(only for vmware)\n"
@@ -21,7 +21,7 @@ help() {
 
 get_hpv() {
   which $1 > /dev/null && echo "operation_$1" && return 0
-  local _default='qemu-system-x86_64'
+  local _default='kvm'
   which "$_default" > /dev/null && echo "operation_$_default" && return 0
   return 1
 }
