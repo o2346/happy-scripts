@@ -59,24 +59,29 @@ operation_qemu-system-x86_64() {
   local hostcpus=`cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l`
   local cpurate=4
   local cpus=`bc <<< "$hostcpus/$cpurate"+1`
-  local info_file='vm.info'
+  local info_file='kvm'
 
+  echo "hpv kvm"          >> $info_file
   echo "cpus $cpus"       >> $info_file
   echo "ramsize $ramsize" >> $info_file
   echo "name $1"          >> $info_file
   echo "disk $1.img"      >> $info_file
 
-  return 0
-  qemu-img create -f qcow2 $1.img 20
+  qemu-img create -f qcow2 $1.img 40G
+
+  #https://www.google.co.jp/search?num=24&safe=off&hl=en&q=kvm+qemu+fedora+29+slow&spell=1&sa=X&ved=0ahUKEwjsnLL08rneAhWiITQIHUlkDsEQBQgrKAA&biw=1918&bih=976
+  #https://www.linuxquestions.org/questions/slackware-14/qemu-qxl-vga-not-available-4175632073/, https://forums.fedoraforum.org/showthread.php?306630-QEMU-KVM-intolerably-slow
   qemu-system-x86_64                \
     -m $ramsize                     \
     -boot d -enable-kvm             \
     -smp $cpus                      \
     -net nic -net user              \
     -hda $1.img                     \
-    -name $1 \
+    -vga cirrus                     \
+    -name $1                        \
     -cdrom $medium
   exec $SHELL
+  return 0
 }
 
 # https://nakkaya.com/2012/08/30/create-manage-virtualBox-vms-from-the-command-line/
@@ -491,6 +496,42 @@ vm() {
         *) ;;
       esac
     done
+  fi
+
+  kvm=`find . -maxdepth 1 -name kvm` 2> /dev/null
+
+  if [ -n "$kvm" ]; then
+    while getopts iskrDe: OPT
+    do
+      case $OPT in
+        s) echo halt Virtual Machine..
+           return 0
+           ;;
+        k) echo kill Virtual Machine..
+           return 0
+           ;;
+        r) echo restart Virtual Machine..
+           return 0
+           ;;
+        i)
+           return 0
+           ;;
+        D) rm -i ./*
+           return 0
+           ;;
+        *)
+          return 0
+          ;;
+      esac
+    done
+    qemu-system-x86_64                                    \
+      -m `cat kvm | grep -e 'ramsize' | awk '{print $2}'` \
+      -boot c -enable-kvm                                 \
+      -smp `cat kvm | grep -e 'cpus' | awk '{print $2}'`  \
+      -net nic -net user                                  \
+      -hda `cat kvm | grep -e 'disk' | awk '{print $2}'`  \
+      -vga cirrus                                         \
+      -name `cat kvm | grep -e 'name' | awk '{print $2}'`
   fi
 }
 
