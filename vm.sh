@@ -61,23 +61,26 @@ operation_qemu-system-x86_64() {
   local cpus=`bc <<< "$hostcpus/$cpurate"+1`
   local info_file='kvm'
 
+  #https://www.google.co.jp/search?num=24&safe=off&hl=en&q=kvm+qemu+fedora+29+slow&spell=1&sa=X&ved=0ahUKEwjsnLL08rneAhWiITQIHUlkDsEQBQgrKAA&biw=1918&bih=976
+  #https://www.linuxquestions.org/questions/slackware-14/qemu-qxl-vga-not-available-4175632073/, https://forums.fedoraforum.org/showthread.php?306630-QEMU-KVM-intolerably-slow
+  local vga=$(echo $* | grep -i -e 'fedora.*\.iso' > /dev/null && echo cirrus || echo std)
+
   echo "hpv kvm"          >> $info_file
   echo "cpus $cpus"       >> $info_file
   echo "ramsize $ramsize" >> $info_file
   echo "name $1"          >> $info_file
   echo "disk $1.img"      >> $info_file
+  echo "vga $vga"         >> $info_file
 
   qemu-img create -f qcow2 $1.img 40G
 
-  #https://www.google.co.jp/search?num=24&safe=off&hl=en&q=kvm+qemu+fedora+29+slow&spell=1&sa=X&ved=0ahUKEwjsnLL08rneAhWiITQIHUlkDsEQBQgrKAA&biw=1918&bih=976
-  #https://www.linuxquestions.org/questions/slackware-14/qemu-qxl-vga-not-available-4175632073/, https://forums.fedoraforum.org/showthread.php?306630-QEMU-KVM-intolerably-slow
   qemu-system-x86_64                \
     -m $ramsize                     \
     -boot d -enable-kvm             \
     -smp $cpus                      \
     -net nic -net user              \
     -hda $1.img                     \
-    -vga cirrus                     \
+    -vga $vga                       \
     -name $1                        \
     -cdrom $medium
   exec $SHELL
@@ -530,7 +533,7 @@ vm() {
       -smp `cat kvm | grep -e 'cpus' | awk '{print $2}'`  \
       -net nic -net user                                  \
       -hda `cat kvm | grep -e 'disk' | awk '{print $2}'`  \
-      -vga cirrus                                         \
+      -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
       -name `cat kvm | grep -e 'name' | awk '{print $2}'`
   fi
 }
