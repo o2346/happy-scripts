@@ -534,7 +534,9 @@ vm() {
       -net nic -net user                                  \
       -hda `cat kvm | grep -e 'disk' | awk '{print $2}'`  \
       -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
-      -name `cat kvm | grep -e 'name' | awk '{print $2}'`
+      -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
+      -snapshot
+      #https://wiki.qemu.org/Documentation/CreateSnapshot#Temporary_snapshots
   fi
 }
 
