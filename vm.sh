@@ -147,6 +147,7 @@ new_instance_vboxmanage() {
   exec $SHELL
   return 0
 
+#VBoxManage modifymedium disk primary.4409.vdi --type immutable
 #s004 tmp_54k6ge% VBoxManage internalcommands sethduuid primary.4409.vdi
 #UUID changed to: e271b801-ca78-4024-977c-a45cd5e11380
 #s004 tmp_54k6ge%   vboxmanage modifymedium primary.4409.vdi --type immutable
