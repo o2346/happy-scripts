@@ -323,7 +323,7 @@ new_instance_aws() {
   aws ec2 run-instances               \
   --image-id $ami                     \
   --count 1                           \
-  --instance-type t2.micro            \
+  --instance-type t3.nano             \
   --key-name $1                       \
   --security-groups $1 \
   > ec2.instance
