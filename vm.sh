@@ -5,7 +5,7 @@ help() {
   printf "usage: vm [OPTONS]\n"
   printf "no args  start vm if any of such objects (like .vmx/.vbox) was found in current directory \n"
   printf "         note that disk will be immutable, all changes within running will be disposed of.\n"
-  printf "     --mutable temporarily make disk mutable and run \n"
+  printf "     -m  temporarily make disk mutable and run \n"
   printf "     -h  show this help\n"
   printf "     -i  show info\n"
   printf "     -s  shutdown vm\n"
@@ -355,11 +355,12 @@ vm() {
     else
       HOST="player"
     fi
-    # http://www.japan-secure.com/entry/how_to_add_a_snapshot_function_in_vmware_workstation_player.html
-    ENABLED=`grep -E '^scsi0:0.mode = "independent-nonpersistent' $VMX`
 
-    while getopts iskd:DlrSt:R OPT
-    do
+    # http://www.japan-secure.com/entry/how_to_add_a_snapshot_function_in_vmware_workstation_player.html
+    local isAlreadyEnabled=`grep -E '^scsi0:0.mode = "independent-nonpersistent' $VMX`
+    local isMutable=$(echo $* | grep -e '-m')
+
+    while getopts iskd:DlrSt:Rm OPT; do
       case $OPT in
         D)
             vmrun -T $HOST stop $VMX hard
@@ -372,15 +373,6 @@ vm() {
             cat $VMX | grep independent
             return 0
             ;;
-        S)  sed -i".org" -e "/^scsi0:0.mode = \"independent-nonpersistent\"$/d" $VMX
-            if [ -n "$ENABLED" ]; then
-              echo "[Persistent] machine state is being preserved"
-            else
-              echo "[NONpersistent] machine state will be desposed of at shutdown"
-              sed -ie "/^scsi0:0\.fileName/a scsi0:0.mode = \"independent-nonpersistent\"" $VMX
-            fi
-            return 0
-          ;;
         r) echo restart Virtual Machine..
           vmrun -T $HOST reset $VMX hard
           return 0
@@ -389,7 +381,7 @@ vm() {
           vmrun -T $HOST stop $VMX soft
           return 0
           ;;
-        k) echo halt Virtual Machine..
+        k) echo 'kill Virtual Machine..'
           vmrun -T $HOST stop $VMX hard
           return 0
           ;;
@@ -412,11 +404,23 @@ vm() {
         l) vmrun -T $HOST listSnapshots $VMX
           return 0
           ;;
+        m) ;;
+        *) ;;
       esac
     done
 
-    echo starting $VMX by VMWare Player
-    vmrun -T $HOST start $VMX
+    if [ -n "$isMutable" ]; then
+      sed -i '/scsi0:0.mode = \"independent-nonpersistent\"/d' $VMX
+      vmrun -T $HOST start $VMX
+      return 0
+    elif [ -n "$isAlreadyEnabled" ]; then
+      vmrun -T $HOST start $VMX
+      return 0
+    else
+      sed -ie "/^scsi0:0\.fileName/a scsi0:0.mode = \"independent-nonpersistent\"" $VMX
+      vmrun -T $HOST start $VMX
+      return 0
+    fi
     return 0
   fi
 
