@@ -507,16 +507,19 @@ vm() {
     done
   fi
 
-  kvm=`find . -maxdepth 1 -name kvm` 2> /dev/null
+  local kvm=`find . -maxdepth 1 -name kvm` 2> /dev/null
 
   if [ -n "$kvm" ]; then
-    while getopts iskrDe: OPT
+
+    local enable_mutable='-snapshot'
+
+    while getopts iskrDm OPT
     do
       case $OPT in
         s) echo halt Virtual Machine..
            return 0
            ;;
-        k) echo kill Virtual Machine..
+        k) echo 'kill Virtual Machine..'
            return 0
            ;;
         r) echo restart Virtual Machine..
@@ -528,11 +531,13 @@ vm() {
         D) rm -i ./*
            return 0
            ;;
+        m) enable_mutable=''
+          ;;
         *)
-          return 0
           ;;
       esac
     done
+
     qemu-system-x86_64                                    \
       -m `cat kvm | grep -e 'ramsize' | awk '{print $2}'` \
       -boot c -enable-kvm                                 \
@@ -541,7 +546,7 @@ vm() {
       -hda `cat kvm | grep -e 'disk' | awk '{print $2}'`  \
       -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
       -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
-      -snapshot
+      $enable_mutable
       #https://wiki.qemu.org/Documentation/CreateSnapshot#Temporary_snapshots
   fi
 }
