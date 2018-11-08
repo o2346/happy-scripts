@@ -4,6 +4,8 @@ help() {
   printf "# wrapper script of vmrun or VBoxManage\n"
   printf "usage: vm [OPTONS]\n"
   printf "no args  start vm if any of such objects (like .vmx/.vbox) was found in current directory \n"
+  printf "         note that disk will be immutable, all changes within running will be disposed of.\n"
+  printf "     --mutable temporarily make disk mutable and run \n"
   printf "     -h  show this help\n"
   printf "     -i  show info\n"
   printf "     -s  shutdown vm\n"
