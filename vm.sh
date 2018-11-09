@@ -65,7 +65,7 @@ new_instance_qemu-system-x86_64() {
 
   #https://www.google.co.jp/search?num=24&safe=off&hl=en&q=kvm+qemu+fedora+29+slow&spell=1&sa=X&ved=0ahUKEwjsnLL08rneAhWiITQIHUlkDsEQBQgrKAA&biw=1918&bih=976
   #https://www.linuxquestions.org/questions/slackware-14/qemu-qxl-vga-not-available-4175632073/, https://forums.fedoraforum.org/showthread.php?306630-QEMU-KVM-intolerably-slow
-  local vga=$(echo $* | grep -i -e 'fedora.*\.iso' > /dev/null && echo cirrus || echo std)
+  local vga=$(echo $* | grep -i -e 'fedora.*\.iso' > /dev/null && echo cirrus || echo qxl)
 
   echo "hpv kvm"          >> $info_file
   echo "cpus $cpus"       >> $info_file
