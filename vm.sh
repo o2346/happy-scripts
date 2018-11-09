@@ -74,7 +74,10 @@ new_instance_qemu-system-x86_64() {
   echo "disk $1.img"      >> $info_file
   echo "vga $vga"         >> $info_file
 
-  qemu-img create -f qcow2 $1.img 40G
+  # format consiteration
+  # https://qemu.weilnetz.de/doc/qemu-doc.html#disk_005fimages_005fformats
+  # https://research.sakura.ad.jp/2010/03/23/kvm-diskperf1/
+  qemu-img create -f vmdk $1.img 40G
 
   qemu-system-x86_64                \
     -m $ramsize                     \
