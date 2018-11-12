@@ -22,7 +22,7 @@ crap(){
   PARENT=~/Documents
   FETCH=false
 
-  while getopts cd:flsh OPT
+  while getopts cd:flshp OPT
   do
     case $OPT in
       d)  PARENT=$OPTARG
@@ -42,6 +42,8 @@ crap(){
         ;;
       f)  FETCH=true
         ;;
+      p)  PULL=true
+        ;;
       \?) help
           return 0
         ;;
@@ -58,6 +60,11 @@ crap(){
     if [ "$FETCH" = "true" ]; then
       #[ -n $(git fetch --dry-run) ] && printf "\e[37;40;5m[FETCH]\e[m \e[29;1m`basename ${WD}`\e[m =>  \e[37;4m${WD}\e[m\n"
       git fetch --dry-run
+      continue
+    fi
+
+    if [ "$PULL" = "true" ]; then
+      git pull
       continue
     fi
 
