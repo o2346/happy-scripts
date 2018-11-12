@@ -58,7 +58,6 @@ crap(){
 
 
     if [ "$FETCH" = "true" ]; then
-      #[ -n $(git fetch --dry-run) ] && printf "\e[37;40;5m[FETCH]\e[m \e[29;1m`basename ${WD}`\e[m =>  \e[37;4m${WD}\e[m\n"
       git fetch --dry-run
       continue
     fi
