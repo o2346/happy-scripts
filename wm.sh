@@ -58,7 +58,7 @@ prereq_files_verbose() {
 
 # omit verbose
 prereq_files() {
-  echo $(prereq_files_verbose | grep -v "^\\.\+$" | sort | uniq)
+  echo $(prereq_files_verbose | grep -v "^\\.\+$" | sort | uniq | grep -v 'node_modules')
 }
 
 # say something if make say like
@@ -68,9 +68,9 @@ isup() {
 
 isevent() {
   local expr='('`prereq_files | tr ' ' '|'`')'
-  cat - | awk '{print $1}' | egrep "$expr"
-  make ls &> /dev/null
-  [ $? = 0 ] && make ls
+  cat - | awk '{print $1}' | tee | egrep "$expr"
+  #make ls &> /dev/null
+  #[ $? = 0 ] && make ls
 }
 
 # execute what to do if needed
