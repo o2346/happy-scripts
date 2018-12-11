@@ -63,7 +63,7 @@ crap(){
     fi
 
     if [ "$PULL" = "true" ]; then
-      git pull
+      git pull | grep -v 'Already up to date.'
       continue
     fi
 
