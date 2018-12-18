@@ -565,7 +565,7 @@ vm() {
       -m `cat kvm | grep -e 'ramsize' | awk '{print $2}'` \
       -boot c -enable-kvm                                 \
       -smp `cat kvm | grep -e 'cpus' | awk '{print $2}'`  \
-      -net nic -net user                                  \
+      -net nic -net user                                  \ #bridge https://www.nexia.jp/server/1612/
       -hda `cat kvm | grep -e 'disk' | awk '{print $2}'`  \
       -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
       -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
