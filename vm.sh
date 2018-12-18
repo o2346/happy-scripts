@@ -565,7 +565,13 @@ vm() {
       -m `cat kvm | grep -e 'ramsize' | awk '{print $2}'` \
       -boot c -enable-kvm                                 \
       -smp `cat kvm | grep -e 'cpus' | awk '{print $2}'`  \
-      -net nic -net user                                  \ #bridge https://www.nexia.jp/server/1612/
+      -net nic -net user                                  \ 
+      # about bridge networking
+      # https://www.google.com/search?biw=2343&bih=1147&ei=hbcYXOHXF4_m8wWA9Z3YBw&q=bridge-utils+kvm+qemu&oq=bridge-utils+kvm+qemu&gs_l=psy-ab.3..0i8i30.9726.12636..12837...1.0..0.124.923.8j2......0....1..gws-wiz.......0j0i71j0i30j0i19j0i30i19j0i10i30i19j0i8i30i19j0i4i30i19j0i8i4i30i19j0i5i30i19j33i21.Ehq6Z87jTng
+      # https://www.nexia.jp/server/1612/
+      # http://www.uetyi.com/server-const/entry-1284.html
+      #https://wiki.archlinux.jp/index.php/QEMU#QEMU_.E3.81.AE_Tap_.E3.83.8D.E3.83.83.E3.83.88.E3.83.AF.E3.83.BC.E3.82.AF
+      # https://help.ubuntu.com/community/KVM/Networking
       -hda `cat kvm | grep -e 'disk' | awk '{print $2}'`  \
       -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
       -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
