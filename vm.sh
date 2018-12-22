@@ -534,7 +534,7 @@ vm() {
 
   if [ -n "$kvm" ]; then
 
-    local enable_mutable='-snapshot'
+    local temporarily='-snapshot'
 
     while getopts iskrDm OPT
     do
@@ -554,7 +554,7 @@ vm() {
         D) rm -i ./*
            return 0
            ;;
-        m) enable_mutable=''
+        m) temporarily=''
           ;;
         *)
           ;;
@@ -569,7 +569,7 @@ vm() {
       -hda `cat kvm | grep -e 'disk' | awk '{print $2}'`  \
       -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
       -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
-      $enable_mutable
+      $temporarily
       #https://wiki.qemu.org/Documentation/CreateSnapshot#Temporary_snapshots
       # about bridge networking
       # https://www.google.com/search?biw=2343&bih=1147&ei=hbcYXOHXF4_m8wWA9Z3YBw&q=bridge-utils+kvm+qemu&oq=bridge-utils+kvm+qemu&gs_l=psy-ab.3..0i8i30.9726.12636..12837...1.0..0.124.923.8j2......0....1..gws-wiz.......0j0i71j0i30j0i19j0i30i19j0i10i30i19j0i8i30i19j0i4i30i19j0i8i4i30i19j0i5i30i19j33i21.Ehq6Z87jTng
