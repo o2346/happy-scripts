@@ -3,10 +3,13 @@
 wkdir=`mktemp -d`
 
 resolve() {
+  mkdir -p $wkdir/`dirname $1`
   local underlined=`echo "$*" | sed 's/ /_/g'`
-  local name=`basename $underlined`
-  echo $wkdir/$name.mp3
+  echo $wkdir/$underlined.mp3
 }
 
-for f in **/*.{mp4,wav}; do ffmpeg -i "$f" $* "`resolve ${f%.*}`"; done
+for f in **/*.{mp4,wav}; do
+  [ -f "$f" ] || continue
+  ffmpeg -i "$f" $* "`resolve ${f%.*}`"
+done
 echo $wkdir
