@@ -118,6 +118,7 @@ new_instance_qemu-system-x86_64() {
   # sample: with kali
   # guest$ systemstl restart ssh
   # host% ssh root@localhost -p10022
+  # with fedora: systemctl start sshd.service https://docs.fedoraproject.org/ja-JP/Fedora/17/html/System_Administrators_Guide/s2-ssh-configuration-sshd.html
   #/etc/libvirt/hooks/qemu
   #run script in guest https://stackoverflow.com/questions/19118074/passing-script-to-vm-with-kvm
 }
