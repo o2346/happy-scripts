@@ -599,9 +599,9 @@ vm() {
       -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
       -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
       -usb -usbdevice tablet                              \
+      -soundhw all                                        \
       $temporarily
 
-      #-soundhw all                                        \
       # http://blog.livedoor.jp/les_paul_sp/archives/694273.html
       #https://wiki.qemu.org/Documentation/CreateSnapshot#Temporary_snapshots
       # about bridge networking
