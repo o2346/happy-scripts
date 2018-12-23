@@ -50,7 +50,23 @@ getEthFace() {
   fi
 }
 
-kvm_net_hostfwd='user,hostfwd=tcp::10022-:22'
+
+# obtain port number that is valid port number with '[random 3 digits]22' also currently unused
+get_random_ssh_port() {
+
+  which netstat > /dev/null || return 1
+
+  while true; do
+    readonly candidate=`awk -v min=100 -v max=655 'BEGIN{srand(); print int(min+rand()*(max-min+1))"22"}'`
+    netstat -lat | grep $candidate && continue
+    echo $candidate
+    break
+  done
+
+}
+
+readonly random_ssh_port=`get_random_ssh_port`
+readonly kvm_net_hostfwd="user,hostfwd=tcp::$random_ssh_port-:22"
 
 #https://fosspost.org/tutorials/use-qemu-test-operating-systems-distributions
 new_instance_qemu-system-x86_64() {
@@ -81,6 +97,7 @@ new_instance_qemu-system-x86_64() {
   # https://research.sakura.ad.jp/2010/03/23/kvm-diskperf1/
   qemu-img create -f vmdk $1.img 40G
 
+  echo "port $random_ssh_port"
   qemu-system-x86_64                 \
     -m $ramsize                      \
     -boot d -enable-kvm              \
@@ -569,16 +586,19 @@ vm() {
       esac
     done
 
+    echo "port $random_ssh_port"
     qemu-system-x86_64                                    \
       -m `cat kvm | grep -e 'ramsize' | awk '{print $2}'` \
       -boot c -enable-kvm                                 \
       -smp `cat kvm | grep -e 'cpus' | awk '{print $2}'`  \
       -net $kvm_net_hostfwd                               \
+      -net nic                                            \
       -hda `cat kvm | grep -e 'disk' | awk '{print $2}'`  \
       -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
       -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
       -usb -usbdevice tablet                              \
       $temporarily
+
       #-soundhw all                                        \
       # http://blog.livedoor.jp/les_paul_sp/archives/694273.html
       #https://wiki.qemu.org/Documentation/CreateSnapshot#Temporary_snapshots
