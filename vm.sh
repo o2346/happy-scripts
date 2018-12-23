@@ -183,24 +183,6 @@ new_instance_vboxmanage() {
   exec $SHELL
   return 0
 
-#VBoxManage modifymedium disk primary.4409.vdi --type immutable
-#s004 tmp_54k6ge% VBoxManage internalcommands sethduuid primary.4409.vdi
-#UUID changed to: e271b801-ca78-4024-977c-a45cd5e11380
-#s004 tmp_54k6ge%   vboxmanage modifymedium primary.4409.vdi --type immutable
-#s004 tmp_54k6ge% vm
-#starting /var/folders/25/_250ml790lng5pcjwjcfskr40000gn/T/tmp.YaD81u24/tmp_54k6ge/tmp_54k6ge.vbox by VirtualBox
-#s004 tmp_54k6ge% VBoxManage internalcommands sethduuid primary.4409.vdi 84f10039-f26d-4d9a-a9c0-5e7fd1202034
-#UUID changed to: 84f10039-f26d-4d9a-a9c0-5e7fd1202034
-#s004 tmp_54k6ge% vm
-#starting /var/folders/25/_250ml790lng5pcjwjcfskr40000gn/T/tmp.YaD81u24/tmp_54k6ge/tmp_54k6ge.vbox by VirtualBox
-#s004 tmp_54k6ge% vm -k
-#halt Virtual Machine..
-#0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
-#s004 tmp_54k6ge%   VBoxManage storageattach "84f10039-f26d-4d9a-a9c0-5e7fd1202034" --storagectl "ide" --port 0 --device 0 --type hdd --medium primary.4409.vdi
-#VBoxManage: error: Could not find a registered machine with UUID {84f10039-f26d-4d9a-a9c0-5e7fd1202034}
-#VBoxManage: error: Details: code VBOX_E_OBJECT_NOT_FOUND (0x80bb0001), component VirtualBoxWrap, interface IVirtualBox, callee nsISupports
-#VBoxManage: error: Context: "FindMachine(Bstr(a->argv[0]).raw(), machine.asOutParam())" at line 335 of file VBoxManageStorageController.cpp
-#s004 tmp_54k6ge%   VBoxManage storageattach "84f10039-f26d-4d9a-a9c0-5e7fd1202034" --storagectl "ide" --port 0 --device 0 --type hdd --medium primary.4409.vdi
 }
 
 # create new vm of VMWare player with some spec
