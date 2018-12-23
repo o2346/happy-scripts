@@ -109,6 +109,7 @@ new_instance_qemu-system-x86_64() {
     -hda $1.img                      \
     -vga $vga                        \
     -name $1                         \
+    -usb -usbdevice tablet           \
     -cdrom $medium
   exec $SHELL
   return 0
