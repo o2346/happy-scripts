@@ -119,6 +119,7 @@ new_instance_qemu-system-x86_64() {
   # guest$ systemstl restart ssh
   # host% ssh root@localhost -p10022
   #/etc/libvirt/hooks/qemu
+  #run script in guest https://stackoverflow.com/questions/19118074/passing-script-to-vm-with-kvm
 }
 
 # https://nakkaya.com/2012/08/30/create-manage-virtualBox-vms-from-the-command-line/
