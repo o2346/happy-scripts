@@ -79,20 +79,23 @@ new_instance_qemu-system-x86_64() {
   # https://research.sakura.ad.jp/2010/03/23/kvm-diskperf1/
   qemu-img create -f vmdk $1.img 40G
 
-  qemu-system-x86_64                \
-    -m $ramsize                     \
-    -boot d -enable-kvm             \
-    -smp $cpus                      \
+  qemu-system-x86_64                 \
+    -m $ramsize                      \
+    -boot d -enable-kvm              \
+    -smp $cpus                       \
     -net user,hostfwd=tcp::10022-:22 \
-    -net nic \
-    -hda $1.img                     \
-    -vga $vga                       \
-    -name $1                        \
+    -net nic                         \
+    -hda $1.img                      \
+    -vga $vga                        \
+    -name $1                         \
     -cdrom $medium
   exec $SHELL
   return 0
-#    -net nic -net user              \
+  # -net nic -net user              \
   # https://unix.stackexchange.com/questions/124681/how-to-ssh-from-host-to-guest-using-qemu
+  # sample: with kali
+  # guest$ systemstl restart ssh
+  # host% ssh root@localhost -p10022
 }
 
 # https://nakkaya.com/2012/08/30/create-manage-virtualBox-vms-from-the-command-line/
