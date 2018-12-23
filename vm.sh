@@ -63,6 +63,8 @@ get_random_ssh_port() {
     break
   done
 
+  return 0
+
 }
 
 readonly random_ssh_port=`get_random_ssh_port`
