@@ -50,6 +50,8 @@ getEthFace() {
   fi
 }
 
+kvm_net_hostfwd='user,hostfwd=tcp::10022-:22'
+
 #https://fosspost.org/tutorials/use-qemu-test-operating-systems-distributions
 new_instance_qemu-system-x86_64() {
   cd `mktemp -d`
@@ -83,7 +85,7 @@ new_instance_qemu-system-x86_64() {
     -m $ramsize                      \
     -boot d -enable-kvm              \
     -smp $cpus                       \
-    -net user,hostfwd=tcp::10022-:22 \
+    -net $kvm_net_hostfwd            \
     -net nic                         \
     -hda $1.img                      \
     -vga $vga                        \
@@ -571,7 +573,7 @@ vm() {
       -m `cat kvm | grep -e 'ramsize' | awk '{print $2}'` \
       -boot c -enable-kvm                                 \
       -smp `cat kvm | grep -e 'cpus' | awk '{print $2}'`  \
-      -net nic -net user                                  \
+      -net $kvm_net_hostfwd                               \
       -hda `cat kvm | grep -e 'disk' | awk '{print $2}'`  \
       -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
       -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
