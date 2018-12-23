@@ -83,13 +83,16 @@ new_instance_qemu-system-x86_64() {
     -m $ramsize                     \
     -boot d -enable-kvm             \
     -smp $cpus                      \
-    -net nic -net user              \
+    -net user,hostfwd=tcp::10022-:22 \
+    -net nic \
     -hda $1.img                     \
     -vga $vga                       \
     -name $1                        \
     -cdrom $medium
   exec $SHELL
   return 0
+#    -net nic -net user              \
+  # https://unix.stackexchange.com/questions/124681/how-to-ssh-from-host-to-guest-using-qemu
 }
 
 # https://nakkaya.com/2012/08/30/create-manage-virtualBox-vms-from-the-command-line/
@@ -569,9 +572,9 @@ vm() {
       -hda `cat kvm | grep -e 'disk' | awk '{print $2}'`  \
       -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
       -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
-      # http://blog.livedoor.jp/les_paul_sp/archives/694273.html
       -usb -usbdevice tablet                              \
       $temporarily
+      # http://blog.livedoor.jp/les_paul_sp/archives/694273.html
       #https://wiki.qemu.org/Documentation/CreateSnapshot#Temporary_snapshots
       # about bridge networking
       # https://www.google.com/search?biw=2343&bih=1147&ei=hbcYXOHXF4_m8wWA9Z3YBw&q=bridge-utils+kvm+qemu&oq=bridge-utils+kvm+qemu&gs_l=psy-ab.3..0i8i30.9726.12636..12837...1.0..0.124.923.8j2......0....1..gws-wiz.......0j0i71j0i30j0i19j0i30i19j0i10i30i19j0i8i30i19j0i4i30i19j0i8i4i30i19j0i5i30i19j33i21.Ehq6Z87jTng
