@@ -569,6 +569,8 @@ vm() {
       -hda `cat kvm | grep -e 'disk' | awk '{print $2}'`  \
       -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
       -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
+      # http://blog.livedoor.jp/les_paul_sp/archives/694273.html
+      -usb -usbdevice tablet                              \
       $temporarily
       #https://wiki.qemu.org/Documentation/CreateSnapshot#Temporary_snapshots
       # about bridge networking
