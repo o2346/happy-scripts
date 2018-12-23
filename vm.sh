@@ -118,6 +118,7 @@ new_instance_qemu-system-x86_64() {
   # sample: with kali
   # guest$ systemstl restart ssh
   # host% ssh root@localhost -p10022
+  #/etc/libvirt/hooks/qemu
 }
 
 # https://nakkaya.com/2012/08/30/create-manage-virtualBox-vms-from-the-command-line/
