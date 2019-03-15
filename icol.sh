@@ -10,7 +10,7 @@ help() {
   echo "ICOL - Issue COntrOLLer Light"
   echo "Issue management system inspired from Redmine. Git based"
   echo ""
-  echo "[ISSUE_ID]    if valid id was given, vi the target file & other options below will be ignored"
+  echo "[ISSUE_ID]    if valid id was given, echo the target file & other options below will be ignored"
   echo "-h            show this help"
   echo "-n [TITLE]    create new issue file"
   echo "-p            browse issues which state was new or in progress. "
@@ -199,7 +199,7 @@ new() {
   echo "" >> $file
   echo "---" >> $file
   echo "*this document has been generated & accessed from computer program, named \"icol\"*" >> $file
-  vi $file
+  echo $file
 }
 
 test () {
@@ -230,7 +230,7 @@ _find() {
     return 1
   fi
   cd `dirname $file`
-  vi $file
+  echo $file
   return 0
 }
 
