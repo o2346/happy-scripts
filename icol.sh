@@ -224,10 +224,9 @@ test () {
   return 0
 }
 
-compose() {
+_find() {
   local file=`find $top_dir -name $1.md`
   if [ -z "$file" ]; then
-    echo "no file found"
     return 1
   fi
   cd `dirname $file`
@@ -239,7 +238,7 @@ compose() {
 main() {
   local IDRE="^[0-9a-z]{4}$"
   if [[ $1 =~ $IDRE ]]; then
-    compose $1
+    _find $1
     return 0
   fi
 
