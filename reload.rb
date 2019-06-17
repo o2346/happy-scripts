@@ -5,6 +5,7 @@
 #'tell application "Safari" to set URL of current tab of front window to "file:///foo.html"'
 # https://coderwall.com/p/wkz4cq/reload-current-browser-tab-from-the-terminal
 # https://brettterpstra.com/2011/03/07/watch-for-file-changes-and-refresh-your-browser-automatically/
+# https://stackoverflow.com/questions/5588658/auto-reload-browser-when-i-save-changes-to-html-file-in-chrome
 trap("SIGINT") { exit }
 
 if ARGV.length < 2
