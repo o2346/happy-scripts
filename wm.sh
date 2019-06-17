@@ -146,6 +146,16 @@ _wm() {
 
 if echo "$-" | grep -q "i"; then
   :
+elif echo "$*" | grep -q '\-\-init'; then
+   
+  if [ -f "./Makefile" ]; then
+    echo "Makefile already  exists"
+    exit 1
+  else
+    echo "initiating"
+    cat `dirname "${BASH_SOURCE[0]}"`/Makefile > Makefile
+  fi
 else
   _wm $*
 fi
+
