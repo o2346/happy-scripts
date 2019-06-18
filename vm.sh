@@ -22,6 +22,7 @@ help() {
   printf "  --hpv=[kind] specify hypervisor with option -n.\n"
   printf "      One of \"kvm\" \"vboxmanage\" \"vmrun\" acceptable\n"
   printf "  --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
+  #https://serverfault.com/questions/336298/can-i-change-a-user-password-in-linux-from-the-command-line-with-no-interactivit
 #  printf "     -e  [COMMAND ARGS1 2..] execute command on the guest\n"
 #  printf "     -a  enable ssh & pubkey auto on the guest\n"
 }
@@ -104,7 +105,12 @@ new_instance_qemu-system-x86_64() {
   readonly random_ssh_port=`get_random_ssh_port`
   readonly kvm_net_hostfwd="user,hostfwd=tcp::$random_ssh_port-:22"
 
-  echo "port $random_ssh_port"
+  #echo "port $random_ssh_port"
+  printf 'on fedora: su echo root:pass | chpasswd && service sshd start\n'
+  printf 'on kali: systemctl start ssh.service\n'
+  printf "mint: sudo su; apt install -y openssh-server; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config; systemctl start ssh.service && echo root:pass | chpasswd\n"
+  printf "ssh from host: ssh root@localhost -p $random_ssh_port\n"
+
   qemu-system-x86_64                 \
     -m $ramsize                      \
     -boot d -enable-kvm              \
