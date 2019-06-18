@@ -67,9 +67,6 @@ get_random_ssh_port() {
 
 }
 
-readonly random_ssh_port=`get_random_ssh_port`
-readonly kvm_net_hostfwd="user,hostfwd=tcp::$random_ssh_port-:22"
-
 #https://fosspost.org/tutorials/use-qemu-test-operating-systems-distributions
 new_instance_qemu-system-x86_64() {
   cd `mktemp -d`
@@ -98,6 +95,9 @@ new_instance_qemu-system-x86_64() {
   # https://qemu.weilnetz.de/doc/qemu-doc.html#disk_005fimages_005fformats
   # https://research.sakura.ad.jp/2010/03/23/kvm-diskperf1/
   qemu-img create -f vmdk $1.img 40G
+
+  readonly random_ssh_port=`get_random_ssh_port`
+  readonly kvm_net_hostfwd="user,hostfwd=tcp::$random_ssh_port-:22"
 
   echo "port $random_ssh_port"
   qemu-system-x86_64                 \
@@ -595,6 +595,9 @@ vm() {
           ;;
       esac
     done
+
+    readonly random_ssh_port=`get_random_ssh_port`
+    readonly kvm_net_hostfwd="user,hostfwd=tcp::$random_ssh_port-:22"
 
     echo "port $random_ssh_port"
     qemu-system-x86_64                                    \
