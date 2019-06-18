@@ -315,8 +315,6 @@ auth() {
 }
 
 new_instance_aws() {
-  echo $*
-  exit 0
   cd `mktemp -d`
   pwd
   # if ec2 was unreachable, return as an error
@@ -335,16 +333,23 @@ new_instance_aws() {
   #aws ec2 $aws_profile describe-security-groups --group-names $1
   #local ami=`aws ec2 $aws_profile describe-images --owners amazon --filters 'Name=name,Values=amzn-ami-hvm-????.??.?.x86_64-gp2' 'Name=state,Values=available' | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId'`
   # https://gist.github.com/nikolay/12f4ca2a592bbfa0df57c3bbccb92f0f
-  local ami=`aws ec2 describe-images                                \
-    --owners amazon                                                 \
-    --filters                                                       \
-      'Name=name,Values=amzn-ami-hvm-????.??.?.????????-x86_64-gp2' \
-      'Name=state,Values=available'                                 \
-      'Name=architecture,Values=x86_64'                             \
-      'Name=virtualization-type,Values=hvm'                         \
-      'Name=root-device-type,Values=ebs'                            \
-    --query 'sort_by(Images, &CreationDate)[-1].ImageId' | tr -d '"' \
-  `
+
+  if [ `echo $* | grep '\-\-ami' > /dev/null; echo $?` = 0 ]; then
+    local readonly ami=`echo $* | tr ' ' '\n' | grep '\-\-ami' | sed -e 's/--ami=//'`
+  else
+    local readonly ami=`aws ec2 describe-images                       \
+      --owners amazon                                                 \
+      --filters                                                       \
+        'Name=name,Values=amzn-ami-hvm-????.??.?.????????-x86_64-gp2' \
+        'Name=state,Values=available'                                 \
+        'Name=architecture,Values=x86_64'                             \
+        'Name=virtualization-type,Values=hvm'                         \
+        'Name=root-device-type,Values=ebs'                            \
+      --query 'sort_by(Images, &CreationDate)[-1].ImageId' | tr -d '"' \
+    `
+  fi
+  echo $ami
+  exit 0
   #local ami=ami-00f9d04b3b3092052
   aws ec2 $aws_profile create-key-pair --key-name $1 > keypair.json
 
