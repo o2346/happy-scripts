@@ -13,7 +13,7 @@ help() {
   printf "     -t  terminate instance(EC2 only)\n"
   printf "     -D  delete vm\n"
   printf "     -n  [DISTRIBUSION.iso] create new instance from given image\n"
-  printf "         for aws ec2, 'vm -n awsec2 [--profile=YOURS]'\n"
+  printf "         for aws ec2, 'vm -n ec2 [--profile=YOURS]'\n"
   printf "     --hpv=[kind] specify hypervisor with option -n.\n"
   printf "         One of \"kvm\" \"vboxmanage\" \"vmrun\" acceptable\n"
   printf "     --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
@@ -321,7 +321,7 @@ auth() {
 }
 
 # to create instance from 2016.9,
-# vm -n awsec2 --ami=ami-0c11b26d
+# vm -n ec2 --ami=ami-0c11b26d
 new_instance_aws() {
   cd `mktemp -d`
   pwd
@@ -356,6 +356,8 @@ new_instance_aws() {
       --query 'sort_by(Images, &CreationDate)[-1].ImageId' | tr -d '"' \
     `
   fi
+  # for amazon linux 2
+  # https://aws.amazon.com/amazon-linux-2/release-notes
   aws ec2 $aws_profile create-key-pair --key-name $1 > keypair.json
 
   echo "console.log( JSON.parse( process.argv[ 2 ] ).KeyMaterial );" |
@@ -404,7 +406,7 @@ newvm() {
   local arghpv=`get_arghpv $* | awk '{print $1}'`
   [ -z "`get_hpv $arghpv 2> /dev/null`" ] && echo "no hypervisor found" >&2 && return 1
   local vname=$(get_vmname `get_argvname $*`)
-  if [ "`echo $* | grep 'awsec2' > /dev/null; echo $?`" = 0 ]; then
+  if [ "`echo $* | grep 'ec2' > /dev/null; echo $?`" = 0 ]; then
     echo $*
     local new_instance_cmd='new_instance_aws'
   else
