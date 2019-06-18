@@ -282,6 +282,7 @@ get_argvname() {
 }
 
 aws_profile=`echo $* | tr ' ' '\n' | grep -e '--profile=' | tr '=' ' '`
+aws_retry_sec=3
 
 delete_instance() {
   aws $aws_profile ec2 terminate-instances --instance-ids `cat instance.id`
@@ -291,7 +292,7 @@ delete_instance() {
     #[ $(aws $aws_profile ec2 delete-security-group --group-name `cat vmname`) > /dev/null ] && break
     aws $aws_profile ec2 delete-security-group --group-name `cat vmname` 2> /dev/null
     [ "`aws ec2 describe-security-groups | grep $(cat vmname) 2> /dev/null`" ] || break
-    sleep 2
+    sleep $aws_retry_sec
   done
 
   aws ec2 $aws_profile delete-key-pair --key-name  `cat vmname`
@@ -349,20 +350,30 @@ new_instance_aws() {
 
   cat ec2.instance | grep InstanceId | sed -e 's/"InstanceId"://' | sed -e 's/[", ]//g' > instance.id
   #aws ec2 $aws_profile describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id`
-  aws ec2 $aws_profile describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
+  #aws ec2 $aws_profile describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
 
   #https://stackoverflow.com/questions/35772757/how-to-rename-ec2-instance-name
   aws $aws_profile ec2 create-tags --resources `cat instance.id` --tag "Key=Name,Value=$1"
 
+  echo 'trying to connect..'
   while true
   do
+    aws ec2 $aws_profile describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
+    if [ ! `cat ipv4  | egrep '([0-9]+\.){3}[0-9]+$'` ]; then
+      echo 'no ip address obtained. trying again..'
+      sleep $aws_retry_sec
+      continue
+    fi
     ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa 'uname' > /dev/null 2>&1
     [ "$?" = 0 ] && break
-    sleep 1
+    sleep $aws_retry_sec
+    echo retrying.. >&2
   done
-  echo "\"ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa\" to ssh the one"
+
+  #echo "\"ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa\" to ssh the one"
   #aws ec2 $aws_profile describe-key-pairs
   #delete_instance $1
+  ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa
   exec $SHELL
 }
 
