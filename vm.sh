@@ -285,6 +285,10 @@ get_argvname() {
 aws_profile=`echo $* | tr ' ' '\n' | grep -e '--profile=' | tr '=' ' '`
 aws_retry_sec=3
 
+list_running_instances() {
+  echo "JSON.parse( '"`aws ec2 describe-instances --filters='Name=instance-state-name,Values=running'`"' ).Reservations.forEach( ( r ) => { r.Instances.forEach( ( i ) => { console.log( i.KeyName ); } ) } );" | node -
+}
+
 delete_instance() {
   aws $aws_profile ec2 terminate-instances --instance-ids `cat instance.id`
 
@@ -297,6 +301,7 @@ delete_instance() {
   done
 
   aws ec2 $aws_profile delete-key-pair --key-name  `cat vmname`
+  list_running_instances
 }
 
 ip_permissions() {
@@ -563,6 +568,8 @@ vm() {
 #           return 0
 #           ;;
         i)  aws $aws_profile ec2 describe-instances --instance-ids `cat instance.id`
+           echo 'all running instances:'
+           list_running_instances
            return 0
            ;;
         D) delete_instance $*
@@ -575,7 +582,6 @@ vm() {
       esac
     done
   fi
-
   local kvm=`find . -maxdepth 1 -name kvm` 2> /dev/null
 
   if [ -n "$kvm" ]; then
