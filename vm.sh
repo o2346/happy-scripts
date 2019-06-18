@@ -108,6 +108,7 @@ new_instance_qemu-system-x86_64() {
   #echo "port $random_ssh_port"
   printf 'on fedora: su echo root:pass | chpasswd && service sshd start\n'
   printf 'on kali: systemctl start ssh.service\n'
+  #https://www.liquidweb.com/kb/enable-root-login-via-ssh/
   printf "mint: sudo su; echo root:pass | chpasswd; apt install -y openssh-server; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config; systemctl start ssh.service\n"
   printf "ssh from host: ssh root@localhost -p $random_ssh_port\n"
 
