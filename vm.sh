@@ -348,7 +348,7 @@ new_instance_aws() {
     local readonly ami=`aws ec2 describe-images                       \
       --owners amazon                                                 \
       --filters                                                       \
-        'Name=name,Values=amzn-ami-hvm-????.??.?.????????-x86_64-gp2' \
+        'Name=name,Values=amzn-ami-hvm-?*-x86_64-gp2' \
         'Name=state,Values=available'                                 \
         'Name=architecture,Values=x86_64'                             \
         'Name=virtualization-type,Values=hvm'                         \
