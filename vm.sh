@@ -342,13 +342,14 @@ new_instance_aws() {
   #local ami=`aws ec2 $aws_profile describe-images --owners amazon --filters 'Name=name,Values=amzn-ami-hvm-????.??.?.x86_64-gp2' 'Name=state,Values=available' | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId'`
   # https://gist.github.com/nikolay/12f4ca2a592bbfa0df57c3bbccb92f0f
 
+  local readonly amazon_linux_version=`echo $* | tr ' ' '\n' | egrep '\-\-AmazonLinux' | sed 's/[^0-9]//g' | tr -d '\n'`
   if [ `echo $* | grep '\-\-ami' > /dev/null; echo $?` = 0 ]; then
     local readonly ami=`echo $* | tr ' ' '\n' | grep '\-\-ami' | sed -e 's/--ami=//'`
   else
     local readonly ami=`aws ec2 describe-images                       \
       --owners amazon                                                 \
       --filters                                                       \
-        'Name=name,Values=amzn-ami-hvm-?*-x86_64-gp2' \
+        'Name=name,Values=amzn'$amazon_linux_version'-ami-hvm-?*-x86_64-gp2' \
         'Name=state,Values=available'                                 \
         'Name=architecture,Values=x86_64'                             \
         'Name=virtualization-type,Values=hvm'                         \
@@ -407,7 +408,6 @@ newvm() {
   [ -z "`get_hpv $arghpv 2> /dev/null`" ] && echo "no hypervisor found" >&2 && return 1
   local vname=$(get_vmname `get_argvname $*`)
   if [ "`echo $* | grep 'ec2' > /dev/null; echo $?`" = 0 ]; then
-    echo $*
     local new_instance_cmd='new_instance_aws'
   else
     local new_instance_cmd="`get_hpv $arghpv`"
