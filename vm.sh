@@ -10,6 +10,7 @@ help() {
   printf "     -i  show info\n"
   printf "     -s  shutdown vm\n"
   printf "     -k  kill vm\n"
+  printf "     -t  terminate instance(EC2 only)\n"
   printf "     -D  delete vm\n"
   printf "     -n  [DISTRIBUSION.iso] create new instance from given image\n"
   printf "         for aws ec2, 'vm -n awsec2 [--profile=YOURS]'\n"
@@ -314,6 +315,8 @@ auth() {
   --ip-permissions "`ip_permissions $1`"
 }
 
+# to create instance from 2016.9,
+# vm -n awsec2 --ami=ami-0c11b26d
 new_instance_aws() {
   cd `mktemp -d`
   pwd
@@ -348,9 +351,6 @@ new_instance_aws() {
       --query 'sort_by(Images, &CreationDate)[-1].ImageId' | tr -d '"' \
     `
   fi
-  echo $ami
-  exit 0
-  #local ami=ami-00f9d04b3b3092052
   aws ec2 $aws_profile create-key-pair --key-name $1 > keypair.json
 
   echo "console.log( JSON.parse( process.argv[ 2 ] ).KeyMaterial );" |
@@ -373,7 +373,7 @@ new_instance_aws() {
   #https://stackoverflow.com/questions/35772757/how-to-rename-ec2-instance-name
   aws $aws_profile ec2 create-tags --resources `cat instance.id` --tag "Key=Name,Value=$1"
 
-  echo 'trying to connect..'
+  #echo 'trying to connect..' >&2
   while true
   do
     aws ec2 $aws_profile describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
@@ -385,7 +385,7 @@ new_instance_aws() {
     ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa 'uname' > /dev/null 2>&1
     [ "$?" = 0 ] && break
     sleep $aws_retry_sec
-    echo retrying.. >&2
+    #echo retrying.. >&2
   done
 
   #echo "\"ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa\" to ssh the one"
@@ -550,22 +550,25 @@ vm() {
   ec2=`find . -maxdepth 1 -name ec2.instance` 2> /dev/null
 
   if [ -n "$ec2" ]; then
-    while getopts iskrDe: OPT
+    while getopts iskrDte: OPT
     do
       case $OPT in
-        s) echo halt Virtual Machine..
-           return 0
-           ;;
-        k) echo kill Virtual Machine..
-           return 0
-           ;;
-        r) echo restart Virtual Machine..
-           return 0
-           ;;
+#        s) echo halt Virtual Machine..
+#           return 0
+#           ;;
+#        k) echo kill Virtual Machine..
+#           return 0
+#           ;;
+#        r) echo restart Virtual Machine..
+#           return 0
+#           ;;
         i)  aws $aws_profile ec2 describe-instances --instance-ids `cat instance.id`
            return 0
            ;;
         D) delete_instance $*
+           return 0
+           ;;
+        t) delete_instance $*
            return 0
            ;;
         *) ;;
