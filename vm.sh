@@ -14,10 +14,11 @@ help() {
   printf "     -D  delete vm\n"
   printf "     -n  [DISTRIBUSION.iso] create new instance from given image\n"
   printf "         for aws ec2, 'vm -n ec2 [--profile=YOURS]'\n"
+  printf "         give '--AmazonLinux2' if you prefer that version'\n"
   printf "     --hpv=[kind] specify hypervisor with option -n.\n"
   printf "         One of \"kvm\" \"vboxmanage\" \"vmrun\" acceptable\n"
   printf "     --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
-  printf "     -e  [COMMAND ARGS1 2..] execute command on the guest\n"
+#  printf "     -e  [COMMAND ARGS1 2..] execute command on the guest\n"
   printf "     -a  enable ssh & pubkey auto on the guest\n"
   printf "     -S  switch Persistent mode(only for vmware)\n"
 }
