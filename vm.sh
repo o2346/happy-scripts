@@ -331,7 +331,18 @@ new_instance_aws() {
   auth 22
 
   #aws ec2 $aws_profile describe-security-groups --group-names $1
-  local ami=`aws ec2 $aws_profile describe-images --owners amazon --filters 'Name=name,Values=amzn-ami-hvm-????.??.?.x86_64-gp2' 'Name=state,Values=available' | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId'`
+  #local ami=`aws ec2 $aws_profile describe-images --owners amazon --filters 'Name=name,Values=amzn-ami-hvm-????.??.?.x86_64-gp2' 'Name=state,Values=available' | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId'`
+  # https://gist.github.com/nikolay/12f4ca2a592bbfa0df57c3bbccb92f0f
+  local ami=`aws ec2 describe-images                                \
+    --owners amazon                                                 \
+    --filters                                                       \
+      'Name=name,Values=amzn-ami-hvm-????.??.?.????????-x86_64-gp2' \
+      'Name=state,Values=available'                                 \
+      'Name=architecture,Values=x86_64'                             \
+      'Name=virtualization-type,Values=hvm'                         \
+      'Name=root-device-type,Values=ebs'                            \
+    --query 'sort_by(Images, &CreationDate)[-1].ImageId' | tr -d '"' \
+  `
   #local ami=ami-00f9d04b3b3092052
   aws ec2 $aws_profile create-key-pair --key-name $1 > keypair.json
 
