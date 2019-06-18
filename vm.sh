@@ -315,6 +315,8 @@ auth() {
 }
 
 new_instance_aws() {
+  echo $*
+  exit 0
   cd `mktemp -d`
   pwd
   # if ec2 was unreachable, return as an error
@@ -392,7 +394,8 @@ newvm() {
   local arghpv=`get_arghpv $* | awk '{print $1}'`
   [ -z "`get_hpv $arghpv 2> /dev/null`" ] && echo "no hypervisor found" >&2 && return 1
   local vname=$(get_vmname `get_argvname $*`)
-  if [ `echo $* | grep awsec2` ]; then
+  if [ "`echo $* | grep 'awsec2' > /dev/null; echo $?`" = 0 ]; then
+    echo $*
     local new_instance_cmd='new_instance_aws'
   else
     local new_instance_cmd="`get_hpv $arghpv`"
