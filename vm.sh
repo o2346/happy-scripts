@@ -1,7 +1,8 @@
 #!/bin/zsh
 
 help() {
-  printf "# wrapper script of vmrun or VBoxManage\n"
+  printf "# wrapper script of Virtual Machines Operation\n"
+  printf "# wraps vmrun VBoxManage, quemu, aws ec2\n"
   printf "usage: vm [OPTONS]\n"
   printf "no args  start vm if any of such objects (like .vmx/.vbox) was found in current directory \n"
   printf "         note that disk will be immutable, all changes within running will be disposed of (except vboxmanage)\n"
@@ -11,16 +12,18 @@ help() {
   printf "     -s  shutdown vm\n"
   printf "     -k  kill vm\n"
   printf "     -t  terminate instance(EC2 only)\n"
-  printf "     -D  delete vm\n"
+  printf "     -D  delete vm, works same with -t when ec2 instance\n"
   printf "     -n  [DISTRIBUSION.iso] create new instance from given image\n"
   printf "         for aws ec2, 'vm -n ec2 [--profile=YOURS]'\n"
-  printf "         give '--AmazonLinux2' if you prefer that version'\n"
+  printf "           give '--AmazonLinux2' if you prefer that one'\n"
+  printf "           give '--ami=ami-0c11b26d' if you prefer 2016.9\n"
+  printf "             or any ami-id wanted to\n"
+  printf "           latest version fo Amazon Linux(NOT 2) will be obtained as default\n"
   printf "     --hpv=[kind] specify hypervisor with option -n.\n"
   printf "         One of \"kvm\" \"vboxmanage\" \"vmrun\" acceptable\n"
   printf "     --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
 #  printf "     -e  [COMMAND ARGS1 2..] execute command on the guest\n"
-  printf "     -a  enable ssh & pubkey auto on the guest\n"
-  printf "     -S  switch Persistent mode(only for vmware)\n"
+#  printf "     -a  enable ssh & pubkey auto on the guest\n"
 }
 
 get_hpv() {
