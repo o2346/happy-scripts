@@ -641,7 +641,9 @@ vm() {
       -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
       -usb -usbdevice tablet                              \
       -soundhw all                                        \
-      $temporarily
+      $temporarily &
+
+      #ssh -o "StrictHostKeyChecking no" `whoami`@localhost -p $random_ssh_port
 
       # http://blog.livedoor.jp/les_paul_sp/archives/694273.html
       #https://wiki.qemu.org/Documentation/CreateSnapshot#Temporary_snapshots
