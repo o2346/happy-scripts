@@ -643,8 +643,15 @@ vm() {
       -soundhw all                                        \
       $temporarily &
 
-      #ssh -o "StrictHostKeyChecking no" `whoami`@localhost -p $random_ssh_port
-
+      if [ -f "./id_rsa" ]; then
+        while true; do
+          ssh                             \
+            -o "ConnectTimeout=10"        \
+            -o "StrictHostKeyChecking no" \
+            -p $random_ssh_port           \
+            -i ./id_rsa localhost && break
+        done
+      fi
       # http://blog.livedoor.jp/les_paul_sp/archives/694273.html
       #https://wiki.qemu.org/Documentation/CreateSnapshot#Temporary_snapshots
       # about bridge networking

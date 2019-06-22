@@ -2,8 +2,6 @@
 
 sudo passwd root
 sudo passwd `whoami`
-sudo service sshd start
-sudo systemctl enable sshd
 #https://docs.fedoraproject.org/en-US/Fedora_Contributor_Documentation/1/html/Translation_Quick_Start_Guide/sect-Translation_Quick_Start_Guide-Accounts_and_Subscriptions-Making_a_SSH_Key.html
 ssh-keygen -t rsa
 chmod 700 ~/.ssh
@@ -11,3 +9,6 @@ chmod 600 ~/.ssh/id_rsa
 chmod 644 ~/.ssh/id_rsa.pub
 ssh-copy-id -i ./.ssh/id_rsa.pub `whoami`@localhost
 echo 'access with ~/.ssh/id_rsa'
+
+sudo service sshd start
+sudo systemctl enable sshd
