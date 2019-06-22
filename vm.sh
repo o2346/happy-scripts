@@ -429,7 +429,6 @@ newvm() {
 # start Virtual Machine
 vm() {
 
-
   VMX=`find . -maxdepth 1 -name *.vmx` 2> /dev/null
 
   if [ -n "$VMX" ]; then
@@ -595,6 +594,7 @@ vm() {
       esac
     done
   fi
+
   local kvm=`find . -maxdepth 1 -name kvm` 2> /dev/null
 
   if [ -n "$kvm" ]; then
@@ -626,7 +626,7 @@ vm() {
       esac
     done
 
-    readonly random_ssh_port=`get_random_ssh_port`
+    readonly random_ssh_port=`get_random_ssh_port 2>/dev/null`
     readonly kvm_net_hostfwd="user,hostfwd=tcp::$random_ssh_port-:22"
 
     echo "port $random_ssh_port"
