@@ -8,7 +8,7 @@ chmod 700 ~/.ssh
 chmod 600 ~/.ssh/id_rsa
 chmod 644 ~/.ssh/id_rsa.pub
 ssh-copy-id -i ./.ssh/id_rsa.pub `whoami`@localhost
-echo 'access with ~/.ssh/id_rsa'
+echo "on you local run: scp -P [port] `whoami`@localhost:.ssh/id_rsa ./"
 
 sudo service sshd start
 sudo systemctl enable sshd
