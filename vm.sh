@@ -645,7 +645,7 @@ vm() {
 
       echo $! > pid
       echo $random_ssh_port > port
-      printf '#!/bin/bash\n ssh -o "ConnectTimeout=10" -o "StrictHostKeyChecking no" -p '$random_ssh_port' -i ./id_rsa localhost' > ./ssh
+      printf '#!/bin/bash\n ssh -o "ConnectTimeout=10" -o "StrictHostKeyChecking no" -p '$random_ssh_port' -i ./id_rsa localhost $*'  > ./ssh
       chmod +x ./ssh
 
       if [ -f "./id_rsa" ]; then
