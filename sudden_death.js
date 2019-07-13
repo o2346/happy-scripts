@@ -21,13 +21,12 @@ function buildLines( str ) {
   const balloonLeft = "＞　";
   const balloonRight = "　＜";
 
-  let maxLength = 0;
   return str.split( breaks )
     .map( ( l ) => {
       return String().concat( balloonLeft, l, balloonRight );
     } )
     .map( ( l, i, a ) => {
-      maxLength = Math.max( ...a.map( ( _l ) => { return getOstensibleLength( _l ); } ) );
+      const maxLength = Math.max( ...a.map( ( _l ) => { return getOstensibleLength( _l ); } ) );
       let ans = '';
       const distance = maxLength - getOstensibleLength( l );
       if( distance > 0 ) {
@@ -87,5 +86,5 @@ function suddenDeath( str ) {
   ].join( '\n' );
 }
 
-const arg = '突然の死\n\nSudden Death\nぼくアルバイトぉｫｫｫｫ\n123あああ';
+const arg = '突然の死\n\nSudden Death!!!\nぼくアルバイトぉｫｫｫｫ\n123あああ\n' + 'き'.repeat( 31 ) + ' ' ;
 console.log( suddenDeath( arg ) );
