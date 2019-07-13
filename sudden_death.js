@@ -4,13 +4,13 @@ function suddenDeath( str ) {
     return null;
   }
   //吹き出す 
-  var balloonUpper = "人";
-  var balloonLeft = "＞　";
-  var balloonRight = "　＜";
-  var balloonLower = "^Y";
-  var top = "＿人人人";
-  var bottom = "\r\n￣Y^Y^Y"
-  var cnt = 0;
+  const balloonUpper = "人";
+  const balloonLeft = "＞　";
+  const balloonRight = "　＜";
+  const balloonLower = "^Y";
+  let top = "＿人人人";
+  let bottom = "\r\n￣Y^Y^Y"
+  let cnt = 0;
   var line = str.match(/\r\n|\n/g);
   if(!line) var line = "";
   line = line.length + 1;
