@@ -22,17 +22,19 @@ function suddenDeath( str ) {
     line = "";
   }
   line = line.length + 1;
-  if(line > 1) {
-  str = str.split(/\r\n|\r|\n/);
-  for(i=0;i<line;i++) {
-    if(cnt < str[i].length) cnt = str[i].length;
-    str[i] = balloonLeft + str[i] + balloonRight;
-  }
-  str = str.join("\r\n");
-  str = str.replace(/\r\n$/, "");
+  if( line > 1 ) {
+    str = str.split( /\r\n|\r|\n/ );
+    for( let i = 0; i < line; i++ ) {
+      if( cnt < str[ i ].length ) {
+        cnt = str[ i ].length;
+      }
+      str[ i ] = balloonLeft + str[ i ] + balloonRight;
+    }
+    str = str.join( "\r\n" );
+    str = str.replace( /\r\n$/, "" );
   } else {
-  cnt = str.length;
-  str = balloonLeft + str + balloonRight;
+    cnt = str.length;
+    str = balloonLeft + str + balloonRight;
   }
   //6文字以上でずれるっぽいので調整してもいいかも・全角半角でカウント方法を調整しないと調整不可
   for(i=1;i<cnt;i++) {
