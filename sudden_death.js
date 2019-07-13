@@ -1,18 +1,26 @@
 
+/**
+ * suddenDeath
+ *
+ * @param str
+ * @returns {undefined}
+ */
 function suddenDeath( str ) {
   if( !str ) {
     return null;
   }
-  //吹き出す 
+  //balloon
   const balloonUpper = "人";
   const balloonLeft = "＞　";
   const balloonRight = "　＜";
   const balloonLower = "^Y";
   let top = "＿人人人";
-  let bottom = "\r\n￣Y^Y^Y"
+  let bottom = "\r\n￣Y^Y^Y";
   let cnt = 0;
-  var line = str.match(/\r\n|\n/g);
-  if(!line) var line = "";
+  let line = str.match( /\r\n|\n/g );
+  if( !line ) {
+    line = "";
+  }
   line = line.length + 1;
   if(line > 1) {
   str = str.split(/\r\n|\r|\n/);
@@ -36,7 +44,7 @@ function suddenDeath( str ) {
   bottom += "￣";
   str = top + str + bottom;
   //console.log( top + '\n' );
-  console.log( str );
+  return str;
 }
 
-suddenDeath( '突然の死\naaaa' );
+console.log( suddenDeath( '突然の死\naaaa' ) );
