@@ -37,12 +37,14 @@ function suddenDeath( str ) {
     str = balloonLeft + str + balloonRight;
   }
   //6文字以上でずれるっぽいので調整してもいいかも・全角半角でカウント方法を調整しないと調整不可
-  for(i=1;i<cnt;i++) {
-  top += balloonUpper;
-  bottom += balloonLower;
+  for( let i = 1; i < cnt; i++ ) {
+    top += balloonUpper;
+    bottom += balloonLower;
   }
   top += "＿\n";
-  if(cnt > 1) bottom = bottom.replace(/\^Y$/m,"");
+  if( cnt > 1 ) {
+    bottom = bottom.replace( /\^Y$/m, "" );
+  }
   bottom += "￣";
   str = top + str + bottom;
   //console.log( top + '\n' );
