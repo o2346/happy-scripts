@@ -1,4 +1,31 @@
+const balloonLeft = "＞　";
+const balloonRight = "　＜";
 
+/**
+ * buildLine
+ *
+ * @param str
+ * @returns {undefined}
+ */
+function buildLines( str ) {
+  let maxLength = 0;
+  return str.split( /[\r\n]/ )
+    .map( ( l ) => {
+      return String().concat( balloonLeft, l, balloonRight );
+    } )
+    .map( ( l, i, a ) => {
+      maxLength = Math.max( ...a.map( ( _l ) => { return _l.length; } ) );
+      let ans = '';
+      if( l.length < maxLength ) {
+        const pad = '　'.repeat( maxLength - l.length );
+        ans = l.replace( new RegExp( balloonRight + '$' ), pad + '＜' );
+      } else {
+        ans = l;
+      }
+      return ans;
+    } )
+    .join( '\n' ) + maxLength;
+}
 /**
  * suddenDeath
  *
@@ -11,8 +38,6 @@ function suddenDeath( str ) {
   }
   //balloon
   const balloonUpper = "人";
-  const balloonLeft = "＞　";
-  const balloonRight = "　＜";
   const balloonLower = "^Y";
   let top = "＿人人人";
   let bottom = "\r\n￣Y^Y^Y";
@@ -51,4 +76,6 @@ function suddenDeath( str ) {
   return str;
 }
 
-console.log( suddenDeath( '突然の死\naaaa' ) );
+const arg = '突然の死\naaいいいい';
+console.log( suddenDeath( arg ) );
+console.log( buildLines( arg ) );
