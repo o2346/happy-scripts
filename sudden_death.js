@@ -18,12 +18,12 @@ function getOstensibleLength( str ) {
  * @returns {undefined}
  */
 function buildLines( str ) {
-  const balloonLeft = "＞　";
-  const balloonRight = "　＜";
+  const edgeLeft = "＞　";
+  const edgeRight = "　＜";
 
   return str.split( breaks )
     .map( ( l ) => {
-      return String().concat( balloonLeft, l, balloonRight );
+      return String().concat( edgeLeft, l, edgeRight );
     } )
     .map( ( l, i, a ) => {
       const maxLength = Math.max( ...a.map( ( _l ) => { return getOstensibleLength( _l ); } ) );
@@ -32,40 +32,48 @@ function buildLines( str ) {
       if( distance > 0 ) {
         const pad = String().concat( '　'.repeat( Math.ceil( distance ) ) );
         ans = l.replace(
-          new RegExp( balloonRight + '$' ),
-          ( Number.isInteger( distance ) ? pad : pad.replace( /\s$/, ' ' ) ) + balloonRight
+          new RegExp( edgeRight + '$' ),
+          ( Number.isInteger( distance ) ? pad : pad.replace( /\s$/, ' ' ) ) + edgeRight
         );
       } else {
         ans = l;
       }
       return ans;
     } )
+    .map( ( l, i, a ) => {
+      const maxLength = Math.max( ...a.map( ( _l ) => { return getOstensibleLength( _l ); } ) );
+      return Number.isInteger( maxLength ) ? l : l.replace( new RegExp( edgeRight + '$' ), ' ＜' );
+    } )
     .join( '\n' );
 }
 
 /**
- * getBalloonUpper
+ * getUpper
  *
  * @param str
  * @returns {undefined}
  */
-function getBalloonUpperLower( str ) {
-  const balloonUpper = "人";
-  const balloonLower = "^Y";
-  const presufffixUpper = "＿";
-  const presufffixLower = "￣";
+function getUpperLower( str ) {
+  const edgeUpper    = "人";
+  const edgeLower    = "^Y";
+  const cornerUpper = "＿";
+  const cornerLower = "￣";
 
   const maxLength = Math.max( ...str.split( breaks ).map( ( _l ) => { return getOstensibleLength( _l ); } ) );
   const upper = String().concat(
-    presufffixUpper,
-    balloonUpper.repeat( maxLength - 2 ),
-    presufffixUpper
+    cornerUpper,
+    edgeUpper.repeat( maxLength - 2 ),
+    cornerUpper
   );
   const lower = String().concat(
-    presufffixLower,
-    balloonLower.repeat( maxLength - 2 ),
-    presufffixLower
-  );
+    cornerLower,
+    edgeLower.repeat( maxLength - 3 ),
+    cornerLower
+  )
+    .replace(
+      new RegExp( '^' + cornerLower + '\\' + edgeLower ),
+      ' ' + cornerLower + 'Y'
+    );
 
   return [ upper, lower ];
 }
@@ -80,11 +88,12 @@ function suddenDeath( str ) {
     return null;
   }
   return [
-    getBalloonUpperLower( buildLines( str ) )[ 0 ],
+    getUpperLower( buildLines( str ) )[ 0 ],
     buildLines( str ),
-    getBalloonUpperLower( buildLines( str ) )[ 1 ]
+    getUpperLower( buildLines( str ) )[ 1 ]
   ].join( '\n' );
 }
 
-const arg = '突然の死\n\nSudden Death!!!\nぼくアルバイトぉｫｫｫｫ\n123あああ\n' + 'き'.repeat( 31 ) + ' ' ;
+const arg = '突然の死\n\nSudden Death!!!\nぼくアルバイトぉｫｫｫｫ\n123あああ\n' + 'う'.repeat( 30 ) + 'X';
+//const arg = '突然の死';
 console.log( suddenDeath( arg ) );
