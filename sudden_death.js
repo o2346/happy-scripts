@@ -31,11 +31,11 @@ function buildLines( str ) {
       let ans = '';
       const distance = maxLength - getOstensibleLength( l );
       if( distance > 0 ) {
-        let pad = String().concat( '　'.repeat( Math.ceil( distance ) ) );
-        if( !Number.isInteger( distance ) ) {
-          pad = pad.replace( /\s$/, ' ' );
-        }
-        ans = l.replace( new RegExp( balloonRight + '$' ), pad + balloonRight );
+        const pad = String().concat( '　'.repeat( Math.ceil( distance ) ) );
+        ans = l.replace(
+          new RegExp( balloonRight + '$' ),
+          ( Number.isInteger( distance ) ? pad : pad.replace( /\s$/, ' ' ) ) + balloonRight
+        );
       } else {
         ans = l;
       }
