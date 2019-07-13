@@ -29,31 +29,13 @@ function suddenDeath( str ) {
     top += sep_top;
     bottom += sep_bottom;
     }
-    top += "＿\r";
+    top += "＿\n";
     if(cnt > 1) bottom = bottom.replace(/\^Y$/m,"");
     bottom += "￣";
     str = top + str + bottom;
-    console.log( top );
+    //console.log( top + '\n' );
     console.log( str );
-    //出力テキストエリア
-//    if(line > 1) $("#result").css({"height": (line + 2) * 1.6 + "em"});
-//    $("#result").val(str);
-//    
-//    //ツイートボタン用に変換
-//    var btn_str = encodeURI(str) + "%0A%23" + encodeURI("突然の死");
-//    $("#tweet-btn").attr("href", "https://twitter.com/intent/tweet?text=" + btn_str + "&url=https://totuzennosi.sacnoha.com");
-//    console.log(btn_str);
-//    
-//    //コピーボタン変化
-//    $("#copy").removeClass("btn-info").addClass("btn-danger").text("コピーする");
-//    $("#tweet-btn").addClass("btn-primary").text("↑をツイートする");
-//  } else {
-//    $("#result").css({"height": "inherit"}).val("＿人人人人人人人人＿\n\
-//＞　文字入力して　＜\n\
-//￣Y^Y^Y^Y^Y^Y^Y￣");
-//    $("#copy").removeClass("btn-danger").text("・・・・・");
-//    $("#tweet-btn").removeClass("btn-danger").text("・・・・・");
   }
 }
 
-suddenDeath( 'ああああ' );
+suddenDeath( '突然の死' );
