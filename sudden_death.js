@@ -19,6 +19,36 @@ function getOstensibleLength( str ) {
   return width;
 }
 
+const edgeLeft = '＞　';
+const edgeRight = '　＜';
+
+function padding( str, distance, centering ) {
+  const pad = String().concat( '　'.repeat( Math.ceil( distance ) ) );
+  if( centering ) {
+    const pads = [
+      Math.trunc( pad.length / 2 ),
+      Math.ceil( pad.length / 2 )
+    ]
+      .map( ( p ) => {
+        return '　'.repeat( p );
+      } );
+    pads[ 1 ] = ( Number.isInteger( distance ) ? pads[ 1 ] : pads[ 1 ].replace( /\s$/, ' ' ) ) + edgeRight;
+    //console.log( pad.length + ' ' + pads.join( '' ).length );
+    return str.replace(
+      new RegExp( '^' + edgeLeft ),
+      edgeLeft + pads[ 0 ]
+    ).replace(
+      new RegExp( edgeRight + '$' ),
+      pads[ 1 ]
+    );
+  }
+
+  return str.replace(
+    new RegExp( edgeRight + '$' ),
+    ( Number.isInteger( distance ) ? pad : pad.replace( /\s$/, ' ' ) ) + edgeRight
+  );
+}
+
 /**
  * buildLine
  *
@@ -26,8 +56,6 @@ function getOstensibleLength( str ) {
  * @returns {undefined}
  */
 function buildLines( str ) {
-  const edgeLeft = '＞　';
-  const edgeRight = '　＜';
 
   return str.split( breaks )
     .map( ( l ) => {
@@ -38,11 +66,7 @@ function buildLines( str ) {
       let ans = '';
       const distance = maxLength - getOstensibleLength( l );
       if( distance > 0 ) {
-        const pad = String().concat( '　'.repeat( Math.ceil( distance ) ) );
-        ans = l.replace(
-          new RegExp( edgeRight + '$' ),
-          ( Number.isInteger( distance ) ? pad : pad.replace( /\s$/, ' ' ) ) + edgeRight
-        );
+        ans = padding( l, distance, true );
       } else {
         ans = l;
       }
@@ -102,10 +126,11 @@ function suddenDeath( str ) {
   ].join( '\n' );
 }
 
-console.log( suddenDeath( '複線\nﾄﾞﾘﾌﾄ!!' ) );
+console.log( suddenDeath( '複線\nﾄﾞﾘﾌﾄ!!!' ) );
 console.log( suddenDeath( 'ｸｿｯﾀﾚが!\nﾊﾟﾝﾀ一基下がってんじゃねーのか！？' ) );
 console.log( suddenDeath( 'だまりゃ！麿は恐れ多くも帝より三位の位を賜わり中納言を務めた身じゃ！\nすなわち帝の臣であって徳川の家来ではおじゃらん！\nその麿の屋敷内で狼藉を働くとは言語道断！\nこの事直ちに帝に言上し、きっと公儀に掛け合うてくれる故、心しておじゃれ！' ) );
 console.log( suddenDeath( '僕アルバイトォォｫｫ!!' ) );
+console.log( suddenDeath( '122abcdefgh\nあああ' ) );
 
 //this ones works well as above
 //http://tanakh.jp/tools/sudden.html
