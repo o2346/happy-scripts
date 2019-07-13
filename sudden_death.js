@@ -27,6 +27,13 @@ function buildLines( str ) {
     .join( '\n' ) + maxLength;
 }
 
+function getOstensibleLength(str){
+	let width = 0
+	str.replace(/[\x09-\x0d\x20-\x7e\uff61-\uff9f]|(.)/gu, (_, is_full) => width += is_full ? 1 : 0.5 )
+	return width
+}
+console.log( getOstensibleLength( 'aaあ1１ｲ 　' ) );
+
 /**
  * getBalloonUpper
  *
