@@ -26,6 +26,33 @@ function buildLines( str ) {
     } )
     .join( '\n' ) + maxLength;
 }
+
+/**
+ * getBalloonUpper
+ *
+ * @param str
+ * @returns {undefined}
+ */
+function getBalloonUpperLower( str ) {
+  const balloonUpper = "人";
+  const balloonLower = "^Y";
+  const presufffixUpper = "＿";
+  const presufffixLower = "￣";
+
+  const maxLength = Math.max( ...str.split( /[\n\r]/ ).map( ( _l ) => { return _l.length; } ) );
+  const upper = String().concat(
+    presufffixUpper,
+    balloonUpper.repeat( maxLength - 2 ),
+    presufffixUpper
+  );
+  const lower = String().concat(
+    presufffixLower,
+    balloonLower.repeat( maxLength - 2 ),
+    presufffixLower
+  );
+
+  return [ upper, lower ];
+}
 /**
  * suddenDeath
  *
@@ -76,6 +103,8 @@ function suddenDeath( str ) {
   return str;
 }
 
-const arg = '突然の死\naaいいいい';
+const arg = '突然の死突然の死突然の死\naaいいいい';
 console.log( suddenDeath( arg ) );
+console.log( getBalloonUpperLower( buildLines( arg ) )[ 0 ] );
 console.log( buildLines( arg ) );
+console.log( getBalloonUpperLower( buildLines( arg ) )[ 1 ] );
