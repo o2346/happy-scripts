@@ -126,8 +126,8 @@ function suddenDeath( str ) {
   ].join( '\n' );
 }
 
-console.log( suddenDeath( '複線\nﾄﾞﾘﾌﾄ!!!' ) );
-console.log( suddenDeath( 'ｸｿｯﾀﾚが!\nﾊﾟﾝﾀ一基下がってんじゃねーのか！？' ) );
+console.log( suddenDeath( '複線\nﾄﾞﾘﾌﾄ!!' ) );
+console.log( suddenDeath( 'ｸｿｯﾀﾚが!!\nﾊﾟﾝﾀ一基下がってんじゃねーのか！？' ) );
 console.log( suddenDeath( 'だまりゃ！麿は恐れ多くも帝より三位の位を賜わり中納言を務めた身じゃ！\nすなわち帝の臣であって徳川の家来ではおじゃらん！\nその麿の屋敷内で狼藉を働くとは言語道断！\nこの事直ちに帝に言上し、きっと公儀に掛け合うてくれる故、心しておじゃれ！' ) );
 console.log( suddenDeath( '僕アルバイトォォｫｫ!!' ) );
 console.log( suddenDeath( '122abcdefgh\nあああ' ) );
