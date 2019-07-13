@@ -1,7 +1,15 @@
+/**
+ * Balloon Message AA Generator
+ * Alternative over https://totuzennosi.sacnoha.com/
+ * 'Sudden Death' comes from https://dic.nicovideo.jp/a/%E7%AA%81%E7%84%B6%E3%81%AE%E6%AD%BB
+ */
+
+//https://uxmilk.jp/50240
 const breaks = /\r\n|\n|\r/;
+
 /**
  * getOstensibleLength
- *
+ * http://var.blog.jp/archives/76281025.html
  * @param str
  * @returns {undefined}
  */
@@ -18,8 +26,8 @@ function getOstensibleLength( str ) {
  * @returns {undefined}
  */
 function buildLines( str ) {
-  const edgeLeft = "＞　";
-  const edgeRight = "　＜";
+  const edgeLeft = '＞　';
+  const edgeRight = '　＜';
 
   return str.split( breaks )
     .map( ( l ) => {
@@ -54,10 +62,10 @@ function buildLines( str ) {
  * @returns {undefined}
  */
 function getUpperLower( str ) {
-  const edgeUpper    = "人";
-  const edgeLower    = "^Y";
-  const cornerUpper = "＿";
-  const cornerLower = "￣";
+  const edgeUpper    = '人';
+  const edgeLower    = '^Y';
+  const cornerUpper = '＿';
+  const cornerLower = '￣';
 
   const maxLength = Math.max( ...str.split( breaks ).map( ( _l ) => { return getOstensibleLength( _l ); } ) );
   const upper = String().concat(
@@ -94,6 +102,10 @@ function suddenDeath( str ) {
   ].join( '\n' );
 }
 
-const arg = '突然の死\n\nSudden Death!!!\nぼくアルバイトぉｫｫｫｫ\n123あああ\n' + 'う'.repeat( 30 ) + 'X';
-//const arg = '突然の死';
-console.log( suddenDeath( arg ) );
+console.log( suddenDeath( '複線\nﾄﾞﾘﾌﾄ!!' ) );
+console.log( suddenDeath( 'ｸｿｯﾀﾚが!\nﾊﾟﾝﾀ一基下がってんじゃねーのか！？' ) );
+console.log( suddenDeath( 'だまりゃ！麿は恐れ多くも帝より三位の位を賜わり中納言を務めた身じゃ！\nすなわち帝の臣であって徳川の家来ではおじゃらん！\nその麿の屋敷内で狼藉を働くとは言語道断！\nこの事直ちに帝に言上し、きっと公儀に掛け合うてくれる故、心しておじゃれ！' ) );
+console.log( suddenDeath( '僕アルバイトォォｫｫ!!' ) );
+
+//this ones works well as above
+//http://tanakh.jp/tools/sudden.html
