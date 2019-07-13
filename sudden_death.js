@@ -1,6 +1,19 @@
 const balloonLeft = "＞　";
 const balloonRight = "　＜";
 
+
+/**
+ * getOstensibleLength
+ *
+ * @param str
+ * @returns {undefined}
+ */
+function getOstensibleLength( str ) {
+  let width = 0;
+  str.replace( new RegExp( '[\x09-\x0d\x20-\x7e\uff61-\uff9f]|(.)', 'gu' ), ( _, isFull ) => width += isFull ? 1 : 0.5 );
+  return width;
+}
+
 /**
  * buildLine
  *
@@ -9,30 +22,23 @@ const balloonRight = "　＜";
  */
 function buildLines( str ) {
   let maxLength = 0;
-  return str.split( /[\r\n]/ )
+  return str.split( /[\r\n]+/ )
     .map( ( l ) => {
       return String().concat( balloonLeft, l, balloonRight );
     } )
     .map( ( l, i, a ) => {
-      maxLength = Math.max( ...a.map( ( _l ) => { return _l.length; } ) );
+      maxLength = Math.max( ...a.map( ( _l ) => { return getOstensibleLength( _l ); } ) );
       let ans = '';
-      if( l.length < maxLength ) {
-        const pad = '　'.repeat( maxLength - l.length );
-        ans = l.replace( new RegExp( balloonRight + '$' ), pad + '＜' );
+      if( getOstensibleLength( l ) < maxLength ) {
+        const pad = '　'.repeat( Math.round( maxLength - getOstensibleLength( l ) ) );
+        ans = l.replace( new RegExp( balloonRight + '$' ), pad + balloonRight );
       } else {
         ans = l;
       }
       return ans;
     } )
-    .join( '\n' ) + maxLength;
+    .join( '\n' );
 }
-
-function getOstensibleLength(str){
-	let width = 0
-	str.replace(/[\x09-\x0d\x20-\x7e\uff61-\uff9f]|(.)/gu, (_, is_full) => width += is_full ? 1 : 0.5 )
-	return width
-}
-console.log( getOstensibleLength( 'aaあ1１ｲ 　' ) );
 
 /**
  * getBalloonUpper
@@ -46,7 +52,7 @@ function getBalloonUpperLower( str ) {
   const presufffixUpper = "＿";
   const presufffixLower = "￣";
 
-  const maxLength = Math.max( ...str.split( /[\n\r]/ ).map( ( _l ) => { return _l.length; } ) );
+  const maxLength = Math.max( ...str.split( /[\n\r]/ ).map( ( _l ) => { return getOstensibleLength( _l ); } ) );
   const upper = String().concat(
     presufffixUpper,
     balloonUpper.repeat( maxLength - 2 ),
@@ -110,7 +116,7 @@ function suddenDeath( str ) {
   return str;
 }
 
-const arg = '突然の死突然の死突然の死\naaいいいい';
+const arg = '突然aaaaの死突然の死突然の死\nいiiiiいいいいい';
 console.log( suddenDeath( arg ) );
 console.log( getBalloonUpperLower( buildLines( arg ) )[ 0 ] );
 console.log( buildLines( arg ) );
