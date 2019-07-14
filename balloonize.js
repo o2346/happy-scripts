@@ -9,7 +9,7 @@
 
 /**
  * parseQueries
- *
+ * https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
  * @param arg
  * @param givenParams
  * @returns {undefined}
