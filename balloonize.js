@@ -3,6 +3,8 @@
  * Balloon Message AA Generator
  * Alternative over https://totuzennosi.sacnoha.com/
  * 'Sudden Death' comes from https://dic.nicovideo.jp/a/%E7%AA%81%E7%84%B6%E3%81%AE%E6%AD%BB
+ *
+ * It's good one.. https://www.osstech.co.jp/cgi-bin/echo-sd
  */
 
 'use strict';
