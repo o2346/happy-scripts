@@ -1,4 +1,10 @@
 #!./node
+/**
+ * Balloon Message AA Generator
+ * Alternative over https://totuzennosi.sacnoha.com/
+ * 'Sudden Death' comes from https://dic.nicovideo.jp/a/%E7%AA%81%E7%84%B6%E3%81%AE%E6%AD%BB
+ */
+
 'use strict';
 
 /**
@@ -16,11 +22,6 @@ function parseQueries( arg, params ) {
   if ( !results[ 2 ] ) return '';
   return decodeURIComponent( results[ 2 ].replace( /\+/g, ' ' ) );
 }
-/**
- * Balloon Message AA Generator
- * Alternative over https://totuzennosi.sacnoha.com/
- * 'Sudden Death' comes from https://dic.nicovideo.jp/a/%E7%AA%81%E7%84%B6%E3%81%AE%E6%AD%BB
- */
 
 //https://uxmilk.jp/50240
 const breaks = /\r\n|\n|\r/;
@@ -187,7 +188,7 @@ if ( require.main === module && !process.stdin.isTTY ) {
   //console.log( render( '僕アルバイトォォｫｫ!!' ) );
 } else if ( require.main ) {
   console.log( render( '複線\nﾄﾞﾘﾌﾄ!!' ) );
-  console.log( render( 'はっえぇーーっ!!\nバカッ速!!\n高橋啓介の8200系\n個別分散式VVVFはダテじゃねえ' ) );
+  console.log( render( 'はっえぇーーっ!!\nバカッ速!!\n高橋啓介の8200系\n個別分散式VVVFはダテじゃねぇ' ) );
   console.log( render( '勝負になんねー\n2000系のフル加速なんて\nまるで止まってるようにしか\n見えねーよｫ!!' ) );
   console.log( render( 'どうしたんだ\n今日に限って8200が\nやけにノロく感じる!!' ) );
   console.log( render( 'ｸｿｯﾀﾚが\nﾊﾟﾝﾀ一基\n下がってんじゃねーのか！？' ) );
