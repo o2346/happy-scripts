@@ -121,12 +121,12 @@ function getUpperLower( str ) {
   return [ upper, lower ];
 }
 /**
- * balloonize
+ * exec
  *
  * @param str
  * @returns {undefined}
  */
-function balloonize( str ) {
+function exec( str ) {
   if( !str ) {
     return null;
   }
@@ -143,13 +143,13 @@ if ( require.main === module ) {
   //console.log( 'called directly' );
   //main();
   //https://www.google.co.jp/search?&tbm=isch&safe=off&q=高橋啓介の8200系個別分散式VVVFはダテじゃねえ+複線ドリフト
-  console.log( balloonize( '複線\nﾄﾞﾘﾌﾄ!!' ) );
-  console.log( balloonize( 'はっえーっ\n高橋啓介の8200系\n個別分散式VVVFは\nダテじゃねえ!' ) );
-  console.log( balloonize( '勝負になんねー\n2000系のフル加速なんて\nまるで止まってるようにしか\n見えねーよｫ!!' ) );
-  console.log( balloonize( 'どうしたんだ\n今日に限って8200が\nやけにノロく感じる!!' ) );
-  console.log( balloonize( 'ｸｿｯﾀﾚが\nﾊﾟﾝﾀ一基\n下がってんじゃねーのか！？' ) );
-  console.log( balloonize( 'だまりゃ！麿は恐れ多くも帝より三位の位を賜わり中納言を務めた身じゃ！\nすなわち帝の臣であって徳川の家来ではおじゃらん！\nその麿の屋敷内で狼藉を働くとは言語道断！\nこの事直ちに帝に言上し、きっと公儀に掛け合うてくれる故、心しておじゃれ！' ) );
-  //console.log( balloonize( '僕アルバイトォォｫｫ!!' ) );
+  console.log( exec( '複線\nﾄﾞﾘﾌﾄ!!' ) );
+  console.log( exec( 'はっえーっ\n高橋啓介の8200系\n個別分散式VVVFは\nダテじゃねえ!' ) );
+  console.log( exec( '勝負になんねー\n2000系のフル加速なんて\nまるで止まってるようにしか\n見えねーよｫ!!' ) );
+  console.log( exec( 'どうしたんだ\n今日に限って8200が\nやけにノロく感じる!!' ) );
+  console.log( exec( 'ｸｿｯﾀﾚが\nﾊﾟﾝﾀ一基\n下がってんじゃねーのか！？' ) );
+  console.log( exec( 'だまりゃ！麿は恐れ多くも帝より三位の位を賜わり中納言を務めた身じゃ！\nすなわち帝の臣であって徳川の家来ではおじゃらん！\nその麿の屋敷内で狼藉を働くとは言語道断！\nこの事直ちに帝に言上し、きっと公儀に掛け合うてくれる故、心しておじゃれ！' ) );
+  //console.log( exec( '僕アルバイトォォｫｫ!!' ) );
 
 } else {
   //console.log('required as a module');
@@ -159,6 +159,6 @@ if ( require.main === module ) {
     padding: padding,
     buildLines: buildLines,
     getUpperLower: getUpperLower,
-    balloonize: balloonize
+    exec: exec
   };
 }
