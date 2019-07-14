@@ -61,12 +61,12 @@ function padding( str, distance, centering ) {
 }
 
 /**
- * buildLine
+ * obtainInnerContentsLine
  *
  * @param str
  * @returns {undefined}
  */
-function build( str ) {
+function obtainInnerContents( str ) {
 
   return str.split( breaks )
     .map( ( l ) => {
@@ -121,16 +121,16 @@ function getUpperLower( str ) {
   return [ upper, lower ];
 }
 /**
- * exec
+ * render
  *
  * @param str
  * @returns {undefined}
  */
-function exec( str ) {
+function render( str, queries ) {
   if( !str ) {
     return null;
   }
-  const contents = build( str );
+  const contents = obtainInnerContents( str, queries );
   const uplw     = getUpperLower( contents );
 
   return [
@@ -140,28 +140,50 @@ function exec( str ) {
   ].join( '\n' );
 }
 
+function parseQueries( name, givenParams ) {
+  const params = ( givenParams ? givenParams : window.location.href );
+  const regex = new RegExp( '[?&]' + name.replace( /[\[\]]/g, '\\$&' ) + '(=([^&#]*)|&|#|$)' );
+  const results = regex.exec( params );
+  if ( !results ) return null;
+  if ( !results[ 2 ] ) return '';
+  return decodeURIComponent( results[ 2 ].replace( /\+/g, ' ' ) );
+}
+/**
+ * main func
+ *
+ * @returns {undefined}
+ */
+function main() {
+  console.log( parseQueries( 'foo', '?foo=lorem&bar=&baz' ) );
+  const input = [];
+  require( 'readline' )
+    .createInterface( { input: process.stdin } )
+    .on( 'line', ( l ) => { input.push( l ); } )
+    .on( 'close', () => { process.stdout.write( render( input.join( '\n' ) ) ); } );
+}
+
 //this ones works well as above
 //http://tanakh.jp/tools/sudden.html
-if ( require.main === module ) {
+if ( require.main === module && !process.stdin.isTTY ) {
   //console.log( 'called directly' );
-  //main();
+  main();
   //https://www.google.co.jp/search?&tbm=isch&safe=off&q=高橋啓介の8200系個別分散式VVVFはダテじゃねえ+複線ドリフト
-  console.log( exec( '複線\nﾄﾞﾘﾌﾄ!!' ) );
-  console.log( exec( 'はっえーっ\n高橋啓介の8200系\n個別分散式VVVFは\nダテじゃねえ!' ) );
-  console.log( exec( '勝負になんねー\n2000系のフル加速なんて\nまるで止まってるようにしか\n見えねーよｫ!!' ) );
-  console.log( exec( 'どうしたんだ\n今日に限って8200が\nやけにノロく感じる!!' ) );
-  console.log( exec( 'ｸｿｯﾀﾚが\nﾊﾟﾝﾀ一基\n下がってんじゃねーのか！？' ) );
-  console.log( exec( 'だまりゃ！麿は恐れ多くも帝より三位の位を賜わり中納言を務めた身じゃ！\nすなわち帝の臣であって徳川の家来ではおじゃらん！\nその麿の屋敷内で狼藉を働くとは言語道断！\nこの事直ちに帝に言上し、きっと公儀に掛け合うてくれる故、心しておじゃれ！' ) );
-  //console.log( exec( '僕アルバイトォォｫｫ!!' ) );
-
-} else {
+  //console.log( render( '僕アルバイトォォｫｫ!!' ) );
+} else if ( require.main ) {
+  console.log( render( '複線\nﾄﾞﾘﾌﾄ!!' ) );
+  console.log( render( 'はっえーっ\n高橋啓介の8200系\n個別分散式VVVFは\nダテじゃねえ!' ) );
+  console.log( render( '勝負になんねー\n2000系のフル加速なんて\nまるで止まってるようにしか\n見えねーよｫ!!' ) );
+  console.log( render( 'どうしたんだ\n今日に限って8200が\nやけにノロく感じる!!' ) );
+  console.log( render( 'ｸｿｯﾀﾚが\nﾊﾟﾝﾀ一基\n下がってんじゃねーのか！？' ) );
+  console.log( render( 'だまりゃ！麿は恐れ多くも帝より三位の位を賜わり中納言を務めた身じゃ！\nすなわち帝の臣であって徳川の家来ではおじゃらん！\nその麿の屋敷内で狼藉を働くとは言語道断！\nこの事直ちに帝に言上し、きっと公儀に掛け合うてくれる故、心しておじゃれ！' ) );
+}else if( module ) {
   //console.log('required as a module');
   //this is for developers, for unit testing framework
   module.exports = {
     getLengthOstensible: getLengthOstensible,
     padding: padding,
-    build: build,
+    obtainInnerContents: obtainInnerContents,
     getUpperLower: getUpperLower,
-    exec: exec
+    render: render
   };
 }
