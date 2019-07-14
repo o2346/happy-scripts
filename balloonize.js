@@ -77,7 +77,7 @@ function padding( str, distance, centering ) {
 }
 
 /**
- * obtainInnerContentsLine
+ * obtainInnerContents
  *
  * @param str
  * @returns {undefined}
