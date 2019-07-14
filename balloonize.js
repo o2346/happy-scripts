@@ -2,6 +2,21 @@
 'use strict';
 
 /**
+ * parseQueries
+ *
+ * @param arg
+ * @param givenParams
+ * @returns {undefined}
+ */
+function parseQueries( arg, params ) {
+  //const params = ( givenParams ? givenParams : window.location.href );
+  const regex = new RegExp( '[?&]' + arg.replace( /[\[\]]/g, '\\$&' ) + '(=([^&#]*)|&|#|$)' );
+  const results = regex.exec( params );
+  if ( !results ) return null;
+  if ( !results[ 2 ] ) return '';
+  return decodeURIComponent( results[ 2 ].replace( /\+/g, ' ' ) );
+}
+/**
  * Balloon Message AA Generator
  * Alternative over https://totuzennosi.sacnoha.com/
  * 'Sudden Death' comes from https://dic.nicovideo.jp/a/%E7%AA%81%E7%84%B6%E3%81%AE%E6%AD%BB
@@ -66,7 +81,11 @@ function padding( str, distance, centering ) {
  * @param str
  * @returns {undefined}
  */
-function obtainInnerContents( str ) {
+function obtainInnerContents( str, queries ) {
+  let centering = false;
+  if( parseQueries( 'align', queries ) === 'center' ) {
+    centering = true;
+  }
 
   return str.split( breaks )
     .map( ( l ) => {
@@ -77,7 +96,7 @@ function obtainInnerContents( str ) {
       let ans = '';
       const distance = maxLength - getLengthOstensible( l );
       if( distance > 0 ) {
-        ans = padding( l, distance, true );
+        ans = padding( l, distance, centering );
       } else {
         ans = l;
       }
@@ -140,26 +159,23 @@ function render( str, queries ) {
   ].join( '\n' );
 }
 
-function parseQueries( name, givenParams ) {
-  const params = ( givenParams ? givenParams : window.location.href );
-  const regex = new RegExp( '[?&]' + name.replace( /[\[\]]/g, '\\$&' ) + '(=([^&#]*)|&|#|$)' );
-  const results = regex.exec( params );
-  if ( !results ) return null;
-  if ( !results[ 2 ] ) return '';
-  return decodeURIComponent( results[ 2 ].replace( /\+/g, ' ' ) );
-}
 /**
  * main func
  *
  * @returns {undefined}
  */
 function main() {
-  console.log( parseQueries( 'foo', '?foo=lorem&bar=&baz' ) );
+  //console.log( parseQueries( 'foo', '?foo=lorem&bar=&baz' ) )  //
+  const queries = process.argv
+    .find( ( argv ) => {
+      return argv.match( /\?(.+\=.*&?)+/ );
+    } );
+  //console.log( parseQueries( 'align', queries ) );
   const input = [];
   require( 'readline' )
     .createInterface( { input: process.stdin } )
     .on( 'line', ( l ) => { input.push( l ); } )
-    .on( 'close', () => { process.stdout.write( render( input.join( '\n' ) ) ); } );
+    .on( 'close', () => { process.stdout.write( render( input.join( '\n' ), queries ) ); } );
 }
 
 //this ones works well as above
@@ -171,11 +187,11 @@ if ( require.main === module && !process.stdin.isTTY ) {
   //console.log( render( '僕アルバイトォォｫｫ!!' ) );
 } else if ( require.main ) {
   console.log( render( '複線\nﾄﾞﾘﾌﾄ!!' ) );
-  console.log( render( 'はっえーっ\n高橋啓介の8200系\n個別分散式VVVFは\nダテじゃねえ!' ) );
+  console.log( render( 'はっえぇーーっ!!\nバカッ速!!\n高橋啓介の8200系\n個別分散式VVVFはダテじゃねえ' ) );
   console.log( render( '勝負になんねー\n2000系のフル加速なんて\nまるで止まってるようにしか\n見えねーよｫ!!' ) );
   console.log( render( 'どうしたんだ\n今日に限って8200が\nやけにノロく感じる!!' ) );
   console.log( render( 'ｸｿｯﾀﾚが\nﾊﾟﾝﾀ一基\n下がってんじゃねーのか！？' ) );
-  console.log( render( 'だまりゃ！麿は恐れ多くも帝より三位の位を賜わり中納言を務めた身じゃ！\nすなわち帝の臣であって徳川の家来ではおじゃらん！\nその麿の屋敷内で狼藉を働くとは言語道断！\nこの事直ちに帝に言上し、きっと公儀に掛け合うてくれる故、心しておじゃれ！' ) );
+  console.log( render( 'だまりゃ！麿は恐れ多くも帝より三位の位を賜わり中納言を務めた身じゃ！\nすなわち帝の臣であって徳川の家来ではおじゃらん！\nその麿の屋敷内で狼藉を働くとは言語道断！\nこの事直ちに帝に言上し、きっと公儀に掛け合うてくれる故、心しておじゃれ！', 'https://hoge.com?align=center') );
 }else if( module ) {
   //console.log('required as a module');
   //this is for developers, for unit testing framework
