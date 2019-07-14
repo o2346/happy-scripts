@@ -1,3 +1,6 @@
+#!./node
+'use strict';
+
 /**
  * Balloon Message AA Generator
  * Alternative over https://totuzennosi.sacnoha.com/
@@ -8,12 +11,12 @@
 const breaks = /\r\n|\n|\r/;
 
 /**
- * getOstensibleLength
+ * getLengthOstensible
  * http://var.blog.jp/archives/76281025.html
  * @param str
  * @returns {undefined}
  */
-function getOstensibleLength( str ) {
+function getLengthOstensible( str ) {
   let width = 0;
   str.replace( new RegExp( '[\x09-\x0d\x20-\x7e\uff61-\uff9f]|(.)', 'gu' ), ( _, isFull ) => width += isFull ? 1 : 0.5 );
   return width;
@@ -62,9 +65,9 @@ function buildLines( str ) {
       return String().concat( edgeLeft, l, edgeRight );
     } )
     .map( ( l, i, a ) => {
-      const maxLength = Math.max( ...a.map( ( _l ) => { return getOstensibleLength( _l ); } ) );
+      const maxLength = Math.max( ...a.map( ( _l ) => { return getLengthOstensible( _l ); } ) );
       let ans = '';
-      const distance = maxLength - getOstensibleLength( l );
+      const distance = maxLength - getLengthOstensible( l );
       if( distance > 0 ) {
         ans = padding( l, distance, true );
       } else {
@@ -73,7 +76,7 @@ function buildLines( str ) {
       return ans;
     } )
     .map( ( l, i, a ) => {
-      const maxLength = Math.max( ...a.map( ( _l ) => { return getOstensibleLength( _l ); } ) );
+      const maxLength = Math.max( ...a.map( ( _l ) => { return getLengthOstensible( _l ); } ) );
       return Number.isInteger( maxLength ) ? l : l.replace( new RegExp( edgeRight + '$' ), ' ＜' );
     } )
     .join( '\n' );
@@ -91,7 +94,7 @@ function getUpperLower( str ) {
   const cornerUpper = '＿';
   const cornerLower = '￣';
 
-  const maxLength = Math.max( ...str.split( breaks ).map( ( _l ) => { return getOstensibleLength( _l ); } ) );
+  const maxLength = Math.max( ...str.split( breaks ).map( ( _l ) => { return getLengthOstensible( _l ); } ) );
   const upper = String().concat(
     cornerUpper,
     edgeUpper.repeat( maxLength - 2 ),
