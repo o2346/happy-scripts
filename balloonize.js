@@ -66,7 +66,7 @@ function padding( str, distance, centering ) {
  * @param str
  * @returns {undefined}
  */
-function buildLines( str ) {
+function build( str ) {
 
   return str.split( breaks )
     .map( ( l ) => {
@@ -130,10 +130,13 @@ function exec( str ) {
   if( !str ) {
     return null;
   }
+  const contents = build( str );
+  const uplw     = getUpperLower( contents );
+
   return [
-    getUpperLower( buildLines( str ) )[ 0 ],
-    buildLines( str ),
-    getUpperLower( buildLines( str ) )[ 1 ]
+    uplw[ 0 ],
+    contents,
+    uplw[ 1 ]
   ].join( '\n' );
 }
 
@@ -157,7 +160,7 @@ if ( require.main === module ) {
   module.exports = {
     getLengthOstensible: getLengthOstensible,
     padding: padding,
-    buildLines: buildLines,
+    build: build,
     getUpperLower: getUpperLower,
     exec: exec
   };
