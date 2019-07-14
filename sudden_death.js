@@ -126,8 +126,12 @@ function suddenDeath( str ) {
   ].join( '\n' );
 }
 
+//https://www.google.co.jp/search?&tbm=isch&safe=off&q=高橋啓介の8200系個別分散式VVVFはダテじゃねえ+複線ドリフト
 console.log( suddenDeath( '複線\nﾄﾞﾘﾌﾄ!!' ) );
-console.log( suddenDeath( 'ｸｿｯﾀﾚが!!\nﾊﾟﾝﾀ一基下がってんじゃねーのか！？' ) );
+console.log( suddenDeath( 'はっえーっ\n高橋啓介の8200系\n個別分散式VVVFは\nダテじゃねえ!' ) );
+console.log( suddenDeath( '勝負になんねー\n2000系のフル加速なんて\nまるで止まってるようにしか\n見えねーよｫ!!' ) );
+console.log( suddenDeath( 'どうしたんだ\n今日に限って8200が\nやけにノロく感じる!!' ) );
+console.log( suddenDeath( 'ｸｿｯﾀﾚが\nﾊﾟﾝﾀ一基\n下がってんじゃねーのか！？' ) );
 console.log( suddenDeath( 'だまりゃ！麿は恐れ多くも帝より三位の位を賜わり中納言を務めた身じゃ！\nすなわち帝の臣であって徳川の家来ではおじゃらん！\nその麿の屋敷内で狼藉を働くとは言語道断！\nこの事直ちに帝に言上し、きっと公儀に掛け合うてくれる故、心しておじゃれ！' ) );
 //console.log( suddenDeath( '僕アルバイトォォｫｫ!!' ) );
 
