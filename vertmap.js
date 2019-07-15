@@ -60,7 +60,7 @@ function vertmap( str ) {
     } )
     .join( '' )
     .replace( new RegExp( ( containsDoubleWith ? '([\x20-\x7E\xA1-\xDF])' : '$^' ), 'g' ), ' $1' )
-    .replace( new RegExp( '＜ＩＧＨＯＲＥＣＨＡＲＤＯＵＢＬＥ＝(.+)＞', 'g' ), ( m, p1 ) => { /*console.log( 'p1=' + p1 );*/ return p1.replace( /\s/g, '' ); } );
+    .replace( new RegExp( '＜ＩＧＨＯＲＥＣＨＡＲＤＯＵＢＬＥ＝(.+)＞', 'g' ), ( m, p1 ) => { return p1.replace( /\s/g, '' ); } );
 }
 
 console.log( vertmap( '複線\nドリフト!!' ) );
