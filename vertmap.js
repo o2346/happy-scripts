@@ -44,7 +44,16 @@ function vertmap( str ) {
     .map( ( elm, index, array ) => {
       return elm
         .map( ( c, i ) => {
-          if( containsDoubleWith && array[ index + 1 ] && ignoreChars.some( ( ic ) => array[ index + 1 ][ i ].match( ic ) ) && ignoreChars.some( ( ic ) => c.match( ic ) ) ) {
+          const foldUp = [
+            containsDoubleWith,
+            array[ index + 1 ] && ignoreChars.some( ( ic ) => array[ index + 1 ][ i ].match( ic ) ),
+            ignoreChars.some( ( ic ) => c.match( ic ) )
+          ]
+            .every( ( isAffirmative ) => {
+              return isAffirmative;
+            } );
+
+          if( foldUp ) {
             const ans = '＜ＩＧＨＯＲＥＣＨＡＲＤＯＵＢＬＥ＝' + c + array[ index + 1 ][ i ] + '＞';
             array[ index + 1 ][ i ] = '';
             return ans;
