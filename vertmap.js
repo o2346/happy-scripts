@@ -52,7 +52,7 @@ function vertmap( str ) {
     .map( ( elm, index, array ) => {
       return elm
         .map( ( c, i, a ) => {
-          if( array[ index + 1 ] && ignoreChars.some( ( ic ) => array[ index + 1 ][ i ].match( ic ) ) && ignoreChars.some( ( ic ) => c.match( ic ) ) ) {
+          if( containsDoubleWith && array[ index + 1 ] && ignoreChars.some( ( ic ) => array[ index + 1 ][ i ].match( ic ) ) && ignoreChars.some( ( ic ) => c.match( ic ) ) ) {
             //console.log( 'c=' + c );
             const ans = '＜ＩＧＨＯＲＥＣＨＡＲＤＯＵＢＬＥ＝' + c + array[ index + 1 ][ i ] + '＞';
             array[ index + 1 ][ i ] = '';
@@ -75,4 +75,4 @@ function vertmap( str ) {
 
 const input = '複線\nドリフト!?';
 console.log( vertmap( input ) );
-//console.log( vertmap( 'Multi-\nTrack\nDrifting!!' ) );
+console.log( vertmap( 'Multi-\nTrack\nDrifting!!' ) );
