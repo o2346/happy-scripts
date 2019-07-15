@@ -5,8 +5,15 @@
  * @returns {undefined}
  */
 function vertmap( str ) {
+  const containsDoubleWith = ( str.match( /[^\x20-\x7E\xA1-\xDF\s]/ ) );
+  //console.log( containsDoubleWith );
   return str
     .split( '\n' )
+    .map( ( s, i, a ) => {
+      const max = Math.max( ...a.map( ( _l ) => _l.length ) );
+      const pad = ( containsDoubleWith ? '　' : ' ' );
+      return s.concat( pad.repeat( max - s.length ) );
+    } )
     .map( ( s ) => {
       return s.split( '' );
     } )
@@ -40,8 +47,10 @@ function vertmap( str ) {
     .map( ( elm ) => {
       return elm.reverse().join( '' ).concat( '\n' );
     } )
-    .join( '' ).replace( /a/, ' a' );
+    .join( '' )
+    .replace( new RegExp( ( containsDoubleWith ? '([\x20-\x7E\xA1-\xDF])' : '$^' ), 'g' ), ' $1' );
 }
 
-const input = 'あい\nうえお\nかきくけ\nこ　　　\na';
+const input = '複線\nドリフト!!';
 console.log( vertmap( input ) );
+console.log( vertmap( 'Multi-\nTrack\nDrifting!!' ) );
