@@ -12,7 +12,7 @@ const ignoreChars = [
 function vertmap( str ) {
   const containsDoubleWith = ( str.match( /[^\x20-\x7E\xA1-\xDF\s]/ ) );
   const pad = ( containsDoubleWith ? '　' : ' ' );
-  //console.log( containsDoubleWith );
+
   return str
     .split( '\n' )
     .map( ( s, i, a ) => {
@@ -31,36 +31,26 @@ function vertmap( str ) {
         };
       } );
     } )
-    //.forEach( ( elm ) => {
-    //  elm.forEach( ( e ) => {
-    //    console.log( 'arr[' + e.x + '][' + e.y + ']=' + e.char );
-    //  } );
-    //} );
     .reduce( ( accum, current ) => {
-      //console.log( accum );
       const cloneAccum = [...accum]; //https://www.samanthaming.com/tidbits/35-es6-way-to-clone-an-array
       current.forEach( ( curr ) => {
         if( !cloneAccum[ curr.x ] ) {
           cloneAccum[ curr.x ] = [];
         }
         cloneAccum[ curr.x ][ curr.y ] = curr.char;
-        //console.log( 'arr[' + curr.x + '][' + curr.y + ']=' + curr.char );
       } );
-      //console.log( cloneAccum );
       return cloneAccum;
     }, [] )
     .map( ( elm, index, array ) => {
       return elm
         .map( ( c, i, a ) => {
           if( containsDoubleWith && array[ index + 1 ] && ignoreChars.some( ( ic ) => array[ index + 1 ][ i ].match( ic ) ) && ignoreChars.some( ( ic ) => c.match( ic ) ) ) {
-            //console.log( 'c=' + c );
             const ans = '＜ＩＧＨＯＲＥＣＨＡＲＤＯＵＢＬＥ＝' + c + array[ index + 1 ][ i ] + '＞';
             array[ index + 1 ][ i ] = '';
             return ans;
           }
           return c;
         } );
-      //return elm;
     } )
     .filter( ( elm ) => {
       return !elm.join( '' ).match( new RegExp( '^' + pad + '+$' ) );
