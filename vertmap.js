@@ -26,7 +26,7 @@ function vertmap( str ) {
     //} );
     .reduce( ( accum, current ) => {
       //console.log( accum );
-      const cloneAccum = [...accum];
+      const cloneAccum = [...accum]; //https://www.samanthaming.com/tidbits/35-es6-way-to-clone-an-array
       current.forEach( ( curr ) => {
         if( !cloneAccum[ curr.x ] ) {
           cloneAccum[ curr.x ] = [];
