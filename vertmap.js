@@ -1,7 +1,3 @@
-const ignoreChars = [
-  /\!/,
-  /\?/
-];
 
 /**
  * vertmap
@@ -10,6 +6,10 @@ const ignoreChars = [
  * @returns {undefined}
  */
 function vertmap( str ) {
+  const ignoreChars = [
+    /\!/,
+    /\?/
+  ];
   const containsDoubleWith = ( str.match( /[^\x20-\x7E\xA1-\xDF\s]/ ) );
   const pad = ( containsDoubleWith ? '　' : ' ' );
 
@@ -26,8 +26,8 @@ function vertmap( str ) {
       return s.map( ( c, i ) => {
         return {
           char: c,
-          x: parseInt( i, 10 ),
-          y: parseInt( index, 10 )
+          x: i,
+          y: index
         };
       } );
     } )
@@ -43,7 +43,7 @@ function vertmap( str ) {
     }, [] )
     .map( ( elm, index, array ) => {
       return elm
-        .map( ( c, i, a ) => {
+        .map( ( c, i ) => {
           if( containsDoubleWith && array[ index + 1 ] && ignoreChars.some( ( ic ) => array[ index + 1 ][ i ].match( ic ) ) && ignoreChars.some( ( ic ) => c.match( ic ) ) ) {
             const ans = '＜ＩＧＨＯＲＥＣＨＡＲＤＯＵＢＬＥ＝' + c + array[ index + 1 ][ i ] + '＞';
             array[ index + 1 ][ i ] = '';
@@ -63,6 +63,5 @@ function vertmap( str ) {
     .replace( new RegExp( '＜ＩＧＨＯＲＥＣＨＡＲＤＯＵＢＬＥ＝(.+)＞', 'g' ), ( m, p1 ) => { /*console.log( 'p1=' + p1 );*/ return p1.replace( /\s/g, '' ); } );
 }
 
-const input = '複線\nドリフト!?';
-console.log( vertmap( input ) );
+console.log( vertmap( '複線\nドリフト!!' ) );
 console.log( vertmap( 'Multi-\nTrack\nDrifting!!' ) );
