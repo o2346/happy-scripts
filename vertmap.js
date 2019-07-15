@@ -13,6 +13,8 @@ function vertmap( str ) {
   const containsDoubleWith = ( str.match( /[^\x20-\x7E\xA1-\xDF\s]/ ) );
   const pad = ( containsDoubleWith ? '　' : ' ' );
 
+  const ignoreCharDouble = '＜ＩＧＨＯＲＥＣＨＡＲＤＯＵＢＬＥ＝';
+
   return str
     .split( '\n' )
     .map( ( s, i, a ) => {
@@ -41,11 +43,15 @@ function vertmap( str ) {
       } );
       return cloneAccum;
     }, [] )
-    .map( ( elm, index, array ) => {
-      return elm
+    .reduce( ( accum, chars, index, array ) => {
+      const curr = chars
         .map( ( c, i ) => {
+          if( accum[ index - 1 ] && accum[ index - 1 ][ i ].match( new RegExp( ignoreCharDouble ) ) ) {
+            return '';
+          }
+
           const foldUp = [
-            containsDoubleWith,
+            //containsDoubleWith,
             array[ index + 1 ] && ignoreChars.some( ( ic ) => array[ index + 1 ][ i ].match( ic ) ),
             ignoreChars.some( ( ic ) => c.match( ic ) )
           ]
@@ -54,23 +60,24 @@ function vertmap( str ) {
             } );
 
           if( foldUp ) {
-            const ans = '＜ＩＧＨＯＲＥＣＨＡＲＤＯＵＢＬＥ＝' + c + array[ index + 1 ][ i ] + '＞';
-            array[ index + 1 ][ i ] = '';
-            return ans;
+            return ignoreCharDouble + c + array[ index + 1 ][ i ] + '＞';
           }
+
           return c;
         } );
+      return accum.concat( [ curr ] );
+    }, [] )
+    .filter( ( chars ) => {
+      return !chars.join( '' ).match( new RegExp( '^' + pad + '+$' ) );
     } )
-    .filter( ( elm ) => {
-      return !elm.join( '' ).match( new RegExp( '^' + pad + '+$' ) );
+    .map( ( chars ) => {
+      return chars.reverse().join( '' );
     } )
-    .map( ( elm ) => {
-      return elm.reverse().join( '' ).concat( '\n' );
-    } )
-    .join( '' )
-    .replace( new RegExp( ( containsDoubleWith ? '([\x20-\x7E\xA1-\xDF])' : '$^' ), 'g' ), ' $1' )
+    .join( '\n' )
+    .replace( new RegExp( '([\x20-\x7E\xA1-\xDF])', 'g' ), ' $1' )
     .replace( new RegExp( '＜ＩＧＨＯＲＥＣＨＡＲＤＯＵＢＬＥ＝(.+)＞', 'g' ), ( m, p1 ) => { return p1.replace( /\s/g, '' ); } );
 }
 
 console.log( vertmap( '複線\nドリフト!!' ) );
+console.log( '' );
 console.log( vertmap( 'Multi-\nTrack\nDrifting!!' ) );
