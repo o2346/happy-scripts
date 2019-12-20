@@ -64,6 +64,7 @@ crap(){
 
     if [ "$PULL" = "true" ]; then
       git pull | egrep -iv 'Already.up.to.date'
+      [ "${PIPESTATUS[0]}" = "0" ] || echo "which: $REPO"
       continue
     fi
 
