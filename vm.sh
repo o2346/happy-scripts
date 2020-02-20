@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+alias aws='aws2'
+
 help() {
   printf "# wrapper script of Virtual Machines Operation\n"
   printf "# wraps vmrun VBoxManage, quemu, aws ec2\n"
@@ -293,7 +295,8 @@ get_argvname() {
   done
 }
 
-aws_profile=`echo $* | tr ' ' '\n' | grep -e '--profile=' | tr '=' ' '`
+#aws_profile=`echo $* | tr ' ' '\n' | grep -e '--profile=' | tr '=' ' '`
+aws_profile=''
 aws_retry_sec=3
 
 list_running_instances() {
@@ -353,23 +356,14 @@ new_instance_aws() {
   #local ami=`aws ec2 $aws_profile describe-images --owners amazon --filters 'Name=name,Values=amzn-ami-hvm-????.??.?.x86_64-gp2' 'Name=state,Values=available' | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId'`
   # https://gist.github.com/nikolay/12f4ca2a592bbfa0df57c3bbccb92f0f
 
-  local readonly amazon_linux_version=`echo $* | tr ' ' '\n' | egrep '\-\-AmazonLinux' | sed 's/[^0-9]//g' | tr -d '\n'`
   if [ `echo $* | grep '\-\-ami' > /dev/null; echo $?` = 0 ]; then
     local readonly ami=`echo $* | tr ' ' '\n' | grep '\-\-ami' | sed -e 's/--ami=//'`
   else
-    local readonly ami=`aws ec2 describe-images                       \
-      --owners amazon                                                 \
-      --filters                                                       \
-        'Name=name,Values=amzn'$amazon_linux_version'-ami-hvm-?*-x86_64-gp2' \
-        'Name=state,Values=available'                                 \
-        'Name=architecture,Values=x86_64'                             \
-        'Name=virtualization-type,Values=hvm'                         \
-        'Name=root-device-type,Values=ebs'                            \
-      --query 'sort_by(Images, &CreationDate)[-1].ImageId' | tr -d '"' \
-    `
+    local readonly ami=`aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2 --query 'Parameters[].Value' --output text`
   fi
   # for amazon linux 2
   # https://aws.amazon.com/amazon-linux-2/release-notes
+  #
   aws ec2 $aws_profile create-key-pair --key-name $1 > keypair.json
 
   echo "console.log( JSON.parse( process.argv[ 2 ] ).KeyMaterial );" |
@@ -427,7 +421,7 @@ newvm() {
 }
 
 # start Virtual Machine
-vm() {
+_vm() {
 
   VMX=`find . -maxdepth 1 -name *.vmx` 2> /dev/null
 
@@ -681,6 +675,6 @@ do
   esac
 done
 
-vm $*
+_vm $*
 
 
