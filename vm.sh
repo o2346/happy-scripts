@@ -299,10 +299,6 @@ get_argvname() {
 aws_profile=''
 aws_retry_sec=3
 
-list_running_instances() {
-  echo "JSON.parse( '"`aws ec2 describe-instances --filters='Name=instance-state-name,Values=running'`"' ).Reservations.forEach( ( r ) => { r.Instances.forEach( ( i ) => { console.log( i.KeyName ); } ) } );" | node -
-}
-
 delete_instance() {
   aws $aws_profile ec2 terminate-instances --instance-ids `cat instance.id`
 
@@ -315,7 +311,10 @@ delete_instance() {
   done
 
   aws ec2 $aws_profile delete-key-pair --key-name  `cat vmname`
-  list_running_instances
+  aws ec2 describe-instances \
+    --output text \
+    --query='Reservations[].Instances[].{KeyName:KeyName,State:State}' \
+    --instance-id=`cat instance.id` | grep 'terminated'
 }
 
 ip_permissions() {
