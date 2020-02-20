@@ -369,13 +369,14 @@ new_instance_aws() {
   node - "`cat keypair.json`" > key_rsa
   chmod 600 key_rsa
 
-  aws ec2 run-instances                      \
-  --image-id $ami                            \
-  --count 1                                  \
-  --instance-type t3.nano                    \
-  --credit-specification CpuCredits=standard \
-  --key-name $1                              \
-  --security-groups $1                       \
+  aws ec2 run-instances                            \
+  --image-id $ami                                  \
+  --count 1                                        \
+  --instance-type t3.nano                          \
+  --credit-specification CpuCredits=standard       \
+  --key-name $1                                    \
+  --security-groups $1                             \
+  --instance-initiated-shutdown-behavior terminate \
   > ec2.instance
 
   cat ec2.instance | grep InstanceId | sed -e 's/"InstanceId"://' | sed -e 's/[", ]//g' > instance.id
