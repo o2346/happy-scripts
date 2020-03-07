@@ -304,6 +304,9 @@ readonly aws_option=${@:$((aws_argn+2)):$#}
 aws_retry_sec=3
 
 delete_instance() {
+  echo fuck
+  echo "${FUNCNAME[0]}"
+  exit 0
   aws ec2 `echo "$aws_option"` terminate-instances --instance-ids `cat instance.id`
 
   while true
@@ -319,6 +322,7 @@ delete_instance() {
     --output text \
     --query='Reservations[].Instances[].{KeyName:KeyName,State:State}' \
     --instance-id=`cat instance.id` | grep 'terminated'
+  #https://gist.github.com/jpbarto/38ce994ced3f85128243d50fc11b7b0b
 }
 
 ip_permissions() {
