@@ -295,22 +295,26 @@ get_argvname() {
   done
 }
 
-#aws_profile=`echo $* | tr ' ' '\n' | grep -e '--profile=' | tr '=' ' '`
-aws_profile=''
+readonly aws_argn=`seq $# | while read argn; do
+  echo $* | tr ' ' '\n' | awk '{if(NR=='$argn') print $0}' | grep 'ec2' > /dev/null && echo $argn
+done`
+readonly aws_option=${@:$((aws_argn+2)):$#}
+printf $aws_option #should be "--region ap-northeast-1" in "vm -n ec2 --region ap-northeast-1" for example
+
 aws_retry_sec=3
 
 delete_instance() {
-  aws $aws_profile ec2 terminate-instances --instance-ids `cat instance.id`
+  aws ec2 $aws_option terminate-instances --instance-ids `cat instance.id`
 
   while true
   do
-    #[ $(aws $aws_profile ec2 delete-security-group --group-name `cat vmname`) > /dev/null ] && break
-    aws $aws_profile ec2 delete-security-group --group-name `cat vmname` 2> /dev/null
+    #[ $(aws ec2 $aws_option delete-security-group --group-name `cat vmname`) > /dev/null ] && break
+    aws ec2 $aws_option delete-security-group --group-name `cat vmname` 2> /dev/null
     [ "`aws ec2 describe-security-groups | grep $(cat vmname) 2> /dev/null`" ] || break
     sleep $aws_retry_sec
   done
 
-  aws ec2 $aws_profile delete-key-pair --key-name  `cat vmname`
+  aws ec2 $aws_option delete-key-pair --key-name  `cat vmname`
   aws ec2 describe-instances \
     --output text \
     --query='Reservations[].Instances[].{KeyName:KeyName,State:State}' \
@@ -327,7 +331,7 @@ get_security_id() {
 }
 
 auth() {
-  aws $aws_profile ec2                        \
+  aws ec2 `echo "$aws_option"`                        \
   authorize-security-group-ingress            \
   --group-id `get_security_id`                \
   --ip-permissions "`ip_permissions $1`"
@@ -341,8 +345,12 @@ new_instance_aws() {
   # if ec2 was unreachable, return as an error
   echo $1 > vmname
   echo $1
-  aws $aws_profile ec2 describe-instances > /dev/null || return 1
-  aws $aws_profile ec2 create-security-group \
+  echo "debug 1"
+  echo "aws ec2 `echo "$aws_option"` describe-instances"
+  aws ec2 `echo "$aws_option"` describe-instances > /dev/null || return 1
+  echo "debug 2"
+  #exit 0
+  aws ec2 `echo "$aws_option"` create-security-group \
   --description "dedicated for instance $1. ask the user who create this, he may not need this anymore" \
   --group-name "$1" \
   > ./securitygroup
@@ -351,25 +359,27 @@ new_instance_aws() {
   auth 443
   auth 22
 
-  #aws ec2 $aws_profile describe-security-groups --group-names $1
-  #local ami=`aws ec2 $aws_profile describe-images --owners amazon --filters 'Name=name,Values=amzn-ami-hvm-????.??.?.x86_64-gp2' 'Name=state,Values=available' | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId'`
+  #aws ec2 `echo "$aws_option"` describe-security-groups --group-names $1
+  #local ami=`aws ec2 `echo "$aws_option"` describe-images --owners amazon --filters 'Name=name,Values=amzn-ami-hvm-????.??.?.x86_64-gp2' 'Name=state,Values=available' | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId'`
   # https://gist.github.com/nikolay/12f4ca2a592bbfa0df57c3bbccb92f0f
 
   if [ `echo $* | grep '\-\-ami' > /dev/null; echo $?` = 0 ]; then
     local readonly ami=`echo $* | tr ' ' '\n' | grep '\-\-ami' | sed -e 's/--ami=//'`
   else
-    local readonly ami=`aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2 --query 'Parameters[].Value' --output text`
+    local readonly ami=`aws ssm $(echo "$aws_option") get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2 --query 'Parameters[].Value' --output text`
   fi
+  echo $ami
   # for amazon linux 2
   # https://aws.amazon.com/amazon-linux-2/release-notes
   #
-  aws ec2 $aws_profile create-key-pair --key-name $1 > keypair.json
+  aws ec2 `echo "$aws_option"` create-key-pair --key-name $1 > keypair.json
 
   echo "console.log( JSON.parse( process.argv[ 2 ] ).KeyMaterial );" |
   node - "`cat keypair.json`" > key_rsa
   chmod 600 key_rsa
 
   aws ec2 run-instances                            \
+  `echo "$aws_option"`                             \
   --image-id $ami                                  \
   --count 1                                        \
   --instance-type t3.nano                          \
@@ -380,16 +390,16 @@ new_instance_aws() {
   > ec2.instance
 
   cat ec2.instance | grep InstanceId | sed -e 's/"InstanceId"://' | sed -e 's/[", ]//g' > instance.id
-  #aws ec2 $aws_profile describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id`
-  #aws ec2 $aws_profile describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
+  #aws ec2 `echo "$aws_option"` describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id`
+  #aws ec2 `echo "$aws_option"` describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
 
   #https://stackoverflow.com/questions/35772757/how-to-rename-ec2-instance-name
-  aws $aws_profile ec2 create-tags --resources `cat instance.id` --tag "Key=Name,Value=$1"
+  aws ec2 `echo "$aws_option"` create-tags --resources `cat instance.id` --tag "Key=Name,Value=$1"
 
   #echo 'trying to connect..' >&2
   while true
   do
-    aws ec2 $aws_profile describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
+    aws ec2 `echo "$aws_option"` describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
     if [ ! `cat ipv4  | egrep '([0-9]+\.){3}[0-9]+$'` ]; then
       echo 'no ip address obtained. trying again..'
       sleep $aws_retry_sec
@@ -402,7 +412,7 @@ new_instance_aws() {
   done
 
   #echo "\"ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa\" to ssh the one"
-  #aws ec2 $aws_profile describe-key-pairs
+  #aws ec2 `echo "$aws_option"` describe-key-pairs
   #delete_instance $1
   ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa
   exec $SHELL
@@ -573,7 +583,7 @@ _vm() {
 #        r) echo restart Virtual Machine..
 #           return 0
 #           ;;
-        i)  aws $aws_profile ec2 describe-instances --instance-ids `cat instance.id`
+        i)  aws ec2 $aws_option describe-instances --instance-ids `cat instance.id`
            echo 'all running instances:'
            list_running_instances
            return 0
@@ -676,5 +686,4 @@ do
 done
 
 _vm $*
-
 
