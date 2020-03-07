@@ -454,7 +454,7 @@ new_instance_aws() {
   #delete_instance $1
   printf "#!/bin/bash\nssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i `pwd`/key_rsa" > ./ssh.sh
   chmod +x ./ssh.sh
-  pwd
+  echo $PWD/ssh.sh
   trap "delete_instance $1" ERR EXIT
   ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa
 }
