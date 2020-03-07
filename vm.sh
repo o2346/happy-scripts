@@ -411,6 +411,8 @@ new_instance_aws() {
   node - "`cat keypair.json`" > key_rsa
   chmod 600 key_rsa
 
+  echo '[{"ResourceType": "volume", "Tags": [{"Key":"Name","Value":"'$1'"}]},{"ResourceType": "instance", "Tags": [{"Key":"Name","Value":"'$1'"}]}]' |
+    python3 -m json.tool > ./tag_specifications
   aws ec2 run-instances                                                      \
     `echo "$aws_option"`                                                     \
     --image-id $ami                                                          \
@@ -418,7 +420,7 @@ new_instance_aws() {
     --instance-type t3.nano                                                  \
     --credit-specification CpuCredits=standard                               \
     --key-name $1                                                            \
-    --tag-specifications  "ResourceType=instance,Tags=[{Key=Name,Value=$1}]" \
+    --tag-specifications  "`cat ./tag_specifications`" \
     --security-groups $1                                                     \
     --instance-initiated-shutdown-behavior terminate                         |
   tee ec2.instance
