@@ -300,6 +300,7 @@ readonly aws_argn=`seq $# | while read argn; do
 done`
 readonly aws_option=${@:$((aws_argn+2)):$#}
 #printf $aws_option #should be "--region ap-northeast-1" in "vm -n ec2 --region ap-northeast-1" for example
+#https://stackoverflow.com/questions/1497811/how-to-get-the-nth-positional-argument-in-bash
 
 aws_retry_sec=5
 
@@ -457,7 +458,9 @@ new_instance_aws() {
   chmod +x ./*.sh
   ls $PWD/*.sh
   trap "delete_instance $1" ERR EXIT
-  ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa
+  ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -o 'ServerAliveInterval 240' -o 'ServerAliveCountMax 200' -i key_rsa
+  #https://serverfault.com/questions/538897/serveralivecountmax-in-ssh
+  #https://www.a2hosting.com/kb/getting-started-guide/accessing-your-account/keeping-ssh-connections-alive
 }
 
 newvm() {
