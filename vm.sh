@@ -306,19 +306,15 @@ aws_retry_sec=5
 
 delete_instance() {
   local readonly instance_ids=$(aws ec2 describe-instances `echo "$aws_option"` --query 'Reservations[].Instances[?contains(KeyName,`'$1'`)].{InstanceId:InstanceId}' --output text | awk 'BEGIN{ORS=" "} {print $0}' | sed -e 's/ $//g')
-#  echo $instance_ids
   aws ec2 `echo "$aws_option"` describe-instances --instance-ids $instance_ids --output text --query 'Reservations[].Instances[?Stane.name!=`Terminated`].{KeyName:KeyName}'
   if [ "$?" = 0 ]; then
     aws ec2 `echo "$aws_option"` terminate-instances --instance-ids $instance_ids
   fi
-  #aws ec2 `echo "$aws_option"` describe-instances --instance-ids i-0022 --output text --query 'Reservations[].Instances[?Stane.name!=`Terminated`].{KeyName:KeyName}'
 
   local readonly secg_name=$1
   local maxtry=20
   seq $maxtry | while read attemption; do
     echo "attemption number $attemption of $maxtry"
-    #[ $(aws ec2 `echo "$aws_option"` delete-security-group --group-name `cat vmname`) > /dev/null ] && break
-#    aws ec2 `echo "$aws_option"` describe-security-groups --query 'SecurityGroups[?GroupName==`'$secg_name'`].{GroupName:GroupName}' --output text
     aws ec2 `echo "$aws_option"` describe-security-groups --group-names $secg_name --query 'SecurityGroups[].{GroupName:GroupName}' --output text > /dev/null
     [ "$?" = 0 ] || break
     aws ec2 `echo "$aws_option"` delete-security-group --group-name $1 && echo "Successfully deleted security group $secg_name" && break
