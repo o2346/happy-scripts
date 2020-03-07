@@ -340,9 +340,9 @@ get_security_id() {
 }
 
 auth() {
-  aws ec2 `echo "$aws_option"`                        \
-  authorize-security-group-ingress            \
-  --group-id `get_security_id`                \
+  aws ec2 `echo "$aws_option"`            \
+  authorize-security-group-ingress        \
+  --group-id `get_security_id`            \
   --ip-permissions "`ip_permissions $1`"
 }
 
