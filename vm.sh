@@ -306,13 +306,13 @@ aws_retry_sec=5
 
 delete_instance() {
   local readonly instance_ids=$(aws ec2 describe-instances `echo "$aws_option"` --query 'Reservations[].Instances[?contains(KeyName,`'$1'`)].{InstanceId:InstanceId}' --output text | awk 'BEGIN{ORS=" "} {print $0}' | sed -e 's/ $//g')
-  aws ec2 `echo "$aws_option"` describe-instances --instance-ids $instance_ids --output text --query 'Reservations[].Instances[?Stane.name!=`Terminated`].{KeyName:KeyName}'
+  aws ec2 `echo "$aws_option"` describe-instances --instance-ids $instance_ids --output text --query 'Reservations[].Instances[?Stane.name!=`Terminated`].{KeyName:KeyName}' > /dev/null
   if [ "$?" = 0 ]; then
     aws ec2 `echo "$aws_option"` terminate-instances --instance-ids $instance_ids
   fi
 
   local maxtry=20
-  sleep 20 # It will anyway not succeed until this seconds passed
+  sleep 16 # It will anyway not succeed until this seconds passed
   # try deletion or give up
   seq $maxtry | while read attemption; do
     echo "Security Group deletion attemption number $attemption of $maxtry" >&2
@@ -386,7 +386,6 @@ new_instance_aws() {
   pwd
   # if ec2 was unreachable, return as an error
   echo $1 > vmname
-  echo $1
   aws ec2 `echo "$aws_option"` describe-instances > /dev/null || return 1
   aws ec2 `echo "$aws_option"` create-security-group \
   --description "dedicated for instance $1. ask the user who create this, he may not need this anymore" \
@@ -412,17 +411,17 @@ new_instance_aws() {
   node - "`cat keypair.json`" > key_rsa
   chmod 600 key_rsa
 
-  aws ec2 run-instances                            \
-  `echo "$aws_option"`                             \
-  --image-id $ami                                  \
-  --count 1                                        \
-  --instance-type t3.nano                          \
-  --credit-specification CpuCredits=standard       \
-  --key-name $1                                    \
-  --tag-specifications  "ResourceType=instance,Tags=[{Key=Name,Value=$1}]" \
-  --security-groups $1                             \
-  --instance-initiated-shutdown-behavior terminate \
-  > ec2.instance
+  aws ec2 run-instances                                                      \
+    `echo "$aws_option"`                                                     \
+    --image-id $ami                                                          \
+    --count 1                                                                \
+    --instance-type t3.nano                                                  \
+    --credit-specification CpuCredits=standard                               \
+    --key-name $1                                                            \
+    --tag-specifications  "ResourceType=instance,Tags=[{Key=Name,Value=$1}]" \
+    --security-groups $1                                                     \
+    --instance-initiated-shutdown-behavior terminate                         |
+  tee ec2.instance
 
   cat ec2.instance | grep InstanceId | sed -e 's/"InstanceId"://' | sed -e 's/[", ]//g' > instance.id
   #https://stackoverflow.com/questions/35772757/how-to-rename-ec2-instance-name
@@ -437,18 +436,13 @@ new_instance_aws() {
       sleep $aws_retry_sec
       continue
     fi
-    ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa 'uname' > /dev/null 2>&1
-    [ "$?" = 0 ] && break
+    ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' \
+      -i key_rsa 'uname' > /dev/null 2>&1                 && break
     sleep $aws_retry_sec
   done
 
-  #echo "\"ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa\" to ssh the one"
-  #aws ec2 `echo "$aws_option"` describe-key-pairs
-  #delete_instance $1
-  #printf "#!/bin/bash\nreadonly aws_option=$aws_option\n`which delete_instance`\ndelete_instance $1" > ./delete_instance.sh
   printf "#!/bin/bash\nssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i `pwd`/key_rsa" > ./ssh.sh
   chmod +x ./*.sh
-  ls $PWD/*.sh
   trap "delete_instance $1" ERR EXIT
   ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -o 'ServerAliveInterval 240' -o 'ServerAliveCountMax 200' -i key_rsa
   #https://serverfault.com/questions/538897/serveralivecountmax-in-ssh
