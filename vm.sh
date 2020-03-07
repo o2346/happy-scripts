@@ -311,15 +311,21 @@ delete_instance() {
     aws ec2 `echo "$aws_option"` terminate-instances --instance-ids $instance_ids --dry-run
   fi
   #aws ec2 `echo "$aws_option"` describe-instances --instance-ids i-0022 --output text --query 'Reservations[].Instances[?Stane.name!=`Terminated`].{KeyName:KeyName}'
-  exit 0
 
-  while true
-  do
+  local readonly secg_name=`echo $1 | tr '.' '_'`
+  echo $secg_name
+  seq $aws_retry_sec | while read attemption; do
+    echo attemption number $attemption
     #[ $(aws ec2 `echo "$aws_option"` delete-security-group --group-name `cat vmname`) > /dev/null ] && break
-    aws ec2 `echo "$aws_option"` delete-security-group --group-name `cat vmname` 2> /dev/null
-    [ "`aws ec2 describe-security-groups | grep $(cat vmname) 2> /dev/null`" ] || break
+    echo $secg_name
+#    aws ec2 `echo "$aws_option"` describe-security-groups --query 'SecurityGroups[?GroupName==`'$secg_name'`].{GroupName:GroupName}' --output text
+    aws ec2 `echo "$aws_option"` describe-security-groups --group-names $secg_name --query 'SecurityGroups[].{GroupName:GroupName}' --output text
+    [ "$?" = 0 ] || break
+    aws ec2 `echo "$aws_option"` delete-security-group --group-name $1 --dry-run
     sleep $aws_retry_sec
   done
+
+  exit 0
 
   aws ec2 `echo "$aws_option"` delete-key-pair --key-name  `cat vmname`
   aws ec2 describe-instances \
@@ -384,7 +390,7 @@ new_instance_aws() {
   mkdir $workdir
   cd $workdir
   pwd
-  delete_instance 'tmp'
+  delete_instance 'tmp_szq5xl'
   # if ec2 was unreachable, return as an error
   echo $1 > vmname
   echo $1
