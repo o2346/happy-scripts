@@ -301,37 +301,34 @@ done`
 readonly aws_option=${@:$((aws_argn+2)):$#}
 #printf $aws_option #should be "--region ap-northeast-1" in "vm -n ec2 --region ap-northeast-1" for example
 
-aws_retry_sec=3
+aws_retry_sec=5
 
 delete_instance() {
   local readonly instance_ids=$(aws ec2 describe-instances `echo "$aws_option"` --query 'Reservations[].Instances[?contains(KeyName,`'$1'`)].{InstanceId:InstanceId}' --output text | awk 'BEGIN{ORS=" "} {print $0}' | sed -e 's/ $//g')
   echo $instance_ids
   aws ec2 `echo "$aws_option"` describe-instances --instance-ids $instance_ids --output text --query 'Reservations[].Instances[?Stane.name!=`Terminated`].{KeyName:KeyName}'
   if [ "$?" = 0 ]; then
-    aws ec2 `echo "$aws_option"` terminate-instances --instance-ids $instance_ids --dry-run
+    aws ec2 `echo "$aws_option"` terminate-instances --instance-ids $instance_ids 
   fi
   #aws ec2 `echo "$aws_option"` describe-instances --instance-ids i-0022 --output text --query 'Reservations[].Instances[?Stane.name!=`Terminated`].{KeyName:KeyName}'
 
   local readonly secg_name=`echo $1 | tr '.' '_'`
   echo $secg_name
-  seq $aws_retry_sec | while read attemption; do
+  seq 10 | while read attemption; do
     echo attemption number $attemption
     #[ $(aws ec2 `echo "$aws_option"` delete-security-group --group-name `cat vmname`) > /dev/null ] && break
     echo $secg_name
 #    aws ec2 `echo "$aws_option"` describe-security-groups --query 'SecurityGroups[?GroupName==`'$secg_name'`].{GroupName:GroupName}' --output text
     aws ec2 `echo "$aws_option"` describe-security-groups --group-names $secg_name --query 'SecurityGroups[].{GroupName:GroupName}' --output text
     [ "$?" = 0 ] || break
-    aws ec2 `echo "$aws_option"` delete-security-group --group-name $1 --dry-run
+    aws ec2 `echo "$aws_option"` delete-security-group --group-name $1 
     sleep $aws_retry_sec
   done
 
-  exit 0
-
-  aws ec2 `echo "$aws_option"` delete-key-pair --key-name  `cat vmname`
-  aws ec2 describe-instances \
+  aws ec2 `echo "$aws_option"` delete-key-pair --key-name $1 
+  aws ec2 `echo "$aws_option"` describe-instances \
     --output text \
-    --query='Reservations[].Instances[].{KeyName:KeyName,State:State}' \
-    --instance-id=`cat instance.id` | grep 'terminated'
+    --query 'Reservations[].Instances[?KeyName==`'$1'` && State==`Terminated`].{KeyName:KeyName,State:State}'
   #https://gist.github.com/jpbarto/38ce994ced3f85128243d50fc11b7b0b
 }
 
@@ -390,7 +387,6 @@ new_instance_aws() {
   mkdir $workdir
   cd $workdir
   pwd
-  delete_instance 'tmp_szq5xl'
   # if ec2 was unreachable, return as an error
   echo $1 > vmname
   echo $1
@@ -428,9 +424,8 @@ new_instance_aws() {
   --key-name $1                                    \
   --tag-specifications  "ResourceType=instance,Tags=[{Key=Name,Value=$1}]" \
   --security-groups $1                             \
+  --instance-initiated-shutdown-behavior terminate \
   > ec2.instance
-
-#  --instance-initiated-shutdown-behavior terminate \
 
   cat ec2.instance | grep InstanceId | sed -e 's/"InstanceId"://' | sed -e 's/[", ]//g' > instance.id
   #aws ec2 `echo "$aws_option"` describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id`
@@ -457,8 +452,13 @@ new_instance_aws() {
   #echo "\"ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa\" to ssh the one"
   #aws ec2 `echo "$aws_option"` describe-key-pairs
   #delete_instance $1
+  printf "#!/bin/bash\nssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i `pwd`/key_rsa" > ./ssh.sh
+  chmod +x ./ssh.sh
+  pwd
+  trap "delete_instance $1" ERR EXIT
   ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa
-  exec $SHELL
+
+
 }
 
 newvm() {
