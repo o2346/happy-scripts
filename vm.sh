@@ -304,17 +304,17 @@ printf $aws_option #should be "--region ap-northeast-1" in "vm -n ec2 --region a
 aws_retry_sec=3
 
 delete_instance() {
-  aws ec2 $aws_option terminate-instances --instance-ids `cat instance.id`
+  aws ec2 `echo "$aws_option"` terminate-instances --instance-ids `cat instance.id`
 
   while true
   do
-    #[ $(aws ec2 $aws_option delete-security-group --group-name `cat vmname`) > /dev/null ] && break
-    aws ec2 $aws_option delete-security-group --group-name `cat vmname` 2> /dev/null
+    #[ $(aws ec2 `echo "$aws_option"` delete-security-group --group-name `cat vmname`) > /dev/null ] && break
+    aws ec2 `echo "$aws_option"` delete-security-group --group-name `cat vmname` 2> /dev/null
     [ "`aws ec2 describe-security-groups | grep $(cat vmname) 2> /dev/null`" ] || break
     sleep $aws_retry_sec
   done
 
-  aws ec2 $aws_option delete-key-pair --key-name  `cat vmname`
+  aws ec2 `echo "$aws_option"` delete-key-pair --key-name  `cat vmname`
   aws ec2 describe-instances \
     --output text \
     --query='Reservations[].Instances[].{KeyName:KeyName,State:State}' \
