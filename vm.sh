@@ -384,9 +384,11 @@ new_instance_aws() {
   mkdir $workdir
   cd $workdir
   pwd
-  # if ec2 was unreachable, return as an error
   echo $1 > vmname
+
+  # if ec2 was unreachable, return as an error
   aws ec2 `echo "$aws_option"` describe-instances > /dev/null || return 1
+
   aws ec2 `echo "$aws_option"` create-security-group \
   --description "dedicated for instance $1. ask the user who create this, he may not need this anymore" \
   --group-name "$1" \
@@ -396,23 +398,18 @@ new_instance_aws() {
   auth 443
   auth 22
 
-  if [ `echo $* | grep '\-\-ami' > /dev/null; echo $?` = 0 ]; then
-    local readonly ami=`echo $* | tr ' ' '\n' | grep '\-\-ami' | sed -e 's/--ami=//'`
-  else
-    local readonly ami=`aws ssm $(echo "$aws_option") get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2 --query 'Parameters[].Value' --output text`
-    # https://gist.github.com/nikolay/12f4ca2a592bbfa0df57c3bbccb92f0f
-    # for amazon linux 2
-    # https://aws.amazon.com/amazon-linux-2/release-notes
-    #
-  fi
-  aws ec2 `echo "$aws_option"` create-key-pair --key-name $1 > keypair.json
+  local readonly ami=`aws ssm $(echo "$aws_option") get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2 --query 'Parameters[].Value' --output text`
+  # https://gist.github.com/nikolay/12f4ca2a592bbfa0df57c3bbccb92f0f
+  # https://aws.amazon.com/amazon-linux-2/release-notes
 
+  aws ec2 `echo "$aws_option"` create-key-pair --key-name $1 > keypair.json
   echo "console.log( JSON.parse( process.argv[ 2 ] ).KeyMaterial );" |
   node - "`cat keypair.json`" > key_rsa
   chmod 600 key_rsa
 
   echo '[{"ResourceType": "volume", "Tags": [{"Key":"Name","Value":"'$1'"}]},{"ResourceType": "instance", "Tags": [{"Key":"Name","Value":"'$1'"}]}]' |
     python3 -m json.tool > ./tag_specifications
+
   aws ec2 run-instances                                                      \
     `echo "$aws_option"`                                                     \
     --image-id $ami                                                          \
@@ -420,19 +417,16 @@ new_instance_aws() {
     --instance-type t3.nano                                                  \
     --credit-specification CpuCredits=standard                               \
     --key-name $1                                                            \
-    --tag-specifications  "`cat ./tag_specifications`" \
+    --tag-specifications  "`cat ./tag_specifications`"                       \
     --security-groups $1                                                     \
-    --instance-initiated-shutdown-behavior terminate                         |
-  tee ec2.instance
+    --instance-initiated-shutdown-behavior terminate                         \
+  > ec2.instance
 
   cat ec2.instance | grep InstanceId | sed -e 's/"InstanceId"://' | sed -e 's/[", ]//g' > instance.id
-  #https://stackoverflow.com/questions/35772757/how-to-rename-ec2-instance-name
-  #aws ec2 `echo "$aws_option"` create-tags --resources `cat instance.id` --tag "Key=Name,Value=$1"
 
   # confirm ssh connection
-  while true
-  do
-    aws ec2 --region ap-northeast-1 describe-instances --instance-ids=`cat instance.id` --query "Reservations[].Instances[].{PublicIpAddress:PublicIpAddress}" --output text > ipv4
+  while true; do
+    aws ec2 `echo "$aws_option"` describe-instances --instance-ids=`cat instance.id` --query "Reservations[].Instances[].{PublicIpAddress:PublicIpAddress}" --output text > ipv4
     if [ ! `cat ipv4  | egrep '([0-9]+\.){3}[0-9]+$'` ]; then
       echo 'no ip address obtained. trying again..'
       sleep $aws_retry_sec
@@ -445,7 +439,7 @@ new_instance_aws() {
 
   printf "#!/bin/bash\nssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i `pwd`/key_rsa" > ./ssh.sh
   chmod +x ./*.sh
-  trap "delete_instance $1" ERR EXIT
+  trap "delete_instance $1 &" ERR EXIT
   ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -o 'ServerAliveInterval 240' -o 'ServerAliveCountMax 200' -i key_rsa
   #https://serverfault.com/questions/538897/serveralivecountmax-in-ssh
   #https://www.a2hosting.com/kb/getting-started-guide/accessing-your-account/keeping-ssh-connections-alive
