@@ -304,10 +304,14 @@ readonly aws_option=${@:$((aws_argn+2)):$#}
 aws_retry_sec=3
 
 delete_instance() {
-  echo fuck
-  echo "${FUNCNAME[0]}"
+  local readonly instance_ids=$(aws ec2 describe-instances `echo "$aws_option"` --query 'Reservations[].Instances[?contains(KeyName,`'$1'`)].{InstanceId:InstanceId}' --output text | awk 'BEGIN{ORS=" "} {print $0}' | sed -e 's/ $//g')
+  echo $instance_ids
+  aws ec2 `echo "$aws_option"` describe-instances --instance-ids $instance_ids --output text --query 'Reservations[].Instances[?Stane.name!=`Terminated`].{KeyName:KeyName}'
+  if [ "$?" = 0 ]; then
+    aws ec2 `echo "$aws_option"` terminate-instances --instance-ids $instance_ids --dry-run
+  fi
+  #aws ec2 `echo "$aws_option"` describe-instances --instance-ids i-0022 --output text --query 'Reservations[].Instances[?Stane.name!=`Terminated`].{KeyName:KeyName}'
   exit 0
-  aws ec2 `echo "$aws_option"` terminate-instances --instance-ids `cat instance.id`
 
   while true
   do
@@ -380,7 +384,7 @@ new_instance_aws() {
   mkdir $workdir
   cd $workdir
   pwd
-
+  delete_instance 'tmp'
   # if ec2 was unreachable, return as an error
   echo $1 > vmname
   echo $1
