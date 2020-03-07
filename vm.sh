@@ -452,9 +452,10 @@ new_instance_aws() {
   #echo "\"ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa\" to ssh the one"
   #aws ec2 `echo "$aws_option"` describe-key-pairs
   #delete_instance $1
+  #printf "#!/bin/bash\nreadonly aws_option=$aws_option\n`which delete_instance`\ndelete_instance $1" > ./delete_instance.sh
   printf "#!/bin/bash\nssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i `pwd`/key_rsa" > ./ssh.sh
-  chmod +x ./ssh.sh
-  echo $PWD/ssh.sh
+  chmod +x ./*.sh
+  ls $PWD/*.sh
   trap "delete_instance $1" ERR EXIT
   ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa
 }
