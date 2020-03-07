@@ -312,7 +312,7 @@ delete_instance() {
   fi
 
   local maxtry=20
-  sleep 16 # It will anyway not succeed until this seconds passed
+  sleep 16 # It will anyway not succeed within a moment
   # try deletion or give up
   seq $maxtry | while read attemption; do
     echo "Security Group deletion attemption number $attemption of $maxtry" >&2
