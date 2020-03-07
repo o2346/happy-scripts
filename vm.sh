@@ -457,8 +457,6 @@ new_instance_aws() {
   pwd
   trap "delete_instance $1" ERR EXIT
   ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa
-
-
 }
 
 newvm() {
