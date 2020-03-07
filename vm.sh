@@ -341,6 +341,38 @@ auth() {
   --ip-permissions "`ip_permissions $1`"
 }
 
+# no use for now. you need permisson to mamipulate iam role, policy
+# also I don't want custom role created on this context to be remaind, Manual deletion unavoidable
+# SSO_reserved role for lambda func was rejected by aws like below
+#
+#% vm -n ec2
+#arn:aws:iam::981231879765:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdvancedPowerUser_7b08fb5518d2e5ce
+#An error occurred (InvalidParameterValueException) when calling the CreateFunction operation: The role defined for the function cannot be assumed by Lambda.
+create_automatic_deletion_function() {
+  local readonly this_script_dir=`which vm | awk '{print $NF}' | xargs dirname`
+  zip -rq ./self_destruction.zip $this_script_dir/self_destruction.py
+  ls
+  local readonly current_role_arn=$(aws sts get-caller-identity --query 'Arn' --output text | grep -Eo 'AWSReservedSSO_[a-zA-Z]+_' | xargs -I_ROLENAME_ aws iam list-roles --query 'Roles[?contains(Arn,`_ROLENAME_`)].{Arn:Arn}' --output text)
+  echo $current_role_arn
+  aws lambda create-function                                          \
+    `echo $aws_option`                                                \
+    --function-name delete_ec2_secg_keys_$1                           \
+    --runtime  python3.8                                               \
+    --role $current_role_arn                                          \
+    --handler index.handler                                           \
+    --zip-file fileb://./self_destruction.zip                                 \
+    --timeout 30                                                      \
+    --description 'self_descruction test'
+#	@aws lambda add-permission               \
+#	--function-name $(func_name)                           \
+#	--statement-id "s3-put-event"                          \
+#	--action "lambda:InvokeFunction"                       \
+#	--principal "s3.amazonaws.com"                         \
+#	--source-arn "arn:aws:s3:::$(target_bucket)"
+#  echo $this_script_dir $1
+  #
+}
+
 # to create instance from 2016.9,
 # vm -n ec2 --ami=ami-0c11b26d
 new_instance_aws() {
@@ -348,6 +380,8 @@ new_instance_aws() {
   mkdir $workdir
   cd $workdir
   pwd
+  create_automatic_deletion_function $1
+  exit 0
 
   # if ec2 was unreachable, return as an error
   echo $1 > vmname
