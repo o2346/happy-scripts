@@ -345,11 +345,7 @@ new_instance_aws() {
   # if ec2 was unreachable, return as an error
   echo $1 > vmname
   echo $1
-  echo "debug 1"
-  echo "aws ec2 `echo "$aws_option"` describe-instances"
   aws ec2 `echo "$aws_option"` describe-instances > /dev/null || return 1
-  echo "debug 2"
-  #exit 0
   aws ec2 `echo "$aws_option"` create-security-group \
   --description "dedicated for instance $1. ask the user who create this, he may not need this anymore" \
   --group-name "$1" \
@@ -359,19 +355,15 @@ new_instance_aws() {
   auth 443
   auth 22
 
-  #aws ec2 `echo "$aws_option"` describe-security-groups --group-names $1
-  #local ami=`aws ec2 `echo "$aws_option"` describe-images --owners amazon --filters 'Name=name,Values=amzn-ami-hvm-????.??.?.x86_64-gp2' 'Name=state,Values=available' | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId'`
-  # https://gist.github.com/nikolay/12f4ca2a592bbfa0df57c3bbccb92f0f
-
   if [ `echo $* | grep '\-\-ami' > /dev/null; echo $?` = 0 ]; then
     local readonly ami=`echo $* | tr ' ' '\n' | grep '\-\-ami' | sed -e 's/--ami=//'`
   else
     local readonly ami=`aws ssm $(echo "$aws_option") get-parameters --names /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2 --query 'Parameters[].Value' --output text`
+    # https://gist.github.com/nikolay/12f4ca2a592bbfa0df57c3bbccb92f0f
+    # for amazon linux 2
+    # https://aws.amazon.com/amazon-linux-2/release-notes
+    #
   fi
-  echo $ami
-  # for amazon linux 2
-  # https://aws.amazon.com/amazon-linux-2/release-notes
-  #
   aws ec2 `echo "$aws_option"` create-key-pair --key-name $1 > keypair.json
 
   echo "console.log( JSON.parse( process.argv[ 2 ] ).KeyMaterial );" |
@@ -385,16 +377,18 @@ new_instance_aws() {
   --instance-type t3.nano                          \
   --credit-specification CpuCredits=standard       \
   --key-name $1                                    \
+  --tag-specifications  "ResourceType=instance,Tags=[{Key=Name,Value=$1}]" \
   --security-groups $1                             \
-  --instance-initiated-shutdown-behavior terminate \
   > ec2.instance
+
+#  --instance-initiated-shutdown-behavior terminate \
 
   cat ec2.instance | grep InstanceId | sed -e 's/"InstanceId"://' | sed -e 's/[", ]//g' > instance.id
   #aws ec2 `echo "$aws_option"` describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id`
   #aws ec2 `echo "$aws_option"` describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
 
   #https://stackoverflow.com/questions/35772757/how-to-rename-ec2-instance-name
-  aws ec2 `echo "$aws_option"` create-tags --resources `cat instance.id` --tag "Key=Name,Value=$1"
+  #aws ec2 `echo "$aws_option"` create-tags --resources `cat instance.id` --tag "Key=Name,Value=$1"
 
   #echo 'trying to connect..' >&2
   while true
