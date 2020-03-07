@@ -440,7 +440,6 @@ new_instance_aws() {
     ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa 'uname' > /dev/null 2>&1
     [ "$?" = 0 ] && break
     sleep $aws_retry_sec
-    #echo retrying.. >&2
   done
 
   #echo "\"ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i key_rsa\" to ssh the one"
