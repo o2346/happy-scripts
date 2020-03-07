@@ -299,7 +299,7 @@ readonly aws_argn=`seq $# | while read argn; do
   echo $* | tr ' ' '\n' | awk '{if(NR=='$argn') print $0}' | grep 'ec2' > /dev/null && echo $argn
 done`
 readonly aws_option=${@:$((aws_argn+2)):$#}
-printf $aws_option #should be "--region ap-northeast-1" in "vm -n ec2 --region ap-northeast-1" for example
+#printf $aws_option #should be "--region ap-northeast-1" in "vm -n ec2 --region ap-northeast-1" for example
 
 aws_retry_sec=3
 
@@ -340,8 +340,11 @@ auth() {
 # to create instance from 2016.9,
 # vm -n ec2 --ami=ami-0c11b26d
 new_instance_aws() {
-  cd `mktemp -d`
+  local readonly workdir="`mktemp -du`_$1"
+  mkdir $workdir
+  cd $workdir
   pwd
+
   # if ec2 was unreachable, return as an error
   echo $1 > vmname
   echo $1
