@@ -432,7 +432,6 @@ new_instance_aws() {
   while true
   do
     aws ec2 --region ap-northeast-1 describe-instances --instance-ids=`cat instance.id` --query "Reservations[].Instances[].{PublicIpAddress:PublicIpAddress}" --output text > ipv4
-    #aws ec2 `echo "$aws_option"` describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
     if [ ! `cat ipv4  | egrep '([0-9]+\.){3}[0-9]+$'` ]; then
       echo 'no ip address obtained. trying again..'
       sleep $aws_retry_sec
