@@ -439,7 +439,7 @@ new_instance_aws() {
 
   printf "#!/bin/bash\nssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -i `pwd`/key_rsa" > ./ssh.sh
   chmod +x ./*.sh
-  trap "delete_instance $1 &" ERR EXIT
+  trap "delete_instance $1 &" ERR EXIT # it should be more persistent like suffered under nw problems
   ssh ec2-user@`cat ipv4` -o 'StrictHostKeyChecking no' -o 'ServerAliveInterval 240' -o 'ServerAliveCountMax 200' -i key_rsa
   #https://serverfault.com/questions/538897/serveralivecountmax-in-ssh
   #https://www.a2hosting.com/kb/getting-started-guide/accessing-your-account/keeping-ssh-connections-alive
