@@ -311,21 +311,21 @@ delete_instance() {
     aws ec2 `echo "$aws_option"` terminate-instances --instance-ids $instance_ids
   fi
 
-  local readonly secg_name=$1
   local maxtry=20
+  sleep 20 # It will anyway not succeed until this seconds passed
+  # try deletion or give up
   seq $maxtry | while read attemption; do
-    echo "attemption number $attemption of $maxtry"
-    aws ec2 `echo "$aws_option"` describe-security-groups --group-names $secg_name --query 'SecurityGroups[].{GroupName:GroupName}' --output text > /dev/null
-    [ "$?" = 0 ] || break
-    aws ec2 `echo "$aws_option"` delete-security-group --group-name $1 && echo "Successfully deleted security group $secg_name" && break
-    [ "$attemption" = "$maxtry" ] && echo "Warning: Gave up deletion of security group $secg_name" && break
-    printf "All right, Let's try again in few seconds.. "
+    echo "Security Group deletion attemption number $attemption of $maxtry" >&2
+    aws ec2 `echo "$aws_option"` describe-security-groups --group-names $1 > /dev/null || break
+    aws ec2 `echo "$aws_option"` delete-security-group --group-name $1 && echo "Successfully deleted security group $1" && break
+    [ "$attemption" = "$maxtry" ] && echo "Warning: Gave up deletion of security group $1" && break
+    printf "All right, Let's try again in few seconds.. " >&2
     sleep $aws_retry_sec
   done
 
   aws ec2 `echo "$aws_option"` delete-key-pair --key-name $1
   aws ec2 `echo "$aws_option"` describe-instances \
-    --output text \
+    --output text                                 \
     --query 'Reservations[].Instances[?KeyName==`'$1'` && State==`Terminated`].{KeyName:KeyName,State:State}'
   #https://gist.github.com/jpbarto/38ce994ced3f85128243d50fc11b7b0b
 }
@@ -340,9 +340,8 @@ get_security_id() {
 }
 
 auth() {
-  aws ec2 `echo "$aws_option"`            \
-  authorize-security-group-ingress        \
-  --group-id `get_security_id`            \
+  aws ec2 `echo "$aws_option"`  authorize-security-group-ingress  \
+  --group-id `get_security_id`                                    \
   --ip-permissions "`ip_permissions $1`"
 }
 
@@ -426,16 +425,14 @@ new_instance_aws() {
   > ec2.instance
 
   cat ec2.instance | grep InstanceId | sed -e 's/"InstanceId"://' | sed -e 's/[", ]//g' > instance.id
-  #aws ec2 `echo "$aws_option"` describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id`
-  #aws ec2 `echo "$aws_option"` describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
-
   #https://stackoverflow.com/questions/35772757/how-to-rename-ec2-instance-name
   #aws ec2 `echo "$aws_option"` create-tags --resources `cat instance.id` --tag "Key=Name,Value=$1"
 
-  #echo 'trying to connect..' >&2
+  # confirm ssh connection
   while true
   do
-    aws ec2 `echo "$aws_option"` describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
+    aws ec2 --region ap-northeast-1 describe-instances --instance-ids=`cat instance.id` --query "Reservations[].Instances[].{PublicIpAddress:PublicIpAddress}" --output text > ipv4
+    #aws ec2 `echo "$aws_option"` describe-instances --query "Reservations[].Instances[].[InstanceId,PublicIpAddress]" --instance-ids=`cat instance.id` | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed 's/[" ]//g' > ipv4
     if [ ! `cat ipv4  | egrep '([0-9]+\.){3}[0-9]+$'` ]; then
       echo 'no ip address obtained. trying again..'
       sleep $aws_retry_sec
