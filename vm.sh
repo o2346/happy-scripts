@@ -380,8 +380,6 @@ new_instance_aws() {
   mkdir $workdir
   cd $workdir
   pwd
-  create_automatic_deletion_function $1
-  exit 0
 
   # if ec2 was unreachable, return as an error
   echo $1 > vmname
