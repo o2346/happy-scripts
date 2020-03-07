@@ -306,27 +306,28 @@ aws_retry_sec=5
 
 delete_instance() {
   local readonly instance_ids=$(aws ec2 describe-instances `echo "$aws_option"` --query 'Reservations[].Instances[?contains(KeyName,`'$1'`)].{InstanceId:InstanceId}' --output text | awk 'BEGIN{ORS=" "} {print $0}' | sed -e 's/ $//g')
-  echo $instance_ids
+#  echo $instance_ids
   aws ec2 `echo "$aws_option"` describe-instances --instance-ids $instance_ids --output text --query 'Reservations[].Instances[?Stane.name!=`Terminated`].{KeyName:KeyName}'
   if [ "$?" = 0 ]; then
-    aws ec2 `echo "$aws_option"` terminate-instances --instance-ids $instance_ids 
+    aws ec2 `echo "$aws_option"` terminate-instances --instance-ids $instance_ids
   fi
   #aws ec2 `echo "$aws_option"` describe-instances --instance-ids i-0022 --output text --query 'Reservations[].Instances[?Stane.name!=`Terminated`].{KeyName:KeyName}'
 
-  local readonly secg_name=`echo $1 | tr '.' '_'`
-  echo $secg_name
-  seq 10 | while read attemption; do
-    echo attemption number $attemption
+  local readonly secg_name=$1
+  local maxtry=20
+  seq $maxtry | while read attemption; do
+    echo "attemption number $attemption of $maxtry"
     #[ $(aws ec2 `echo "$aws_option"` delete-security-group --group-name `cat vmname`) > /dev/null ] && break
-    echo $secg_name
 #    aws ec2 `echo "$aws_option"` describe-security-groups --query 'SecurityGroups[?GroupName==`'$secg_name'`].{GroupName:GroupName}' --output text
-    aws ec2 `echo "$aws_option"` describe-security-groups --group-names $secg_name --query 'SecurityGroups[].{GroupName:GroupName}' --output text
+    aws ec2 `echo "$aws_option"` describe-security-groups --group-names $secg_name --query 'SecurityGroups[].{GroupName:GroupName}' --output text > /dev/null
     [ "$?" = 0 ] || break
-    aws ec2 `echo "$aws_option"` delete-security-group --group-name $1 
+    aws ec2 `echo "$aws_option"` delete-security-group --group-name $1 && echo "Successfully deleted security group $secg_name" && break
+    [ "$attemption" = "$maxtry" ] && echo "Warning: Gave up deletion of security group $secg_name" && break
+    printf "All right, Let's try again in few seconds.. "
     sleep $aws_retry_sec
   done
 
-  aws ec2 `echo "$aws_option"` delete-key-pair --key-name $1 
+  aws ec2 `echo "$aws_option"` delete-key-pair --key-name $1
   aws ec2 `echo "$aws_option"` describe-instances \
     --output text \
     --query 'Reservations[].Instances[?KeyName==`'$1'` && State==`Terminated`].{KeyName:KeyName,State:State}'
