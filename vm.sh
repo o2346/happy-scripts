@@ -379,6 +379,7 @@ create_automatic_deletion_function() {
 
 # to create instance from 2016.9,
 # vm -n ec2 --ami=ami-0c11b26d
+# For future, How about counterpart of Lambda & CloudFormation ?
 new_instance_aws() {
   local readonly workdir="`mktemp -du`_$1"
   mkdir $workdir
