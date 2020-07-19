@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #Usage:
-#curl 'https://raw.githubusercontent.com/o2346/happy-scripts/develop/deploy.files.sh' | bash -s - gist:xxxx
-#gist:xxxx is a remote url, assumined already could be cloned as a bare
+#curl 'https://raw.githubusercontent.com/o2346/happy-scripts/develop/deploy.files.sh' | bash -s - [REMOTE_URL]
+#[REMOTE_URL] like gist:xxxx foe instance assumined already could be cloned as a bare
 
 # Deploy dotfiles in a manner indicated below
 #https://wiki.archlinux.org/index.php/Dotfiles
