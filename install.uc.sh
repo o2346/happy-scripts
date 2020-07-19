@@ -29,7 +29,8 @@ echo "Issue following commands" >&2
 echo 'alias .uc=/usr/bin/git\ --git-dir=$HOME/'$local_name'\ --work-tree=$HOME' >&2
 echo ".uc checkout ." >&2
 
-#.uc checkout .
+#After successful '.uc' command would be available behaves as special git command
+
 #https://dev.classmethod.jp/articles/git-reset-and-git-checkout/
 #or
 #echo 'git --git-dir=$HOME/$local_name --work-tree=$HOME checkout .'
