@@ -7,7 +7,7 @@
 #https://www.atlassian.com/git/tutorials/dotfiles
 
 #Usage:
-#curl 'https://raw.githubusercontent.com/o2346/happy-scripts/develop/deploy.uc.sh' | bash -s - [REMOTE_URL]
+#curl 'https://raw.githubusercontent.com/o2346/happy-scripts/develop/install.uc.sh' | bash -s - [REMOTE_URL]
 #[REMOTE_URL] like gist:xxxx foe instance assumined already could be cloned as a bare
 
 readonly url=$1
