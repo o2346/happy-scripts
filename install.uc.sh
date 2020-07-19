@@ -9,6 +9,8 @@
 #Usage:
 #curl 'https://raw.githubusercontent.com/o2346/happy-scripts/develop/install.uc.sh' | bash -s - [REMOTE_URL]
 #[REMOTE_URL] like gist:xxxx foe instance assumined already could be cloned as a bare
+#demo:
+#curl 'https://raw.githubusercontent.com/o2346/happy-scripts/develop/install.uc.sh' | bash -s - https://gist.github.com/o2346/d12142dc810a6b5175607a19ed3c6373
 
 readonly url=$1
 readonly local_name='.uc'
