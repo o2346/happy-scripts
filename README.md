@@ -1,2 +1,3 @@
 # happy-scripts
-utilities for personal development
+
+Tools for personal use
