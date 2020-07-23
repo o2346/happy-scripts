@@ -1,25 +1,27 @@
 #!/bin/bash
 
 crap(){
+  readonly local PARENT=$HOME
+
   help() {
-    printf "# CRAwl RePositories of git\n"
-    printf "# Show some status of several git repos stored under parent directory recursively\n"
-    printf "# Print if any subjects found such as uncommited changes or commits that was not pushed yet\n"
-    printf "# Parent directory can be defined optionally. Default is ~/Documents\n"
+    printf "# CRAwl RePositories\n"
+    printf "# Issue some git commands on recognized git repos under parent directory recursively\n"
+    printf "# Parent directory for Default is $PARENT\n"
+    printf "# With no args, 'git status' would issued respectively\n"
     printf "\n"
 
-    printf "usage: crap [ -c | -s | -h ] [ -d path ]\n"
-    printf "no args  crawl \"~/Documents\"\n"
-    printf "     -c  crawl current directory\n"
+    printf "usage: crap [ -c | -s | -p | -P -h ] [ -d path ]\n"
+    printf "no args  recursive git status for \"$PARENT\"\n"
+    printf "     -c  indicate current directory for parent\n"
+    printf "     -p  batch pull\n"
+    printf "     -P  batch push\n"
     printf "     -d  [path] crawl specific directory located at given path\n"
-    printf "     -f  fetch repos with --dry-run. NOTE it require Netowork TRAFFIC and No commands except \"git fetch\" will be operated\n"
-    printf "     -s  alias of \"git status -bs\"\n"
+    printf "     -f  batch fetch\n"
     printf "     -h  show this message\n"
   }
 
   CWD=$(pwd)
 
-  PARENT=~/Documents
   FETCH=false
   PUSH=false
   dry_run=''
@@ -42,7 +44,7 @@ crap(){
   set -- "${POSITIONAL[@]}" # restore positional parameters
   #https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
 
-  while getopts cd:flshpP OPT
+  while getopts cd:flhpP OPT
   do
     case $OPT in
       d)  PARENT=$OPTARG
@@ -52,9 +54,6 @@ crap(){
       l)  SHOWLINES=24
           echo "Newest ${SHOWLINES} lines below"
           git log --graph --decorate --oneline --all -$SHOWLINES
-          return 0
-        ;;
-      s)  git status -bs
           return 0
         ;;
       h)  help
@@ -74,16 +73,18 @@ crap(){
     esac
   done
 
-
-  for REPO in `find $PARENT -type d | grep -e ".git$"`; do
+  readonly ignore='(/.vim/|/.themes/|/n-api-article)'
+  #https://stackoverflow.com/questions/11981716/how-to-quickly-find-all-git-repos-under-a-directory/12010862#12010862
+  find $PARENT -name 'branches' -o -name '.git' -type d -prune 2>/dev/null | grep -Ev "$ignore" | while read REPO; do
+    cd $REPO/..
+    #echo "$PWD > git pull"
     cd `dirname $REPO`
     ST=`git status --porcelain`
     is_ahead=`git status -bs | grep '\[ahead'`
     WD=`pwd`
 
-
     if [ "$FETCH" = "true" ]; then
-      git fetch --dry-run
+      git fetch $dry_run
       continue
     fi
 
