@@ -116,6 +116,12 @@ crap(){
   done
 
   cd $CWD
+
+  # Just an idea, it might be annoying though
+  #if [ "$PUSH" = true -a -z "$dry_run" ]; then
+  #  echo "recrapping if anthing remains.." >&2
+  #  $0
+  #fi
 }
 
 crap $*
