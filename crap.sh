@@ -21,8 +21,28 @@ crap(){
 
   PARENT=~/Documents
   FETCH=false
+  PUSH=false
+  dry_run=''
 
-  while getopts cd:flshp OPT
+  #long options
+  POSITIONAL=()
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case $key in
+      --dry-run)
+        dry_run='--dry-run'
+        shift # past argument
+        ;;
+      *)    # unknown option
+        POSITIONAL+=("$1") # save it in an array for later
+        shift # past argument
+        ;;
+    esac
+  done
+  set -- "${POSITIONAL[@]}" # restore positional parameters
+  #https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
+
+  while getopts cd:flshpP OPT
   do
     case $OPT in
       d)  PARENT=$OPTARG
@@ -44,16 +64,21 @@ crap(){
         ;;
       p)  PULL=true
         ;;
+      P)  PUSH=true
+        ;;
       \?) help
           return 0
+        ;;
+      *)
         ;;
     esac
   done
 
+
   for REPO in `find $PARENT -type d | grep -e ".git$"`; do
     cd `dirname $REPO`
     ST=`git status --porcelain`
-    PUSH=`git status -bs | grep '\[ahead'`
+    is_ahead=`git status -bs | grep '\[ahead'`
     WD=`pwd`
 
 
@@ -68,18 +93,22 @@ crap(){
       continue
     fi
 
-    if [ "${ST}" = "" -a "${PUSH}" = "" ] ; then
+    if [ "${ST}" = "" -a "${is_ahead}" = "" ] ; then
       continue
     fi
 
     printf "\e[29;1m`basename ${WD}`\e[m  \e[37;4m${WD}\e[m\n"
 
-    if [ "${ST}" != "" -a "${PUSH}" = "" ] ; then
+    if [ "${ST}" != "" -a "${is_ahead}" = "" ] ; then
       git status -s
     fi
 
-    if [ "${PUSH}" != "" ] ; then
+    if [ "${is_ahead}" != "" ] ; then
       git status -bs
+    fi
+
+    if [ "$PUSH" = true ]; then
+      git push $dry_run
     fi
 
     printf "\n"
