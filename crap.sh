@@ -9,17 +9,16 @@ crap(){
     printf "# Parent directory for Default is $PARENT\n"
     printf "# With no args, 'git status' would issued respectively\n"
     printf "\n"
-
-    printf "usage: crap [ -c | -s | -p | -P -h ] [ -d path ]\n"
-    printf "no args  recursive git status for \"$PARENT\"\n"
-    printf "     -c  indicate current directory for parent\n"
-    printf "     -p  batch pull\n"
-    printf "     -P  batch push\n"
-    printf "     -d  [path] crawl specific directory located at given path\n"
-    printf "     -f  batch fetch\n"
-    printf "     --list-all  list all repos but would to do anything else\n"
-    printf "     --dry-run   for some operations\n"
-    printf "     -h  show this message\n"
+    printf "usage: crap -[cpPfh] [--list-all|--dry-run] [ -d path ]\n"
+    printf "    no args recursive git status for \"$PARENT\"\n"
+    printf "         -c indicate current directory for parent\n"
+    printf "         -p batch pull\n"
+    printf "         -P batch push\n"
+    printf "         -d [path] crawl specific directory located at given path\n"
+    printf "         -f batch fetch\n"
+    printf " --list-all list all repos but would to do anything else\n"
+    printf "  --dry-run for some operations\n"
+    printf "         -h show this message\n"
   }
 
   print_repo() {
