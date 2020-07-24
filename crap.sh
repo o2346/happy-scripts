@@ -16,7 +16,7 @@ crap(){
     printf "         -P batch push\n"
     printf "         -d [path] crawl specific directory located at given path\n"
     printf "         -f batch fetch\n"
-    printf " --list-all list all repos but would to do anything else\n"
+    printf " --list-all merely list all repos but would not do anything else\n"
     printf "  --dry-run for some operations\n"
     printf "         -h show this message\n"
   }
