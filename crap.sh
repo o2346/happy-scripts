@@ -17,7 +17,13 @@ crap(){
     printf "     -P  batch push\n"
     printf "     -d  [path] crawl specific directory located at given path\n"
     printf "     -f  batch fetch\n"
+    printf "     --list-all  list all repos but would to do anything else\n"
+    printf "     --dry-run   for some operations\n"
     printf "     -h  show this message\n"
+  }
+
+  print_repo() {
+    printf "\e[29;1m`basename ${1}`\e[m  \e[37;4m${1}\e[m\n"
   }
 
   CWD=$(pwd)
@@ -25,6 +31,7 @@ crap(){
   FETCH=false
   PUSH=false
   dry_run=''
+  list_all=''
 
   #long options
   POSITIONAL=()
@@ -33,6 +40,10 @@ crap(){
     case $key in
       --dry-run)
         dry_run='--dry-run'
+        shift # past argument
+        ;;
+      --list-all)
+        list_all=0
         shift # past argument
         ;;
       *)    # unknown option
@@ -83,6 +94,11 @@ crap(){
     is_ahead=`git status -bs | grep '\[ahead'`
     WD=`pwd`
 
+    if [ "${list_all}" = 0 ] ; then
+      print_repo ${WD}
+      continue
+    fi
+
     if [ "$FETCH" = "true" ]; then
       git fetch $dry_run
       continue
@@ -98,7 +114,7 @@ crap(){
       continue
     fi
 
-    printf "\e[29;1m`basename ${WD}`\e[m  \e[37;4m${WD}\e[m\n"
+    print_repo ${WD}
 
     if [ "${ST}" != "" -a "${is_ahead}" = "" ] ; then
       git status -s
