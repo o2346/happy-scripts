@@ -124,7 +124,7 @@ browse() {
       fi
       summary $_file $_repos
       if [ ${FUNCNAME[1]} = "search_keyword" ];then
-        grep -e "$2" $_file
+        grep --color=auto -e "$2" $_file
       fi
     done
   done
