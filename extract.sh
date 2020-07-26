@@ -11,12 +11,15 @@ function _extract ()
     echo
   fi
 
-  while [ -n "$1" ]; do
-    if [[ ! -f "$1" ]]; then
-      echo "'$1' is not a file" >&2
-      shift
-      continue
-    fi
+  [ -n "$1" -a -f "$1" ] || return 1
+
+  while [ -n "$1" -a -f "$1" ]; do
+    #if [[ ! -f "$1" ]]; then
+    #  echo "'$1' is not a file" >&2
+    #  return 1
+    #  #shift
+    #  #continue
+    #fi
 
     success=0
     file_name="$( basename "$1" )"
@@ -50,7 +53,8 @@ function _extract ()
         ;;
       (*)
         echo "'$1' cannot be extracted" 1>&2
-        success=1
+        #success=1
+        return 2
         ;;
     esac
 
