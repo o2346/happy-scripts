@@ -1,5 +1,7 @@
 #!/bin/bash
-#inspired http://xgarrido.github.io/zsh-utilities/zsh-utilities-functions.html
+#inspired from
+#http://xgarrido.github.io/zsh-utilities/zsh-utilities-functions.html
+#https://www.youtube.com/watch?v=gGmBUfMaWMU&t=4m39s
 function _extract () {
 
   if [ -z "$1" -o "$1" = '-h' -o "$1" = '--help' ]; then
@@ -34,8 +36,8 @@ function _extract () {
     (*.Z) uncompress "$1" ;;
     (*.zip) unzip "$1" -d $extract_dir ;;
     (*.rar) unrar e -ad "$1" ;;
-    (*.7z) 7za x "$1" ;;
-    (*.deb)
+    (*.7z) 7za x "$1" ;; #https://itsfoss.com/use-7zip-ubuntu-linux/
+    (*.deb) # not examined yet
       mkdir -p "$extract_dir/control"
       mkdir -p "$extract_dir/data"
       cd "$extract_dir"; ar vx "../${1}" > /dev/null
