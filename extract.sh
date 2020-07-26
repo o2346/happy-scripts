@@ -2,7 +2,6 @@
 #inspired http://xgarrido.github.io/zsh-utilities/zsh-utilities-functions.html
 function _extract ()
 {
-  local success
   local file_name
   local extract_dir
 
@@ -13,17 +12,10 @@ function _extract ()
 
   [ -n "$1" -a -f "$1" ] || return 1
 
-  while [ -n "$1" -a -f "$1" ]; do
-    #if [[ ! -f "$1" ]]; then
-    #  echo "'$1' is not a file" >&2
-    #  return 1
-    #  #shift
-    #  #continue
-    #fi
+  file_name="$( basename "$1" )"
+  extract_dir="$( echo "$file_name" | sed "s/\.${1##*.}//g" )"_extracted
 
-    success=0
-    file_name="$( basename "$1" )"
-    extract_dir="$( echo "$file_name" | sed "s/\.${1##*.}//g" )"_extracted
+  while [ -n "$1" -a -f "$1" ]; do
     case "$1" in
       (*.tar.gz|*.tgz) tar xvzf "$1" ;;
       (*.tar.bz2|*.tbz|*.tbz2) tar xvjf "$1" ;;
@@ -58,8 +50,6 @@ function _extract ()
         ;;
     esac
 
-    #(( success = $success > 0 ? $success : $? ))
-    #(( $success == 0 )) && rm "$1"
     shift
   done
   return 0
