@@ -53,6 +53,7 @@ function _extract () {
 
     shift
   done
+
   return 0
 }
 
