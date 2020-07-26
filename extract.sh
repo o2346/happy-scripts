@@ -2,8 +2,6 @@
 #inspired http://xgarrido.github.io/zsh-utilities/zsh-utilities-functions.html
 function _extract ()
 {
-  local file_name
-  local extract_dir
 
   if [[ "$1" == "" ]]; then
     echo "Usage: extract [-option] [file ...]"
@@ -12,8 +10,8 @@ function _extract ()
 
   [ -n "$1" -a -f "$1" ] || return 1
 
-  file_name="$( basename "$1" )"
-  extract_dir="$( echo "$file_name" | sed "s/\.${1##*.}//g" )"_extracted
+  local readonly file_name="$( basename "$1" )"
+  local readonly extract_dir="$( echo "$file_name" | sed "s/\.${1##*.}//g" )"_extracted
 
   while [ -n "$1" -a -f "$1" ]; do
     case "$1" in
@@ -53,4 +51,5 @@ function _extract ()
   done
   return 0
 }
+
 _extract $*
