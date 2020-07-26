@@ -6,7 +6,7 @@ function _extract () {
     echo "Usage: extract [-option] [file ...]"
     echo
   elif [ ! -f "$1" ]; then
-    echo 'not a file' >&2
+    echo 'Error: not a file' >&2
   fi
 
   [ -n "$1" -a -f "$1" ] || return 1
@@ -43,7 +43,7 @@ function _extract () {
         cd ..
         ;;
       (*)
-        echo "'$1' cannot be extracted" 1>&2
+        echo "Error: '$1' cannot be extracted" 1>&2
         return 2
         ;;
     esac
