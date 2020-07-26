@@ -1,7 +1,6 @@
 #!/bin/bash
 #inspired http://xgarrido.github.io/zsh-utilities/zsh-utilities-functions.html
-function _extract ()
-{
+function _extract () {
 
   if [ -z "$1" -o "$1" = '-h' -o "$1" = '--help' ]; then
     echo "Usage: extract [-option] [file ...]"
