@@ -1,8 +1,7 @@
-#!/bin/zsh
+#!/bin/bash
 #http://xgarrido.github.io/zsh-utilities/zsh-utilities-functions.html
 function _extract ()
 {
-    local remove_archive
     local success
     local file_name
     local extract_dir
@@ -10,15 +9,6 @@ function _extract ()
     if [[ "$1" == "" ]]; then
         echo "Usage: extract [-option] [file ...]"
         echo
-        echo "Options:"
-        echo "    -r, --remove : Remove archive."
-        echo
-    fi
-
-    remove_archive=1
-    if [[ "$1" == "-r" ]] || [[ "$1" == "--remove" ]]; then
-        remove_archive=0
-        shift
     fi
 
     while [ -n "$1" ]; do
@@ -64,8 +54,8 @@ function _extract ()
                 ;;
         esac
 
-        (( success = $success > 0 ? $success : $? ))
-        (( $success == 0 )) && (( $remove_archive == 0 )) && rm "$1"
+        #(( success = $success > 0 ? $success : $? ))
+        #(( $success == 0 )) && rm "$1"
         shift
     done
     return 0
