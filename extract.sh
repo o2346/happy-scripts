@@ -20,7 +20,7 @@ function _extract ()
 
     success=0
     file_name="$( basename "$1" )"
-    extract_dir="$( echo "$file_name" | sed "s/\.${1##*.}//g" )"
+    extract_dir="$( echo "$file_name" | sed "s/\.${1##*.}//g" )"_extracted
     case "$1" in
       (*.tar.gz|*.tgz) tar xvzf "$1" ;;
       (*.tar.bz2|*.tbz|*.tbz2) tar xvjf "$1" ;;
