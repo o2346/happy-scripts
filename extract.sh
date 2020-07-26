@@ -7,7 +7,7 @@ function _extract () {
     echo
     return 0
   elif [ "$#" != '1' ]; then
-    echo 'Error: Acceptable a file on the 1st argument,  instead of anything else' >&2
+    echo 'Error: Acceptable a file on the 1st argument, instead of anything else' >&2
     return 1
   elif [ ! -f "$1" ]; then
     echo 'Error: not a file' >&2
