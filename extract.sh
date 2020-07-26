@@ -14,8 +14,8 @@ function _extract () {
     return 2
   fi
 
-  local readonly file_name="$( basename "$1" )"
-  local readonly extract_dir="$( echo "$file_name" | sed "s/\.${1##*.}//g" )"_extracted
+  local readonly base_name="$( basename "$1" )"
+  local readonly extract_dir="extracted_$( echo "$base_name" | sed "s/\.${1##*.}//g" )"
 
   case "$1" in
     (*.tar.gz|*.tgz) tar xvzf "$1" ;;
