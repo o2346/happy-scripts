@@ -3,9 +3,11 @@
 function _extract ()
 {
 
-  if [[ "$1" == "" ]]; then
+  if [ -z "$1" -o "$1" = '-h' -o "$1" = '--help' ]; then
     echo "Usage: extract [-option] [file ...]"
     echo
+  elif [ ! -f "$1" ]; then
+    echo 'not a file' >&2
   fi
 
   [ -n "$1" -a -f "$1" ] || return 1
