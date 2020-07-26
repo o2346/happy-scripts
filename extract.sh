@@ -5,11 +5,14 @@ function _extract () {
   if [ -z "$1" -o "$1" = '-h' -o "$1" = '--help' ]; then
     echo "Usage: extract [-option] [file ...]"
     echo
+    return 0
+  elif [ "$#" != '1' ]; then
+    echo 'Error: Acceptable a file on the 1st argument,  instead of anything else' >&2
+    return 1
   elif [ ! -f "$1" ]; then
     echo 'Error: not a file' >&2
+    return 2
   fi
-
-  [ -n "$1" -a -f "$1" ] || return 1
 
   local readonly file_name="$( basename "$1" )"
   local readonly extract_dir="$( echo "$file_name" | sed "s/\.${1##*.}//g" )"_extracted
@@ -44,7 +47,7 @@ function _extract () {
         ;;
       (*)
         echo "Error: '$1' cannot be extracted" 1>&2
-        return 2
+        return 3
         ;;
     esac
 
