@@ -13,7 +13,7 @@ function _extract ()
 
   while [ -n "$1" ]; do
     if [[ ! -f "$1" ]]; then
-      pkgtools__msg_warning "'$1' is not a valid file"
+      echo "'$1' is not a valid file" >&2
       shift
       continue
     fi
@@ -49,7 +49,7 @@ function _extract ()
         cd ..
         ;;
       (*)
-        pkgtools__msg_error "'$1' cannot be extracted" 1>&2
+        echo "'$1' cannot be extracted" 1>&2
         success=1
         ;;
     esac
