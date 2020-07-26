@@ -1,5 +1,5 @@
 #!/bin/bash
-#http://xgarrido.github.io/zsh-utilities/zsh-utilities-functions.html
+#inspired http://xgarrido.github.io/zsh-utilities/zsh-utilities-functions.html
 function _extract ()
 {
   local success
@@ -13,7 +13,7 @@ function _extract ()
 
   while [ -n "$1" ]; do
     if [[ ! -f "$1" ]]; then
-      echo "'$1' is not a valid file" >&2
+      echo "'$1' is not a file" >&2
       shift
       continue
     fi
