@@ -45,7 +45,6 @@ function _extract ()
         ;;
       (*)
         echo "'$1' cannot be extracted" 1>&2
-        #success=1
         return 2
         ;;
     esac
