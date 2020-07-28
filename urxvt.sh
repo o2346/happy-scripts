@@ -1,5 +1,4 @@
 #!/bin/bash
-# run_urxvt_rich                                       JennyM 2019 Malkalech.com
 
 readonly opacity=80
 
