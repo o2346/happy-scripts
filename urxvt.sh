@@ -50,7 +50,7 @@ opts=(
   -colorIT     "[$opacity]#8ec07c"   # (italic characters)
   -colorBD     "[$opacity]#d5c4a1"   # (bold characters)
   -colorUL     "[$opacity]#83a598"   # (underlined characters)
-  -scrollColor "[$opacity]#504945"   # (scrollbar)
+  #-scrollColor "[$opacity]#504945"   # (scrollbar)
   #-troughColor "[$opacity]#3C3836"   # (scrollbar"s trough area)
 
   #-e tmux
