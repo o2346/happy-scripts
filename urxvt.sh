@@ -54,6 +54,8 @@ opts=(
   -scrollColor "[$opacity]#504945"   # (scrollbar)
   #-troughColor "[$opacity]#3C3836"   # (scrollbar"s trough area)
 
+  #-e tmux
+
   "$@"
 )
 
