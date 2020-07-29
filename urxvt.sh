@@ -2,8 +2,12 @@
 
 readonly opacity=80
 
-readonly exec_on="`cat`"
-
+if [ -t 0 ]; then
+  :
+else
+  readonly exec_on="`cat`"
+fi
+#echo "$@" && exit 0
 #https://unix.stackexchange.com/questions/14159/how-do-i-find-the-window-dimensions-and-position-accurately-including-decoration
 #xwininfo -id $(xdotool getactivewindow)
 #xdotool getwindowfocus getwindowgeometry
@@ -13,7 +17,7 @@ readonly exec_on="`cat`"
 opts=(
 
   ## common settings
-  -geometry 480x280              # geometry big enough semi-fullscreen
+  -geometry 380x180              # geometry big enough semi-fullscreen
   #-sr                          # scrollBar_right
   #-st                          # scrollBar_floating
   #-scrollstyle plain           # scrollstyle
@@ -28,9 +32,11 @@ opts=(
 
   # Appearance
   -icon /var/tmp/urxvt.icon.png # icon file
+  #https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/GNOME_Terminal_icon_2019.svg/768px-GNOME_Terminal_icon_2019.svg.png
 #  -tn hoge
 #  -name fuga
   -title urxvt
+
 
   ## font
   -fn 'xft:VL Gothic-14, xft:IPAGothic'
@@ -80,3 +86,5 @@ urxvtc "${opts[@]}" >/dev/null 2>&1 || {
 # gitls | wr 'tsr l "C-l" "~/Documents/happy-scripts/urxvt.sh"'
 # C-d to exit shortcut
 # gitls | wr 'ts l "echo \"colorsample && tmuxcolours\" | urxvt"'
+
+#https://wiki.archlinux.org/index.php/multihead
