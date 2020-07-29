@@ -2,6 +2,8 @@
 
 readonly opacity=80
 
+readonly exec_on="`cat`"
+
 #https://unix.stackexchange.com/questions/14159/how-do-i-find-the-window-dimensions-and-position-accurately-including-decoration
 #xwininfo -id $(xdotool getactivewindow)
 #xdotool getwindowfocus getwindowgeometry
@@ -32,7 +34,7 @@ opts=(
   ## color / opacity
   ## gruvbox-dark https://github.com/morhetz/gruvbox
   -depth       32              # depth
-  -color0      "[$opacity]#282828"   # (black)
+  -color0      "[$opacity]#000000"   # (black)
   -color1      "[$opacity]#cc241d"   # (red)
   -color2      "[$opacity]#98971a"   # (green)
   -color3      "[$opacity]#d79921"   # (yellow)
@@ -56,7 +58,9 @@ opts=(
   #-scrollColor "[$opacity]#504945"   # (scrollbar)
   #-troughColor "[$opacity]#3C3836"   # (scrollbar"s trough area)
 
-  #-e tmux
+  #https://superuser.com/questions/91881/invoke-zsh-having-it-run-a-command-and-then-enter-interactive-mode-instead-of
+  -e zsh -c "$exec_on; $SHELL"
+  #-e tmux new-session zsh -c "$exec_on; $SHELL"
 
   "$@"
 )
@@ -69,3 +73,4 @@ urxvtc "${opts[@]}" >/dev/null 2>&1 || {
 # debugging:
 # gitls | wr 'tsr l "C-l" "~/Documents/happy-scripts/urxvt.sh"'
 # C-d to exit shortcut
+# gitls | wr 'ts l "echo \"colorsample && tmuxcolours\" | urxvt"'
