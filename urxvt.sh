@@ -26,6 +26,12 @@ opts=(
   -fade 40                     # fading
   #-bl # it brakes X ? killall urxvtd fixes the issue
 
+  # Appearance
+  -icon /var/tmp/urxvt.icon.png # icon file
+#  -tn hoge
+#  -name fuga
+  -title urxvt
+
   ## font
   -fn 'xft:VL Gothic-14, xft:IPAGothic'
   #-letsp -1                    # letterSpace
@@ -35,26 +41,26 @@ opts=(
   ## gruvbox-dark https://github.com/morhetz/gruvbox
   -depth       32              # depth
   -color0      "[$opacity]#000000"   # (black)
-  -color1      "[$opacity]#cc241d"   # (red)
-  -color2      "[$opacity]#98971a"   # (green)
-  -color3      "[$opacity]#d79921"   # (yellow)
-  -color4      "[$opacity]#458588"   # (blue)
-  -color5      "[$opacity]#b16286"   # (magenta)
-  -color6      "[$opacity]#689d6a"   # (cyan)
-  -color7      "[$opacity]#a89984"   # (white)
-  -color8      "[$opacity]#928374"   # (bright black)
-  -color9      "[$opacity]#fb4934"   # (bright red)
-  -color10     "[$opacity]#b8bb26"   # (bright green)
-  -color11     "[$opacity]#fabd2f"   # (bright yellow)
-  -color12     "[$opacity]#83a598"   # (bright blue)
-  -color13     "[$opacity]#d3869b"   # (bright magenta)
-  -color14     "[$opacity]#8ec07c"   # (bright cyan)
-  -color15     "[$opacity]#ebdbb2"   # (bright white)
-  -fg          "[$opacity]#ebdbb2"   # foreground
+  -color1      "[$opacity]#E60571"   # (red)
+  -color2      "[$opacity]#35F224"   # (green)
+  -color3      "[$opacity]#C4A000"   # (yellow)
+  -color4      "[$opacity]#6CD2FD"   # (blue)
+  -color5      "[$opacity]#75507B"   # (magenta)
+  -color6      "[$opacity]#35CDFC"   # (cyan)
+  -color7      "[$opacity]#E4E4E4"   # (white)
+  -color8      "[$opacity]#646464"   # (bright black)
+  -color9      "[$opacity]#A81352"   # (bright red)
+  -color10     "[$opacity]#8AE234"   # (bright green)
+  -color11     "[$opacity]#FCE94F"   # (bright yellow)
+  -color12     "[$opacity]#A2BCFF"   # (bright blue)
+  -color13     "[$opacity]#FF30AF"   # (bright magenta)
+  -color14     "[$opacity]#58FFFF"   # (bright cyan)
+  -color15     "[$opacity]#E6E6E6"   # (bright white)
+  -fg          "[$opacity]#c7c7c7"   # foreground
   -bg          "[$opacity]#000000"   # background
   -colorIT     "[$opacity]#8ec07c"   # (italic characters)
-  -colorBD     "[$opacity]#d5c4a1"   # (bold characters)
-  -colorUL     "[$opacity]#83a598"   # (underlined characters)
+  -colorBD     "[$opacity]#c7c7c7"   # (bold characters)
+  -colorUL     "[$opacity]#c7c7c7"   # (underlined characters)
   #-scrollColor "[$opacity]#504945"   # (scrollbar)
   #-troughColor "[$opacity]#3C3836"   # (scrollbar"s trough area)
 
