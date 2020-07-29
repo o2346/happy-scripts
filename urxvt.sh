@@ -79,14 +79,16 @@ opts=(
 
   "$@"
   #below must come after above
-  #-e zsh -c "$exec_on; $SHELL"
-  -e tmux new-session zsh -c "$exec_on; $SHELL"
+  -e zsh -c "$exec_on; $SHELL"
+  #-e tmux new-session zsh -c "$exec_on; $SHELL"
 )
 
-urxvtc "${opts[@]}" >/dev/null 2>&1 || {
-  [ "$?" -eq 2 ] && urxvtd -q -o -f && urxvtc "${opts[@]}"
-}
 
+urxvtc "${opts[@]}"
+if [ $? -eq 2 ]; then
+   urxvtd -q -o -f
+   urxvtc "${opts[@]}"
+fi
 # http://malkalech.com/urxvt_terminal_emulator
 # debugging:
 # gitls | wr 'tsr l "C-l" "~/Documents/happy-scripts/urxvt.sh"'
