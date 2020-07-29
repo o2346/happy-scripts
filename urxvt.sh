@@ -9,8 +9,8 @@ else
   readonly exec_on="`cat`"
 fi
 
-readonly dotfile="~/.Xresources"
-[ -f "$dotfile" ] && xrdb -merge $dotfile
+readonly dotfile="$HOME/.Xresources"
+[ -f "$dotfile" ] && xrdb -remove && xrdb $dotfile
 
 #echo "$@" && exit 0
 #https://unix.stackexchange.com/questions/14159/how-do-i-find-the-window-dimensions-and-position-accurately-including-decoration
@@ -79,8 +79,10 @@ opts=(
 
   "$@"
   #below must come after above
-  -e zsh -c "$exec_on; $SHELL"
+  -e zsh -c "$exec_on; wmctrl -x -r urxvt -b add,fullscreen; $SHELL"
   #-e tmux new-session zsh -c "$exec_on; $SHELL"
+
+  #https://www.reddit.com/r/linuxmint/comments/736wta/how_to_make_urxvt_terminal_emulator_always_in/
 )
 
 
@@ -98,3 +100,4 @@ fi
 #https://wiki.archlinux.org/index.php/multihead
 #urxvt -geometry 158x34+0+900
 #urxvt -geometry 320x220+0+0
+#https://stackoverflow.com/questions/9783198/how-to-make-rxvt-start-as-fullscreen
