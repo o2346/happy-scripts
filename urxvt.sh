@@ -5,10 +5,13 @@ readonly opacity=80
 #https://unix.stackexchange.com/questions/14159/how-do-i-find-the-window-dimensions-and-position-accurately-including-decoration
 #xwininfo -id $(xdotool getactivewindow)
 #xdotool getwindowfocus getwindowgeometry
+
+#fyi calculate geometry
+#(fs=14; xdotool getwindowfocus getwindowgeometry | grep 'Geometry:' | awk '{print $NF}' | awk 'BEGIN{ FS = "x"; OFS = "\n" }; {print $1,$2}' | xargs -I{} echo '{}/'$fs | bc)
 opts=(
 
   ## common settings
-  -geometry 200x300              # geometry
+  -geometry 480x280              # geometry big enough semi-fullscreen
   #-sr                          # scrollBar_right
   #-st                          # scrollBar_floating
   #-scrollstyle plain           # scrollstyle
