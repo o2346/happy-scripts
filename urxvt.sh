@@ -96,8 +96,8 @@ opts=(
 
 urxvtc "${opts[@]}"
 if [ $? -eq 2 ]; then
-   urxvtd -q -o -f
-   urxvtc "${opts[@]}"
+  urxvtd -q -o -f
+  urxvtc "${opts[@]}"
 fi
 # http://malkalech.com/urxvt_terminal_emulator
 # debugging:
