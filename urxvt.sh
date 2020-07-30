@@ -12,6 +12,14 @@ fi
 readonly dotfile="$HOME/.Xresources"
 [ -f "$dotfile" ] && xrdb -remove && xrdb $dotfile
 
+if echo $* | grep '\-\-reload' > /dev/null; then
+  echo "reloading.."
+  killall -1 urxvtd
+  exit $?
+fi
+#
+#exit 0
+
 #echo "$@" && exit 0
 #https://unix.stackexchange.com/questions/14159/how-do-i-find-the-window-dimensions-and-position-accurately-including-decoration
 #xwininfo -id $(xdotool getactivewindow)
