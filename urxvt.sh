@@ -11,6 +11,7 @@ fi
 
 readonly dotfile="$HOME/.Xresources"
 [ -f "$dotfile" ] && xrdb -remove && xrdb -load $dotfile
+#[ -f "$dotfile" ] && make resource_urxvt
 
 if echo $* | grep '\-\-reload' > /dev/null; then
   echo "reloading.." >&2
