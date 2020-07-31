@@ -91,8 +91,9 @@ opts=(
   "$@"
   #below must come after above
   #-e zsh -c "$exec_on; wmctrl -x -r urxvt -b add,fullscreen; $SHELL"
-  -e zsh -c "$exec_on; $SHELL"
+  #-e zsh -c "$exec_on; $SHELL"
   #-e tmux new-session zsh -c "$exec_on; $SHELL"
+  -e zsh -c "tmux new-session zsh -c \"$exec_on; $SHELL\"; $SHELL"
 
   #https://www.reddit.com/r/linuxmint/comments/736wta/how_to_make_urxvt_terminal_emulator_always_in/
 )
