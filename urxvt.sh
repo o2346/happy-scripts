@@ -10,14 +10,14 @@ else
 fi
 
 readonly dotfile="$HOME/.Xresources"
-[ -f "$dotfile" ] && xrdb -remove && xrdb $dotfile
+[ -f "$dotfile" ] && xrdb -remove && xrdb -load $dotfile
 
-#no use..
-#if echo $* | grep '\-\-reload' > /dev/null; then
-#  echo "reloading.."
-#  killall -s HUP urxvtd
-#  exit $?
-#fi
+if echo $* | grep '\-\-reload' > /dev/null; then
+  echo "reloading.."
+  #xrdb -load $dotfile
+  kill -1 $(pidof urxvtd)
+  exit $?
+fi
 #
 #exit 0
 
