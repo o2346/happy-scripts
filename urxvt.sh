@@ -87,17 +87,17 @@ opts=(
 
   "$@"
   #below must come after above
-  -e zsh -c "$exec_on; wmctrl -x -r urxvt -b add,fullscreen; $SHELL"
-  #-e tmux new-session zsh -c "$exec_on; $SHELL"
+  #-e zsh -c "$exec_on; wmctrl -x -r urxvt -b add,fullscreen; $SHELL"
+  #-e zsh -c "$exec_on; $SHELL"
+  -e tmux new-session zsh -c "$exec_on; $SHELL"
 
   #https://www.reddit.com/r/linuxmint/comments/736wta/how_to_make_urxvt_terminal_emulator_always_in/
 )
 
 
-urxvtc "${opts[@]}"
+urxvtc "${opts[@]}" > /dev/null 2>&1
 if [ $? -eq 2 ]; then
-  urxvtd -q -o -f
-  urxvtc "${opts[@]}"
+  urxvtd -q -o -f && urxvtc "${opts[@]}"
 fi
 # http://malkalech.com/urxvt_terminal_emulator
 # debugging:
