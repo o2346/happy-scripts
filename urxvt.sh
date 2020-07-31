@@ -25,6 +25,9 @@ fi
 #xwininfo -id $(xdotool getactivewindow)
 #xdotool getwindowfocus getwindowgeometry
 
+#if screen-256color; urxvt
+#if xterm-256color gnome term
+
 #fyi calculate geometry
 #(fs=14; xdotool getwindowfocus getwindowgeometry | grep 'Geometry:' | awk '{print $NF}' | awk 'BEGIN{ FS = "x"; OFS = "\n" }; {print $1,$2}' | xargs -I{} echo '{}/'$fs | bc)
 opts=(
@@ -37,6 +40,7 @@ opts=(
   #-e zsh -c "$exec_on; $SHELL"
   #-e tmux new-session zsh -c "$exec_on; $SHELL"
   -e zsh -c "tmux new-session zsh -c \"$exec_on; $SHELL\"; $SHELL"
+  #-e zsh -c "$SHELL"
 
   #https://www.reddit.com/r/linuxmint/comments/736wta/how_to_make_urxvt_terminal_emulator_always_in/
 )
