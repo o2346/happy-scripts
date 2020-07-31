@@ -12,11 +12,12 @@ fi
 readonly dotfile="$HOME/.Xresources"
 [ -f "$dotfile" ] && xrdb -remove && xrdb $dotfile
 
-if echo $* | grep '\-\-reload' > /dev/null; then
-  echo "reloading.."
-  killall -1 urxvtd
-  exit $?
-fi
+#no use..
+#if echo $* | grep '\-\-reload' > /dev/null; then
+#  echo "reloading.."
+#  killall -s HUP urxvtd
+#  exit $?
+#fi
 #
 #exit 0
 
@@ -88,17 +89,18 @@ opts=(
   "$@"
   #below must come after above
   #-e zsh -c "$exec_on; wmctrl -x -r urxvt -b add,fullscreen; $SHELL"
-  #-e zsh -c "$exec_on; $SHELL"
-  -e tmux new-session zsh -c "$exec_on; $SHELL"
+  -e zsh -c "$exec_on; $SHELL"
+  #-e tmux new-session zsh -c "$exec_on; $SHELL"
 
   #https://www.reddit.com/r/linuxmint/comments/736wta/how_to_make_urxvt_terminal_emulator_always_in/
 )
 
 
-urxvtc "${opts[@]}" > /dev/null 2>&1
-if [ $? -eq 2 ]; then
-  urxvtd -q -o -f && urxvtc "${opts[@]}"
-fi
+urxvtcd "${opts[@]}"
+#urxvtc "${opts[@]}" > /dev/null 2>&1
+#if [ $? -eq 2 ]; then
+#  urxvtd -q -o -f && urxvtc "${opts[@]}"
+#fi
 # http://malkalech.com/urxvt_terminal_emulator
 # debugging:
 # gitls | wr 'tsr l "C-l" "~/Documents/happy-scripts/urxvt.sh"'
