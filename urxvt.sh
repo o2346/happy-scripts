@@ -13,8 +13,10 @@ readonly dotfile="$HOME/.Xresources"
 [ -f "$dotfile" ] && xrdb -remove && xrdb -load $dotfile
 
 if echo $* | grep '\-\-reload' > /dev/null; then
-  echo "reloading.."
+  echo "reloading.." >&2
   #xrdb -load $dotfile
+  [ -n "`pidof urxvt`" ] && echo "[WARN] unexpected pidof urxvt = `pidof urxvt`" >&2
+  [ -n "`pidof urxvtc`" ] && echo "[WARN] unexpected pidof urxvtc = `pidof urxvtc`" >&2
   kill -1 $(pidof urxvtd)
   exit $?
 fi
