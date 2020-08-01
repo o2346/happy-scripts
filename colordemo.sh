@@ -116,5 +116,6 @@ if [ -z "$1" ]; then
 elif declare -F | awk '{print $NF}' | grep "^$1$" > /dev/null; then
   $1
 else
-  $default_color_func
+  echo 'Available subcommands below' >&2
+  declare -F | awk '{print $NF}'
 fi
