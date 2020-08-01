@@ -109,10 +109,12 @@ sixteenbg() {
   echo -e "\e[0m"
 }
 
+readonly default_color_func=tmuxcolours
+
 if [ -z "$1" ]; then
-  tmuxcolours
+  $default_color_func
 elif declare -F | awk '{print $NF}' | grep "^$1$" > /dev/null; then
   $1
 else
-  tmuxcolours
+  $default_color_func
 fi
