@@ -111,7 +111,7 @@ sixteenbg() {
 
 if [ -z "$1" ]; then
   tmuxcolours
-elif declare -F | grep "$1" > /dev/null; then
+elif declare -F | awk '{print $NF}' | grep "^$1$" > /dev/null; then
   $1
 else
   tmuxcolours
