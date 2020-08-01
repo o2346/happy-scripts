@@ -109,6 +109,10 @@ sixteenbg() {
   echo -e "\e[0m"
 }
 
+divider() {
+  for i in {16..21} {21..16} ; do echo -en "\e[38;5;${i}m#\e[0m" ; done ; echo
+}
+
 readonly default_color_func=tmuxcolours
 
 if [ -z "$1" ]; then
