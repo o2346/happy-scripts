@@ -119,3 +119,8 @@ else
   echo 'Available subcommands below' >&2
   declare -F | awk '{print $NF}'
 fi
+
+#FYI
+#https://jonasjacek.github.io/colors/
+#https://en.wikipedia.org/wiki/X11_color_names
+#https://www.youtube.com/watch?v=VL0oGct1S4Q
