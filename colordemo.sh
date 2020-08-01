@@ -67,3 +67,52 @@ colors_and_formatting() {
   done
 }
 
+sixteen() {
+  echo -e "\e[39m\\\e[39m Default"
+  echo -e "\e[30m\\\e[30m Black"
+  echo -e "\e[31m\\\e[31m Red"
+  echo -e "\e[32m\\\e[32m Green"
+  echo -e "\e[33m\\\e[33m Yellow"
+  echo -e "\e[34m\\\e[34m Blue"
+  echo -e "\e[35m\\\e[35m Magenta"
+  echo -e "\e[36m\\\e[36m Cyan"
+  echo -e "\e[37m\\\e[37m Light gray"
+  echo -e "\e[90m\\\e[90m Dark gray"
+  echo -e "\e[91m\\\e[91m Light red"
+  echo -e "\e[92m\\\e[92m Light green"
+  echo -e "\e[93m\\\e[93m Light yellow"
+  echo -e "\e[94m\\\e[94m Light blue"
+  echo -e "\e[95m\\\e[95m Light magenta"
+  echo -e "\e[96m\\\e[96m Light cyan"
+  echo -e "\e[97m\\\e[97m White"
+  echo -e "\e[0m"
+}
+
+sixteenbg() {
+  echo -e "\e[49m\\\e[49m Default"
+  echo -e "\e[40m\\\e[40m Black"
+  echo -e "\e[41m\\\e[41m Red"
+  echo -e "\e[42m\\\e[42m Green"
+  echo -e "\e[43m\\\e[43m Yellow"
+  echo -e "\e[44m\\\e[44m Blue"
+  echo -e "\e[45m\\\e[45m Magenta"
+  echo -e "\e[46m\\\e[46m Cyan"
+  echo -e "\e[47m\\\e[47m Light gray"
+  echo -e "\e[100m\\\e[100m Dark gray"
+  echo -e "\e[101m\\\e[101m Light red"
+  echo -e "\e[102m\\\e[102m Light green"
+  echo -e "\e[103m\\\e[103m Light yellow"
+  echo -e "\e[104m\\\e[104m Light blue"
+  echo -e "\e[105m\\\e[105m Light magenta"
+  echo -e "\e[106m\\\e[106m Light cyan"
+  echo -e "\e[107m\\\e[107m White"
+  echo -e "\e[0m"
+}
+
+if [ -z "$1" ]; then
+  tmuxcolours
+elif declare -F | grep "$1" > /dev/null; then
+  $1
+else
+  tmuxcolours
+fi
