@@ -16,7 +16,7 @@
 #[REMOTE_URL] like gist:xxxx for instance assumined already could be cloned as a bare
 
 #demo:
-#cd `mkdtemp -d` && curl 'https://raw.githubusercontent.com/o2346/happy-scripts/develop/install.uc.sh' | bash -s - https://gist.github.com/o2346/d12142dc810a6b5175607a19ed3c6373
+#cd `mktemp -d` && curl 'https://raw.githubusercontent.com/o2346/happy-scripts/develop/install.uc.sh' | bash -s - https://gist.github.com/o2346/d12142dc810a6b5175607a19ed3c6373
 #go to temp dir since you may want sample files to be present on disposable directory instead of important one on a current
 
 
