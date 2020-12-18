@@ -111,8 +111,6 @@ new_instance_qemu-system-x86_64() {
   printf 'on fedora: sudo passwd root; su; echo root:pass | chpasswd && service sshd start && systemctl enable sshd\n'
   printf 'on kali: systemctl start ssh.service\n'
   #https://www.liquidweb.com/kb/enable-root-login-via-ssh/
-  printf "mint: sudo su; echo root:pass | chpasswd; apt install -y openssh-server; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config; systemctl start ssh.service\n"
-  printf "ssh from host: ssh root@localhost -p $random_ssh_port\n"
 
   qemu-system-x86_64                 \
     -m $ramsize                      \
@@ -124,15 +122,26 @@ new_instance_qemu-system-x86_64() {
     -vga $vga                        \
     -name $1                         \
     -usb -usbdevice tablet           \
-    -cdrom $medium
+    -cdrom $medium                   &
 #    -serial telnet:localhost:4321,server,nowait \
 #    -monitor tcp:127.0.0.1:55555,server,nowait;
+  if echo $medium | grep -i 'mint'; then
+    echo "ssh -oStrictHostKeyChecking=no mint@localhost -p $random_ssh_port" > ./ssh.sh
+    chmod +x ./ssh.sh
+    printf "issue command shown below on the guest VM\n"
+    echo "curl https://raw.githubusercontent.com/o2346/pde/develop/mint/bootstrap.sh | bash -s"
+    seq 32 | while read $wait; do
+      ssh -oStrictHostKeyChecking=no mint@localhost -p $random_ssh_port : && break
+      sleep 4
+    done
+    ssh -oStrictHostKeyChecking=no mint@localhost -p $random_ssh_port
+  fi
 
     #-chardev socket,id=monitor,path=/tmp/monitor.sock,server,nowait \
     #-monitor chardev:monitor \
     #-chardev socket,id=serial0,path=/tmp/console.sock,server,nowait \
     #-serial chardev:serial0
-  #exec $SHELL
+  exec $SHELL
   return 0
   # -net nic -net user              \
   # https://unix.stackexchange.com/questions/124681/how-to-ssh-from-host-to-guest-using-qemu
