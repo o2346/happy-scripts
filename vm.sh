@@ -125,7 +125,14 @@ new_instance_qemu-system-x86_64() {
     -name $1                         \
     -usb -usbdevice tablet           \
     -cdrom $medium
-  exec $SHELL
+#    -serial telnet:localhost:4321,server,nowait \
+#    -monitor tcp:127.0.0.1:55555,server,nowait;
+
+    #-chardev socket,id=monitor,path=/tmp/monitor.sock,server,nowait \
+    #-monitor chardev:monitor \
+    #-chardev socket,id=serial0,path=/tmp/console.sock,server,nowait \
+    #-serial chardev:serial0
+  #exec $SHELL
   return 0
   # -net nic -net user              \
   # https://unix.stackexchange.com/questions/124681/how-to-ssh-from-host-to-guest-using-qemu
@@ -135,6 +142,10 @@ new_instance_qemu-system-x86_64() {
   # with fedora: systemctl start sshd.service https://docs.fedoraproject.org/ja-JP/Fedora/17/html/System_Administrators_Guide/s2-ssh-configuration-sshd.html
   #/etc/libvirt/hooks/qemu
   #run script in guest https://stackoverflow.com/questions/19118074/passing-script-to-vm-with-kvm
+  #https://unix.stackexchange.com/a/426951
+  ##https://sononi.com/memo/2019/06/21/qemumonitor/
+  #https://www.linux-kvm.org/page/Simple_shell_script_to_manage_your_virtual_machine_with_bridged_networking
+  #https://stackoverflow.com/a/19352056
 }
 
 # https://nakkaya.com/2012/08/30/create-manage-virtualBox-vms-from-the-command-line/
