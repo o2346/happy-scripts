@@ -692,24 +692,36 @@ _vm() {
       -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
       -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
       -usb -usbdevice tablet                              \
-      -soundhw all                                        \
       $temporarily &
+      #-soundhw all                                        \
 
       echo $! > pid
       echo $random_ssh_port > port
-      printf '#!/bin/bash\n ssh -o "ConnectTimeout=10" -o "StrictHostKeyChecking no" -p '$random_ssh_port' -i ./id_rsa localhost $*'  > ./ssh
-      chmod +x ./ssh
+      printf "#!/bin/bash\nssh -oStrictHostKeyChecking=no mint@localhost -p $random_ssh_port" > ./ssh.sh
+      #printf '#!/bin/bash\n ssh -o "ConnectTimeout=10" -o "StrictHostKeyChecking no" -p '$random_ssh_port' -i ./id_rsa localhost $*'  > ./ssh
+      chmod +x ./ssh.sh
 
-      if [ -f "./id_rsa" ]; then
-        while true; do
-          ssh                             \
-            -o "ConnectTimeout=10"        \
-            -o "StrictHostKeyChecking no" \
-            -p $random_ssh_port           \
-            -i ./id_rsa localhost && break
+      if echo 'mint' | grep -i 'mint'; then
+        echo "ssh -oStrictHostKeyChecking=no mint@localhost -p $random_ssh_port" > ./ssh.sh
+        chmod +x ./ssh.sh
+        printf "issue command shown below on the guest VM\n"
+        echo "curl https://raw.githubusercontent.com/o2346/pde/develop/mint/bootstrap.sh | bash -s"
+        seq 32 | while read $wait; do
+          ssh -oStrictHostKeyChecking=no mint@localhost -p $random_ssh_port : && break
           sleep 4
         done
+        ssh -oStrictHostKeyChecking=no mint@localhost -p $random_ssh_port
       fi
+      #if [ -f "./id_rsa" ]; then
+      #  while true; do
+      #    ssh                             \
+      #      -o "ConnectTimeout=10"        \
+      #      -o "StrictHostKeyChecking no" \
+      #      -p $random_ssh_port           \
+      #      -i ./id_rsa localhost && break
+      #    sleep 4
+      #  done
+      #fi
       # http://blog.livedoor.jp/les_paul_sp/archives/694273.html
       #https://wiki.qemu.org/Documentation/CreateSnapshot#Temporary_snapshots
       # about bridge networking
