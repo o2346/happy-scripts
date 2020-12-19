@@ -20,7 +20,6 @@
 #go to temp dir since you may want sample files to be present on disposable directory instead of important one on a current
 
 
-cd $HOME
 readonly url=$1
 readonly local_name='.uc'
 
