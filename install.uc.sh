@@ -48,4 +48,4 @@ ls -altrh | tail
 echo "alias config=/usr/bin/git\ --git-dir=$PWD\ --work-tree=`dirname $PWD`" >&2
 alias config="/usr/bin/git --git-dir=$PWD --work-tree=`dirname $PWD`"
 #https://stackoverflow.com/questions/8514284/bash-how-to-pass-arguments-to-a-script-that-is-read-via-standard-input
-
+#https://stackoverflow.com/a/55081559
