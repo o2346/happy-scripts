@@ -2,7 +2,6 @@
 
 crap(){
   readonly local PARENT=$HOME
-
   help() {
     printf "# CRAwl RePositories\n"
     printf "# Issue some git commands on recognized git repos under parent directory recursively\n"
@@ -89,8 +88,8 @@ crap(){
     cd $REPO/..
     #echo "$PWD > git pull"
     cd `dirname $REPO`
-    ST=`git status --porcelain`
-    is_ahead=`git status -bs | grep '\[ahead'`
+    ST=`git status --porcelain 2> /dev/null`
+    is_ahead=`git status -bs 2> /dev/null | grep '\[ahead'`
     WD=`pwd`
 
     if [ "${list_all}" = 0 ] ; then
