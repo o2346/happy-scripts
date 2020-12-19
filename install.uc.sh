@@ -20,8 +20,14 @@
 #go to temp dir since you may want sample files to be present on disposable directory instead of important one on a current
 
 
+cd $HOME
 readonly url=$1
 readonly local_name='.uc'
+
+#if [ -d "$local_name" ]; then
+#  echo "WARNING: Removing existing items" >&2
+#  git ls-tree HEAD --name-only | xargs rm && .uc `mktemp -d`
+#fi
 
 git clone --bare $url $PWD/$local_name || exit 1
 
@@ -29,7 +35,6 @@ cd $local_name
 git config status.showUntrackedFiles no
 
 echo "Issue command like below to operate git dedicated for the repo" >&2
-echo "alias config=/usr/bin/git\ --git-dir=$PWD\ --work-tree=`dirname $PWD`" >&2
 
 if ! git --git-dir=$PWD --work-tree=`dirname $PWD` checkout; then
   echo "Something is wrong. Carefully remove related objects and retry" >&2
@@ -40,5 +45,7 @@ echo 'looks fine review the files' >&2
 cd ../
 ls -altrh | tail
 
+echo "alias config=/usr/bin/git\ --git-dir=$PWD\ --work-tree=`dirname $PWD`" >&2
+alias config="/usr/bin/git --git-dir=$PWD --work-tree=`dirname $PWD`"
 #https://stackoverflow.com/questions/8514284/bash-how-to-pass-arguments-to-a-script-that-is-read-via-standard-input
 
