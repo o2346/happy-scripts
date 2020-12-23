@@ -1,5 +1,14 @@
 #!/bin/bash
 
+readonly which_git=`which git`
+function git() {
+ if [ "`pwd`" = "$HOME" ]; then
+   $which_git --git-dir=$HOME/.uc --work-tree=$HOME $*
+ else
+   $which_git $*
+ fi
+}
+
 crap(){
   readonly local PARENT=$HOME
   help() {
@@ -86,8 +95,10 @@ crap(){
   #https://stackoverflow.com/questions/11981716/how-to-quickly-find-all-git-repos-under-a-directory/12010862#12010862
   find $PARENT -name 'branches' -o -name '.git' -type d -prune 2>/dev/null | grep -Ev "$ignore" | while read REPO; do
     cd $REPO/..
-    #echo "$PWD > git pull"
     cd `dirname $REPO`
+    if [ "$PWD" = "$HOME/.uc" ]; then
+      cd $HOME
+    fi
     ST=`git status --porcelain 2> /dev/null`
     is_ahead=`git status -bs 2> /dev/null | grep '\[ahead'`
     WD=`pwd`
