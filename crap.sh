@@ -2,7 +2,7 @@
 
 readonly which_git=`which git`
 function git() {
- if [ "`pwd`" = "$HOME/.uc" ]; then
+ if [ "`pwd`" = "$HOME" -o "`pwd`" = "$HOME/.uc" ]; then
    $which_git --git-dir=$HOME/.uc --work-tree=$HOME $*
  else
    $which_git $*
