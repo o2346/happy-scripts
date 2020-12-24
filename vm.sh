@@ -544,19 +544,27 @@ _vm() {
       esac
     done
 
+    if which vmrun; then
+      vmware="vmrun -T $HOST start"
+    elif which vmplayer; then
+      vmware="vmplayer"
+    else
+      echo "[ERROR] neither commands for VMWare found.abort" >&2
+      return 1
+    fi
+    #ls /usr/lib/vmware/bin/
+    #ls -al /usr/bin/*vm*
+
     if [ -n "$isMutable" ]; then
       sed -i '/scsi0:0.mode = \"independent-nonpersistent\"/d' $VMX
-      vmrun -T $HOST start $VMX
-      return 0
+      $vmware $VMX
     elif [ -n "$isAlreadyEnabled" ]; then
-      vmrun -T $HOST start $VMX
-      return 0
+      $vmware $VMX
     else
       sed -ie "/^scsi0:0\.fileName/a scsi0:0.mode = \"independent-nonpersistent\"" $VMX
-      vmrun -T $HOST start $VMX
-      return 0
+      $vmware $VMX
     fi
-    return 0
+    return $?
   fi
 
   VBOX=`find . -maxdepth 1 -name *.vbox` 2> /dev/null
