@@ -112,30 +112,32 @@ new_instance_qemu-system-x86_64() {
   printf 'on kali: systemctl start ssh.service\n'
   #https://www.liquidweb.com/kb/enable-root-login-via-ssh/
 
+  echo medium=$medium
   qemu-system-x86_64                 \
     -m $ramsize                      \
     -boot d -enable-kvm              \
     -smp $cpus                       \
     -net $kvm_net_hostfwd            \
     -net nic                         \
-    -hda $1.img                      \
     -vga $vga                        \
     -name $1                         \
-    -usb -usbdevice tablet           \
-    -cdrom $medium                   &
+    -cdrom "$medium"                   \
+    $1.img                      &
+#    -usb -usbdevice tablet           \
 #    -serial telnet:localhost:4321,server,nowait \
 #    -monitor tcp:127.0.0.1:55555,server,nowait;
-  if echo $medium | grep -i 'mint'; then
-    echo "ssh -oStrictHostKeyChecking=no mint@localhost -p $random_ssh_port" > ./ssh.sh
+  guestuser="`whoami`"
+  #if echo $medium | grep -i 'mint'; then
+    echo "ssh -oStrictHostKeyChecking=no $guestuser@localhost -p $random_ssh_port" > ./ssh.sh
     chmod +x ./ssh.sh
     printf "issue command shown below on the guest VM\n"
     echo "curl https://raw.githubusercontent.com/o2346/pde/develop/mint/bootstrap.sh | bash -s"
     seq 32 | while read $wait; do
-      ssh -oStrictHostKeyChecking=no mint@localhost -p $random_ssh_port : && break
+      ssh -oStrictHostKeyChecking=no $guestuser@localhost -p $random_ssh_port : && break
       sleep 4
     done
-    ssh -oStrictHostKeyChecking=no mint@localhost -p $random_ssh_port
-  fi
+    ssh -oStrictHostKeyChecking=no $guestuser@localhost -p $random_ssh_port
+  #fi
 
     #-chardev socket,id=monitor,path=/tmp/monitor.sock,server,nowait \
     #-monitor chardev:monitor \
@@ -696,30 +698,31 @@ _vm() {
       -smp `cat kvm | grep -e 'cpus' | awk '{print $2}'`  \
       -net $kvm_net_hostfwd                               \
       -net nic                                            \
-      -hda `cat kvm | grep -e 'disk' | awk '{print $2}'`  \
       -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
       -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
-      -usb -usbdevice tablet                              \
-      $temporarily &
+      $temporarily \
+      "`cat kvm | grep -e 'disk' | awk '{print $2}'`"  &
+#      -usb -usbdevice tablet                              \
       #-soundhw all                                        \
 
       echo $! > pid
       echo $random_ssh_port > port
-      printf "#!/bin/bash\nssh -oStrictHostKeyChecking=no mint@localhost -p $random_ssh_port" > ./ssh.sh
+      guestuser="`whoami`"
+      printf "#!/bin/bash\nssh -oStrictHostKeyChecking=no $guestuser@localhost -p $random_ssh_port" > ./ssh.sh
       #printf '#!/bin/bash\n ssh -o "ConnectTimeout=10" -o "StrictHostKeyChecking no" -p '$random_ssh_port' -i ./id_rsa localhost $*'  > ./ssh
       chmod +x ./ssh.sh
 
-      if echo 'mint' | grep -i 'mint'; then
-        echo "ssh -oStrictHostKeyChecking=no mint@localhost -p $random_ssh_port" > ./ssh.sh
+      #if echo 'mint' | grep -i 'mint'; then
+        echo "ssh -oStrictHostKeyChecking=no $guestuser@localhost -p $random_ssh_port" > ./ssh.sh
         chmod +x ./ssh.sh
         printf "issue command shown below on the guest VM\n"
         echo "curl https://raw.githubusercontent.com/o2346/pde/develop/mint/bootstrap.sh | bash -s"
         seq 32 | while read $wait; do
-          ssh -oStrictHostKeyChecking=no mint@localhost -p $random_ssh_port : && break
+          ssh -oStrictHostKeyChecking=no $guestuser@localhost -p $random_ssh_port : && break
           sleep 4
         done
-        ssh -oStrictHostKeyChecking=no mint@localhost -p $random_ssh_port
-      fi
+        ssh -oStrictHostKeyChecking=no $guestuser@localhost -p $random_ssh_port
+      #fi
       #if [ -f "./id_rsa" ]; then
       #  while true; do
       #    ssh                             \
