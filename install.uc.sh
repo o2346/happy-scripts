@@ -32,6 +32,8 @@ git clone --bare $url $PWD/$local_name || exit 1
 
 cd $local_name
 git config status.showUntrackedFiles no
+readonly gitoption="--git-dir=$PWD --work-tree=`dirname $PWD`"
+echo $gitoption
 
 echo "Issue command like below to operate git dedicated for the repo" >&2
 
@@ -44,16 +46,19 @@ echo 'looks fine review the files' >&2
 cd ../
 ls -altrh | tail
 
-echo "alias config=/usr/bin/git\ --git-dir=$PWD\ --work-tree=`dirname $PWD`" >&2
-alias config="/usr/bin/git --git-dir=$PWD --work-tree=`dirname $PWD`"
+echo $gitoption
+#git $gitoption branch
 
 #https://stackoverflow.com/questions/5341077/git-doesnt-show-how-many-commits-ahead-of-origin-i-am-and-i-want-it-to
 #https://stackoverflow.com/questions/37669297/why-doesnt-my-git-status-show-me-whether-im-up-to-date-with-my-remote-counterp
 #[Actual Solution](https://stackoverflow.com/a/11267065)
-config remote add origin $url
-config branch --set-upstream-to origin/master
-config fetch origin
-config branch -r
+git $gitoption remote remove origin
+git $gitoption remote add origin $url
+git $gitoption fetch
+git $gitoption branch --set-upstream-to origin/master
+git $gitoption branch -r
+git $gitoption remote show origin
+
 #https://git-scm.com/book/it/v2/Git-Basics-Working-with-Remotes
 
 #https://stackoverflow.com/questions/8514284/bash-how-to-pass-arguments-to-a-script-that-is-read-via-standard-input
