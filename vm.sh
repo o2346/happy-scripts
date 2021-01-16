@@ -519,7 +519,18 @@ _vm() {
           return 0
           ;;
         k) echo 'kill Virtual Machine..'
-          vmrun -T $HOST stop $VMX hard
+          if which vmrun; then
+            vmrun -T $HOST stop $VMX hard
+          elif which vmplayer; then
+            #killall vmplayer
+            ps aux | grep "`ls *.vmx`" | awk '{print $2}' | xargs kill
+            #Since it likely causes breaking host os at shutdown or closing in normal way. Host os completely freezes right after execution of such way
+            #Similer error messages are shown 2021/01/16
+            #https://askubuntu.com/questions/1214111/vmplayer-closes-on-start-of-vm
+          else
+            echo "[ERROR] neither commands for VMWare found.abort" >&2
+            return 1
+          fi
           return 0
           ;;
         R) echo restore latest snapshot..
@@ -559,12 +570,12 @@ _vm() {
 
     if [ -n "$isMutable" ]; then
       sed -i '/scsi0:0.mode = \"independent-nonpersistent\"/d' $VMX
-      $vmware $VMX
+      ($vmware $VMX) &
     elif [ -n "$isAlreadyEnabled" ]; then
-      $vmware $VMX
+      ($vmware $VMX) &
     else
       sed -ie "/^scsi0:0\.fileName/a scsi0:0.mode = \"independent-nonpersistent\"" $VMX
-      $vmware $VMX
+      ($vmware $VMX) &
     fi
     return $?
   fi
