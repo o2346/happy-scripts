@@ -523,7 +523,8 @@ _vm() {
             vmrun -T $HOST stop $VMX hard
           elif which vmplayer; then
             #killall vmplayer
-            ps aux | grep "`ls *.vmx`" | awk '{print $2}' | xargs kill
+            ps aux | grep -iE '(vmplayer)' | awk '{print $2}' | xargs kill
+            #        grep "`ls *.vmx`"
             #Since it likely causes breaking host os at shutdown or closing in normal way. Host os completely freezes right after execution of such way
             #Similer error messages are shown 2021/01/16
             #https://askubuntu.com/questions/1214111/vmplayer-closes-on-start-of-vm
