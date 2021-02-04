@@ -523,7 +523,7 @@ _vm() {
             vmrun -T $HOST stop $VMX hard
           elif which vmplayer; then
             #killall vmplayer
-            ps aux | grep -iE '(vmplayer|vmware)' | awk '{print $2}' | xargs kill
+            ps aux | grep -iE '(vmplayer|vmware)' | awk '{print $2}' | xargs sudo kill
             #ps aux | grep -i vmware | awk '{print $2}' | xargs kill
             #        grep "`ls *.vmx`"
             #Since it likely causes breaking host os at shutdown or closing in normal way. Host os completely freezes right after execution of such way
