@@ -6,6 +6,7 @@ resolve() {
   mkdir -p $wkdir/`dirname $1`
   local underlined=`echo "$*" | sed 's/ /_/g'`
   echo $wkdir/$underlined.mp3
+  #echo $wkdir/$underlined.mp4
 }
 
 for f in **/*.{mp4,wav}; do
