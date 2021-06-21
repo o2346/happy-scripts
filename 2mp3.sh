@@ -12,7 +12,7 @@ resolve() {
 for f in **/*.{mp4,wav}; do
   [ -f "$f" ] || continue
   [ "`dirname \"$f\"`" = 'origin' ] && continue
-  [ "`dirname \"$f\"`" = 'bored' ] && continue
+  dirname "$f" | grep -i 'bored' > /dev/null && continue
   ffmpeg -i "$f" $* "`resolve ${f%.*}`"
 done
 echo $wkdir
