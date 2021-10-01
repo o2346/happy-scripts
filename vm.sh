@@ -106,7 +106,7 @@ new_instance_qemu-system-x86_64() {
   qemu-img create -f vmdk $1.img 40G
 
   readonly random_ssh_port=`get_random_ssh_port`
-  readonly kvm_net_hostfwd="user,hostfwd=tcp::$random_ssh_port-:22"
+  readonly kvm_net_hostfwd_ssh="user,hostfwd=tcp::$random_ssh_port-:22"
 
   #echo "port $random_ssh_port"
   printf 'on fedora: sudo passwd root; su; echo root:pass | chpasswd && service sshd start && systemctl enable sshd\n'
@@ -118,7 +118,7 @@ new_instance_qemu-system-x86_64() {
     -m $ramsize                      \
     -boot d -enable-kvm              \
     -smp $cpus                       \
-    -net $kvm_net_hostfwd            \
+    -net $kvm_net_hostfwd_ssh        \
     -net nic                         \
     -vga $vga                        \
     -name $1                         \
@@ -703,7 +703,15 @@ _vm() {
     done
 
     readonly random_ssh_port=`get_random_ssh_port 2>/dev/null`
-    readonly kvm_net_hostfwd="user,hostfwd=tcp::$random_ssh_port-:22"
+    #https://serverfault.com/a/704300
+    readonly kvm_net_hostfwd_ssh="user,hostfwd=tcp::$random_ssh_port-:22"
+    readonly kvm_net_hostfwd_miscs="`cat hostfwd | awk '{print ",hostfwd=tcp::"$1"-:"$1}' | tr -d '\n'`"
+    cat hostfwd | while read port; do
+      sudo firewall-cmd --zone=public --add-port=${port}/tcp
+    done
+    sudo firewall-cmd --zone=public --list-ports
+    readonly kvm_net_hostfwd="$kvm_net_hostfwd_ssh$kvm_net_hostfwd_miscs"
+    echo "$kvm_net_hostfwd" >&2
 
     echo "port $random_ssh_port"
     qemu-system-x86_64                                    \
