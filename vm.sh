@@ -24,6 +24,7 @@ help() {
   printf "  --hpv=[kind] specify hypervisor with option -n.\n"
   printf "      One of \"kvm\" \"vboxmanage\" \"vmrun\" acceptable\n"
   printf "  --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
+  printf "  -e  COMMAND execute COMMAND via ssh when a connection was established\n"
   #https://serverfault.com/questions/336298/can-i-change-a-user-password-in-linux-from-the-command-line-with-no-interactivit
 #  printf "     -e  [COMMAND ARGS1 2..] execute command on the guest\n"
 #  printf "     -a  enable ssh & pubkey auto on the guest\n"
