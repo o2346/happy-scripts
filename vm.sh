@@ -705,6 +705,7 @@ _vm() {
     readonly random_ssh_port=`get_random_ssh_port 2>/dev/null`
     #https://serverfault.com/a/704300
     readonly kvm_net_hostfwd_ssh="user,hostfwd=tcp::$random_ssh_port-:22"
+    sudo firewall-cmd --zone=public --add-port=$random_ssh_port/tcp
     if [ -f "./hostfwd" ]; then
       kvm_net_hostfwd_miscs="`cat hostfwd | awk '{print ",hostfwd=tcp::"$1"-:"$1}' | tr -d '\n'`"
       cat hostfwd | while read port; do
