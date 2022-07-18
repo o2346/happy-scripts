@@ -162,7 +162,7 @@ update() {
 }
 
 new() {
-  echo arg=$*
+  #echo arg=$*
   local isid=`isidgen`
   if [ `git rev-parse --show-toplevel` ]; then
     local repo=`git rev-parse --show-toplevel`
