@@ -39,6 +39,7 @@ crap(){
   PUSH=false
   dry_run=''
   list_all=''
+  diff=''
 
   #long options
   POSITIONAL=()
@@ -51,6 +52,10 @@ crap(){
         ;;
       --list-all)
         list_all=0
+        shift # past argument
+        ;;
+      --diff)
+        diff=0
         shift # past argument
         ;;
       *)    # unknown option
@@ -106,6 +111,11 @@ crap(){
 
     if [ "${list_all}" = 0 ] ; then
       print_repo ${WD}
+      continue
+    fi
+
+    if [ "${diff}" = 0 ] ; then
+      git --no-pager diff
       continue
     fi
 
