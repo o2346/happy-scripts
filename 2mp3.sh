@@ -9,9 +9,9 @@ resolve() {
   #echo $wkdir/$underlined.mp4
 }
 
-# use "generate_dummy_mp 3 6" instead of below
-#dummy_basename=000_dummy_vlc
-#ffmpeg -f lavfi -i anullsrc=r=44100:cl=mono -t 6 -q:a 9 -acodec libmp3lame $wkdir/${dummy_basename}.mp3
+# same as "generate_dummy_mp 3 6" instead of below
+dummy_basename=000_dummy_vlc
+ffmpeg -f lavfi -i anullsrc=r=44100:cl=mono -t 6 -q:a 9 -acodec libmp3lame $wkdir/${dummy_basename}.mp3
 
 for f in **/*.{mp4,wav}; do
   [ -f "$f" ] || continue
@@ -19,5 +19,9 @@ for f in **/*.{mp4,wav}; do
   dirname "$f" | grep -i 'bored' > /dev/null && continue
   ffmpeg -i "$f" $* "`resolve ${f%.*}`"
 done
+
+cd $wkdir
+#https://www.cyberciti.biz/faq/linux-list-just-directories-or-directory-names/
+ls -d */ | xargs -I{} cp -avu *.mp3 {}
 
 echo $wkdir
