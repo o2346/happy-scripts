@@ -74,9 +74,9 @@ crap(){
         ;;
       c)  PARENT=$CWD
         ;;
-      l)  SHOWLINES=24
+      l)  SHOWLINES=18
           echo "Newest ${SHOWLINES} lines below"
-          git log --graph --decorate --oneline --all -$SHOWLINES
+          git log --graph --decorate --all -$SHOWLINES
           return 0
         ;;
       h)  help
