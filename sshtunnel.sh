@@ -7,7 +7,8 @@ uname | grep -i 'Darwin' || exit 1
 readonly userhost=${@: -1}
 
 tunnel() {
-  ssh -N -n -L ${1}:localhost:${1} ${2} &
+  ssh -N -n ${1} ${2}
+  #${1}:localhost:${1}
 }
 
 trap "ps aux | grep -E 'ssh -N -n -L.+localhost' | awk '{print \$2}' | xargs kill" ERR EXIT SIGKILL
@@ -15,6 +16,5 @@ trap "ps aux | grep -E 'ssh -N -n -L.+localhost' | awk '{print \$2}' | xargs kil
 #echo ${*%${!#}} | tr ' ' '\n' | while read p; do
 #  tunnel ${p} $userhost
 #done
-tunnel ${1} $userhost
+tunnel $(echo ${*%${!#}} | awk  'BEGIN{RS=" ";ORS=" "}; {print "-L "$1":localhost:"$1}') $userhost
 
-#while true; do :; done
