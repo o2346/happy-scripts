@@ -12,8 +12,9 @@ tunnel() {
 
 trap "ps aux | grep -E 'ssh -N -n -L.+localhost' | awk '{print \$2}' | xargs kill" ERR EXIT SIGKILL
 
-echo ${*%${!#}} | tr ' ' '\n' | while read p; do
-  tunnel ${p} $userhost
-done
+#echo ${*%${!#}} | tr ' ' '\n' | while read p; do
+#  tunnel ${p} $userhost
+#done
+tunnel ${1} $userhost
 
-while true; do :; done
+#while true; do :; done
