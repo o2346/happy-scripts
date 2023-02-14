@@ -10,9 +10,10 @@ tunnel() {
   ssh -N -n -L ${1}:localhost:${1} ${2} &
 }
 
-trap "ps aux | grep tunnel" ERR EXIT SIGKILL
+trap "ps aux | grep 'ssh -N -n -L'" ERR EXIT SIGKILL
 
 echo ${*%${!#}} | tr ' ' '\n' | while read p; do
   tunnel ${p} $userhost
 done
 
+while true; do :; done
