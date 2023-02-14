@@ -7,10 +7,12 @@ uname | grep -i 'Darwin' || exit 1
 readonly userhost=${@: -1}
 
 tunnel() {
-  ssh -N -n -L ${port}:localhost:${port} ${userhost} &
+  ssh -N -n -L ${1}:localhost:${1} ${2} &
 }
 
 trap "ps aux | grep tunnel" ERR EXIT SIGKILL
 
-echo ${*%${!#}} | tr ' ' '\n' | xargs -I{} tunnel {} $userhost
+echo ${*%${!#}} | tr ' ' '\n' | while read p; do
+  tunnel ${p} $userhost
+done
 
