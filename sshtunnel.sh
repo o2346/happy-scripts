@@ -16,5 +16,6 @@ trap "ps aux | grep -E 'ssh -N -n -L.+localhost' | awk '{print \$2}' | xargs kil
 #echo ${*%${!#}} | tr ' ' '\n' | while read p; do
 #  tunnel ${p} $userhost
 #done
-tunnel $(echo ${*%${!#}} | awk  'BEGIN{RS=" ";ORS=" "}; {print "-L "$1":localhost:"$1}') $userhost
+lopts="$(echo ${*%${!#}} | awk  'BEGIN{RS=" ";ORS=" "}; {print "-L "$1":localhost:"$1}')"
+ssh -N -n $lopts $userhost
 
