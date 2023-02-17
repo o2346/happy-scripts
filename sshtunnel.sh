@@ -11,7 +11,7 @@ usage example:
 
 in other terminal,
 curl localhost:4502
-Or go there by any modern browser
+Or go there by any modern browser. Another given ports also suppose to be available as localhost.
 
 Press Ctrl+c to finish
 Assuming some server is running on externalhost:4502 as wellas port 4503 and 80.
