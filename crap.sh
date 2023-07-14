@@ -120,13 +120,13 @@ crap(){
     fi
 
     if [ "$FETCH" = "true" ]; then
-      git fetch $dry_run
+      GIT_TERMINAL_PROMPT=0 git fetch $dry_run
       continue
     fi
 
     if [ "$PULL" = "true" ]; then
-      git pull | egrep -iv 'Already.up.to.date'
-      [ "${PIPESTATUS[0]}" = "0" ] || echo "which: $REPO"
+      GIT_TERMINAL_PROMPT=0 git pull | egrep -iv 'Already.up.to.date'
+      [ "${PIPESTATUS[0]}" = "0" ] || echo "Potential changes found on remote of $REPO"
       continue
     fi
 
