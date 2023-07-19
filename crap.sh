@@ -58,6 +58,10 @@ crap(){
         diff=0
         shift # past argument
         ;;
+      --reunionizer)
+        reunionizer=0
+        shift # past argument
+        ;;
       *)    # unknown option
         POSITIONAL+=("$1") # save it in an array for later
         shift # past argument
@@ -96,7 +100,11 @@ crap(){
     esac
   done
 
-  readonly ignore="$HOME/(.vim|.themes|.tmux|n-api-article)/"
+  if [ "${reunionizer}" = 0 ] ; then
+    echo "#!/bin/bash"
+  fi
+
+  readonly ignore="$HOME/(.vim|.themes|.tmux|n-api-article|.cache)/"
   #https://stackoverflow.com/questions/11981716/how-to-quickly-find-all-git-repos-under-a-directory/12010862#12010862
   find $PARENT -name 'branches' -o -name '.git' -type d -prune 2>/dev/null | grep -Ev "$ignore" | while read REPO; do
     cd $REPO/..
@@ -108,9 +116,15 @@ crap(){
     ST=`git status --porcelain 2> /dev/null`
     is_ahead=`git status -bs 2> /dev/null | grep '\[ahead'`
     WD=`pwd`
+    BASENAME=`basename $(pwd)`
 
     if [ "${list_all}" = 0 ] ; then
       print_repo ${WD}
+      continue
+    fi
+
+    if [ "${reunionizer}" = 0 ] ; then
+      cat ./.git/config | grep 'url =' | awk ' {print "git clone "$NF,"'${BASENAME}'"}'
       continue
     fi
 
@@ -150,6 +164,10 @@ crap(){
 
     printf "\n"
   done
+
+  if [ "${reunionizer}" = 0 ] ; then
+    echo 'cpwd=`pwd`; ls $cpwd | while read repo; do cd $cpwd/$repo && git checkout develop; done; cd $cpwd'
+  fi
 
   cd $CWD
 
