@@ -24,9 +24,69 @@ help() {
   printf "  --hpv=[kind] specify hypervisor with option -n.\n"
   printf "      One of \"kvm\" \"vboxmanage\" \"vmrun\" acceptable\n"
   printf "  --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
+  printf "  -e  COMMAND execute COMMAND via ssh when a connection was established\n"
   #https://serverfault.com/questions/336298/can-i-change-a-user-password-in-linux-from-the-command-line-with-no-interactivit
 #  printf "     -e  [COMMAND ARGS1 2..] execute command on the guest\n"
 #  printf "     -a  enable ssh & pubkey auto on the guest\n"
+}
+
+localisosum="/tmp/localisosum"
+_transmission_cli() {
+  rm -rf ~/.config/transmission/torrents
+  rm -f $localisosum
+  local args=`cat`
+  local isotorrent=`echo $args | awk '{print $1}'`
+  local sha256sum=`echo $args | awk '{print $2}'`
+  (transmission-cli $isotorrent) &
+  echo "Awaiting target has completely downloaded" >&2
+  while true; do
+    cd ~/Downloads
+    sha256sum **/*${1}*.iso | grep ${sha256sum} > $localisosum && echo "Downloaded $isotorrent" >&2 && echo 'done' && break
+    sleep 4
+  done
+  ps aux | grep -iE '(torrent|transmission\-cli)' | grep -i "${1}" | awk '{print $2}' | xargs kill
+  return 0
+}
+
+download_latest_kali(){
+  curl https://www.kali.org/get-kali/  | grep -iEoh '((SHA256sum.*)).*http.*live.*amd64.*\.iso"?' | sed -e 's/<\/[[:alnum:]]\+>/ /g' | sed -e 's/<a[[:blank:]]\?href=//' | tr -d '"' | sort -u | head -n1 | awk '{print $3".torrent",$2}' | _transmission_cli kali
+}
+
+#https://ftp.yz.yamagata-u.ac.jp/pub/linux/fedora-projects/fedora/linux/releases/38/Spins/x86_64/iso/
+#https://torrent.fedoraproject.org/
+download_latest_fedora(){
+  local isotorrent=`curl https://torrent.fedoraproject.org/ | grep -iEoh 'https:.*xfce.*\.torrent' | awk 'BEGIN{FS="[>\"]"} {print $1}' | sort -u | tail -n1`
+  echo "$isotorrent"
+  local torrentversion=`echo "$isotorrent" | grep -iEoh '[0-9]+\.torrent' | grep -Eoh '[0-9]+'`
+  local checksumfiledir="https://ftp.yz.yamagata-u.ac.jp/pub/linux/fedora-projects/fedora/linux/releases/${torrentversion}/Spins/x86_64/iso/"
+  local checksumfile=`curl $checksumfiledir | grep -iEoh 'Fedora-.*CHECKSUM' | awk 'BEGIN{FS="[>\"]"} {print $1}' | head -n1`
+  local checksumfileurl="${checksumfiledir}${checksumfile}"
+  echo $checksumfileurl
+  local sha256sum=`curl $checksumfileurl | grep -iE 'SHA256.*xfce' | awk '{print $NF}'`
+  echo $sha256sum
+  echo "$isotorrent $sha256sum"
+  echo "$isotorrent $sha256sum" | _transmission_cli Fedora
+}
+
+download_latest_debian(){
+  #transmission-cli https://cdimage.debian.org/debian-cd/current/amd64/bt-dvd/debian-12.1.0-amd64-DVD-1.iso.torrent
+}
+
+download_latest_lmde(){
+  local resources=`mktemp`
+  local editionphp=`curl https://linuxmint.com/download_lmde.php | grep -iEoh 'edition\.php\?id=[a-zA-Z0-9]*' | sort -u | head -n1`
+  echo $editionphp
+  curl "https://linuxmint.com/${editionphp}" | grep -iEoh 'https:.*(.*lmde.*64bit.*\.torrent|sha256sum\.txt)' | awk 'BEGIN{FS=">"} {print $1}' | sort | tr -d '"' | grep -vE '\.gpg$' > $resources
+  local isotorrent=`cat $resources | grep '.torrent'`
+  local sha256sumtxt=`cat $resources | grep 'sha256sum.txt'`
+  echo $isotorrent
+  echo $sha256sumtxt
+  local iso=`echo $isotorrent | grep -iEoh 'lmde.*\.iso'`
+  echo $iso
+  local sha256sum=`curl $sha256sumtxt | grep $iso | awk '{print $1}'`
+  echo $sha256sum
+  echo "$isotorrent $sha256sum" | _transmission_cli lmde
+  rm -f $resources
 }
 
 get_hpv() {
@@ -105,26 +165,44 @@ new_instance_qemu-system-x86_64() {
   qemu-img create -f vmdk $1.img 40G
 
   readonly random_ssh_port=`get_random_ssh_port`
-  readonly kvm_net_hostfwd="user,hostfwd=tcp::$random_ssh_port-:22"
+  readonly kvm_net_hostfwd_ssh="user,hostfwd=tcp::$random_ssh_port-:22"
 
   #echo "port $random_ssh_port"
   printf 'on fedora: sudo passwd root; su; echo root:pass | chpasswd && service sshd start && systemctl enable sshd\n'
   printf 'on kali: systemctl start ssh.service\n'
   #https://www.liquidweb.com/kb/enable-root-login-via-ssh/
-  printf "mint: sudo su; echo root:pass | chpasswd; apt install -y openssh-server; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config; systemctl start ssh.service\n"
-  printf "ssh from host: ssh root@localhost -p $random_ssh_port\n"
 
+  echo medium=$medium
   qemu-system-x86_64                 \
     -m $ramsize                      \
     -boot d -enable-kvm              \
     -smp $cpus                       \
-    -net $kvm_net_hostfwd            \
+    -net $kvm_net_hostfwd_ssh        \
     -net nic                         \
-    -hda $1.img                      \
     -vga $vga                        \
     -name $1                         \
-    -usb -usbdevice tablet           \
-    -cdrom $medium
+    -cdrom "$medium"                   \
+    $1.img                      &
+#    -usb -usbdevice tablet           \
+#    -serial telnet:localhost:4321,server,nowait \
+#    -monitor tcp:127.0.0.1:55555,server,nowait;
+  guestuser="`whoami`"
+  #if echo $medium | grep -i 'mint'; then
+    echo "ssh -oStrictHostKeyChecking=no $guestuser@localhost -p $random_ssh_port" > ./ssh.sh
+    chmod +x ./ssh.sh
+    printf "issue command shown below on the guest VM\n"
+    echo "curl https://raw.githubusercontent.com/o2346/pde/develop/mint/bootstrap.sh | bash -s"
+    seq 32 | while read $wait; do
+      ssh -oStrictHostKeyChecking=no $guestuser@localhost -p $random_ssh_port : && break
+      sleep 4
+    done
+    ssh -oStrictHostKeyChecking=no $guestuser@localhost -p $random_ssh_port
+  #fi
+
+    #-chardev socket,id=monitor,path=/tmp/monitor.sock,server,nowait \
+    #-monitor chardev:monitor \
+    #-chardev socket,id=serial0,path=/tmp/console.sock,server,nowait \
+    #-serial chardev:serial0
   exec $SHELL
   return 0
   # -net nic -net user              \
@@ -135,6 +213,10 @@ new_instance_qemu-system-x86_64() {
   # with fedora: systemctl start sshd.service https://docs.fedoraproject.org/ja-JP/Fedora/17/html/System_Administrators_Guide/s2-ssh-configuration-sshd.html
   #/etc/libvirt/hooks/qemu
   #run script in guest https://stackoverflow.com/questions/19118074/passing-script-to-vm-with-kvm
+  #https://unix.stackexchange.com/a/426951
+  ##https://sononi.com/memo/2019/06/21/qemumonitor/
+  #https://www.linux-kvm.org/page/Simple_shell_script_to_manage_your_virtual_machine_with_bridged_networking
+  #https://stackoverflow.com/a/19352056
 }
 
 # https://nakkaya.com/2012/08/30/create-manage-virtualBox-vms-from-the-command-line/
@@ -497,7 +579,20 @@ _vm() {
           return 0
           ;;
         k) echo 'kill Virtual Machine..'
-          vmrun -T $HOST stop $VMX hard
+          if which vmrun; then
+            vmrun -T $HOST stop $VMX hard
+          elif which vmplayer; then
+            #killall vmplayer
+            ps aux | grep -iE '(vmplayer|vmware)' | awk '{print $2}' | xargs sudo kill
+            #ps aux | grep -i vmware | awk '{print $2}' | xargs kill
+            #        grep "`ls *.vmx`"
+            #Since it likely causes breaking host os at shutdown or closing in normal way. Host os completely freezes right after execution of such way
+            #Similer error messages are shown 2021/01/16
+            #https://askubuntu.com/questions/1214111/vmplayer-closes-on-start-of-vm
+          else
+            echo "[ERROR] neither commands for VMWare found.abort" >&2
+            return 1
+          fi
           return 0
           ;;
         R) echo restore latest snapshot..
@@ -524,19 +619,27 @@ _vm() {
       esac
     done
 
+    if which vmrun; then
+      vmware="vmrun -T $HOST start"
+    elif which vmplayer; then
+      vmware="vmplayer"
+    else
+      echo "[ERROR] neither commands for VMWare found.abort" >&2
+      return 1
+    fi
+    #ls /usr/lib/vmware/bin/
+    #ls -al /usr/bin/*vm*
+
     if [ -n "$isMutable" ]; then
       sed -i '/scsi0:0.mode = \"independent-nonpersistent\"/d' $VMX
-      vmrun -T $HOST start $VMX
-      return 0
+      ($vmware $VMX) &
     elif [ -n "$isAlreadyEnabled" ]; then
-      vmrun -T $HOST start $VMX
-      return 0
+      ($vmware $VMX) &
     else
       sed -ie "/^scsi0:0\.fileName/a scsi0:0.mode = \"independent-nonpersistent\"" $VMX
-      vmrun -T $HOST start $VMX
-      return 0
+      ($vmware $VMX) &
     fi
-    return 0
+    return $?
   fi
 
   VBOX=`find . -maxdepth 1 -name *.vbox` 2> /dev/null
@@ -659,7 +762,20 @@ _vm() {
     done
 
     readonly random_ssh_port=`get_random_ssh_port 2>/dev/null`
-    readonly kvm_net_hostfwd="user,hostfwd=tcp::$random_ssh_port-:22"
+    #https://serverfault.com/a/704300
+    readonly kvm_net_hostfwd_ssh="user,hostfwd=tcp::$random_ssh_port-:22"
+    sudo firewall-cmd --zone=public --add-port=$random_ssh_port/tcp
+    if [ -f "./hostfwd" ]; then
+      kvm_net_hostfwd_miscs="`cat hostfwd | awk '{print ",hostfwd=tcp::"$1"-:"$1}' | tr -d '\n'`"
+      cat hostfwd | while read port; do
+        sudo firewall-cmd --zone=public --add-port=${port}/tcp
+      done
+      sudo firewall-cmd --zone=public --list-ports
+    else
+      kvm_net_hostfwd_miscs=''
+    fi
+    readonly kvm_net_hostfwd="$kvm_net_hostfwd_ssh$kvm_net_hostfwd_miscs"
+    echo "$kvm_net_hostfwd" >&2
 
     echo "port $random_ssh_port"
     qemu-system-x86_64                                    \
@@ -668,28 +784,41 @@ _vm() {
       -smp `cat kvm | grep -e 'cpus' | awk '{print $2}'`  \
       -net $kvm_net_hostfwd                               \
       -net nic                                            \
-      -hda `cat kvm | grep -e 'disk' | awk '{print $2}'`  \
       -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
       -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
-      -usb -usbdevice tablet                              \
-      -soundhw all                                        \
-      $temporarily &
+      $temporarily \
+      "`cat kvm | grep -e 'disk' | awk '{print $2}'`"  &
+#      -usb -usbdevice tablet                              \
+      #-soundhw all                                        \
 
       echo $! > pid
       echo $random_ssh_port > port
-      printf '#!/bin/bash\n ssh -o "ConnectTimeout=10" -o "StrictHostKeyChecking no" -p '$random_ssh_port' -i ./id_rsa localhost $*'  > ./ssh
-      chmod +x ./ssh
+      guestuser="`whoami`"
+      printf "#!/bin/bash\nssh -oStrictHostKeyChecking=no $guestuser@localhost -p $random_ssh_port" > ./ssh.sh
+      #printf '#!/bin/bash\n ssh -o "ConnectTimeout=10" -o "StrictHostKeyChecking no" -p '$random_ssh_port' -i ./id_rsa localhost $*'  > ./ssh
+      chmod +x ./ssh.sh
 
-      if [ -f "./id_rsa" ]; then
-        while true; do
-          ssh                             \
-            -o "ConnectTimeout=10"        \
-            -o "StrictHostKeyChecking no" \
-            -p $random_ssh_port           \
-            -i ./id_rsa localhost && break
+      #if echo 'mint' | grep -i 'mint'; then
+        echo "ssh -oStrictHostKeyChecking=no $guestuser@localhost -p $random_ssh_port" > ./ssh.sh
+        chmod +x ./ssh.sh
+        printf "issue command shown below on the guest VM\n"
+        echo "curl https://raw.githubusercontent.com/o2346/pde/develop/mint/bootstrap.sh | bash -s"
+        seq 32 | while read $wait; do
+          ssh -oStrictHostKeyChecking=no $guestuser@localhost -p $random_ssh_port : && break
           sleep 4
         done
-      fi
+        ssh -oStrictHostKeyChecking=no $guestuser@localhost -p $random_ssh_port
+      #fi
+      #if [ -f "./id_rsa" ]; then
+      #  while true; do
+      #    ssh                             \
+      #      -o "ConnectTimeout=10"        \
+      #      -o "StrictHostKeyChecking no" \
+      #      -p $random_ssh_port           \
+      #      -i ./id_rsa localhost && break
+      #    sleep 4
+      #  done
+      #fi
       # http://blog.livedoor.jp/les_paul_sp/archives/694273.html
       #https://wiki.qemu.org/Documentation/CreateSnapshot#Temporary_snapshots
       # about bridge networking
