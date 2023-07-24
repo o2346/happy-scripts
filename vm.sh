@@ -22,7 +22,7 @@ help() {
   printf "          or any ami-id wanted to\n"
   printf "        latest version fo Amazon Linux(NOT 2) will be obtained as default\n"
   printf "  -n  [kali|fedora|lmde] create new instance from an latest version of iso\n"
-  printf "      As preperation, It attempts for corresponding image would automatically be donwloaded and verified with sha256sum\n"
+  printf "      First of all, It attempts to donwload the latest and verify in sha256sum\n"
   printf "  --hpv=[kind] specify hypervisor with option -n.\n"
   printf "      One of \"kvm\" \"vboxmanage\" \"vmrun\" acceptable\n"
   printf "  --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
