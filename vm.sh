@@ -21,6 +21,8 @@ help() {
   printf "        give '--ami=ami-0c11b26d' if you prefer 2016.9\n"
   printf "          or any ami-id wanted to\n"
   printf "        latest version fo Amazon Linux(NOT 2) will be obtained as default\n"
+  printf "  -n  [kali|fedora|lmde] create new instance from an latest version of iso\n"
+  printf "      As preperation, It attempts for corresponding image would automatically be donwloaded and verified with sha256sum\n"
   printf "  --hpv=[kind] specify hypervisor with option -n.\n"
   printf "      One of \"kvm\" \"vboxmanage\" \"vmrun\" acceptable\n"
   printf "  --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
@@ -537,7 +539,14 @@ newvm() {
   else
     local new_instance_cmd="`get_hpv $arghpv`"
   fi
-  $new_instance_cmd "$vname" "$*"
+  if echo "${@:$#}" | grep -E '^(kali|fedora|lmde)$' > /dev/null; then
+    download_latest_$(echo "${@:$#}" | grep -E '^(kali|fedora|lmde)$')
+    local mainargs=`cat /tmp/localisosum | awk '{print "'$HOME'/Downloads/"$NF}'`
+  else
+    local mainargs="$*"
+  fi
+
+  $new_instance_cmd "$vname" $mainargs
 }
 
 # start Virtual Machine
