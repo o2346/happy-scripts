@@ -21,7 +21,7 @@ help() {
   printf "        give '--ami=ami-0c11b26d' if you prefer 2016.9\n"
   printf "          or any ami-id wanted to\n"
   printf "        latest version fo Amazon Linux(NOT 2) will be obtained as default\n"
-  printf "  -n  [kali|fedora|lmde] create new instance from an latest version of iso\n"
+  printf "  -n  [kali|fedora|lmde] create new instance from latest version of iso\n"
   printf "      First of all, It attempts to donwload the latest and verify in sha256sum\n"
   printf "  --hpv=[kind] specify hypervisor with option -n.\n"
   printf "      One of \"kvm\" \"vboxmanage\" \"vmrun\" acceptable\n"
