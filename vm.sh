@@ -34,8 +34,9 @@ help() {
 
 localisosum="/tmp/localisosum"
 _transmission_cli() {
-  rm -rf ~/.config/transmission/torrents
   rm -f $localisosum
+  (cd ~/Downloads && ls **/*${1}*.iso && sha256sum **/*${1}*.iso | grep ${sha256sum} > $localisosum) && return 0
+  rm -rf ~/.config/transmission/torrents
   local args=`cat`
   local isotorrent=`echo $args | awk '{print $1}'`
   local sha256sum=`echo $args | awk '{print $2}'`
@@ -72,6 +73,20 @@ download_latest_fedora(){
 
 download_latest_debian(){
   #transmission-cli https://cdimage.debian.org/debian-cd/current/amd64/bt-dvd/debian-12.1.0-amd64-DVD-1.iso.torrent
+  local parenturl="https://cdimage.debian.org/debian-cd/current/amd64/bt-dvd/"
+  local isotorrent=$(
+    curl $parenturl                     |
+    sed -e 's/></>\n</g'                |
+    grep -iEoh '<a href=".*(torrent)">' |
+    sort -u                             |
+    grep -iEoh '".*"'                   |
+    tr -d '"')
+  local checksumurl="${parenturl}SHA256SUMS"
+  local isobasename=`echo $isotorrent | sed -e 's/\.torrent$//' | xargs basename`
+  local checksum=`curl ${checksumurl} | grep -Ei "${isobasename}$" | head -n 1 | awk '{print $1}'`
+  echo "$parenturl$isotorrent"
+  echo "checksum=$checksum"
+  echo "$parenturl$isotorrent $checksum" | _transmission_cli debian
 }
 
 download_latest_lmde(){
@@ -539,8 +554,8 @@ newvm() {
   else
     local new_instance_cmd="`get_hpv $arghpv`"
   fi
-  if echo "${@:$#}" | grep -E '^(kali|fedora|lmde)$' > /dev/null; then
-    download_latest_$(echo "${@:$#}" | grep -E '^(kali|fedora|lmde)$')
+  if echo "${@:$#}" | grep -E '^(kali|fedora|lmde|debian)$' > /dev/null; then
+    download_latest_$(echo "${@:$#}" | grep -E '^(kali|fedora|lmde|debian)$')
     local mainargs=`cat /tmp/localisosum | awk '{print "'$HOME'/Downloads/"$NF}'`
   else
     local mainargs="$*"
