@@ -30,7 +30,7 @@ crap(){
   }
 
   print_repo() {
-    printf "\e[29;1m`basename ${1}`\e[m  \e[37;4m${1}\e[m\n"
+    printf "\e[29;1m`basename ${1}`\e[m  \e[37;4m${1}\e[m  [`cd ${1} && git rev-parse --abbrev-ref HEAD`]\n"
   }
 
   CWD=$(pwd)
