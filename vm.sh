@@ -30,6 +30,65 @@ help() {
 #  printf "     -a  enable ssh & pubkey auto on the guest\n"
 }
 
+localisosum="/tmp/localisosum"
+_transmission_cli() {
+  rm -rf ~/.config/transmission/torrents
+  rm -f $localisosum
+  local args=`cat`
+  local isotorrent=`echo $args | awk '{print $1}'`
+  local sha256sum=`echo $args | awk '{print $2}'`
+  (transmission-cli $isotorrent) &
+  echo "Awaiting target has completely downloaded" >&2
+  while true; do
+    cd ~/Downloads
+    sha256sum **/*${1}*.iso | grep ${sha256sum} > $localisosum && echo "Downloaded $isotorrent" >&2 && echo 'done' && break
+    sleep 4
+  done
+  ps aux | grep -iE '(torrent|transmission\-cli)' | grep -i "${1}" | awk '{print $2}' | xargs kill
+  return 0
+}
+
+download_latest_kali(){
+  curl https://www.kali.org/get-kali/  | grep -iEoh '((SHA256sum.*)).*http.*live.*amd64.*\.iso"?' | sed -e 's/<\/[[:alnum:]]\+>/ /g' | sed -e 's/<a[[:blank:]]\?href=//' | tr -d '"' | grep -vi 'everything' | sort -u | head -n1 | awk '{print $3".torrent",$2}' | _transmission_cli kali
+}
+
+#https://ftp.yz.yamagata-u.ac.jp/pub/linux/fedora-projects/fedora/linux/releases/38/Spins/x86_64/iso/
+#https://torrent.fedoraproject.org/
+download_latest_fedora(){
+  local isotorrent=`curl https://torrent.fedoraproject.org/ | grep -iEoh 'https:.*xfce.*\.torrent' | awk 'BEGIN{FS="[>\"]"} {print $1}' | sort -u | tail -n1`
+  echo "$isotorrent"
+  local torrentversion=`echo "$isotorrent" | grep -iEoh '[0-9]+\.torrent' | grep -Eoh '[0-9]+'`
+  local checksumfiledir="https://ftp.yz.yamagata-u.ac.jp/pub/linux/fedora-projects/fedora/linux/releases/${torrentversion}/Spins/x86_64/iso/"
+  local checksumfile=`curl $checksumfiledir | grep -iEoh 'Fedora-.*CHECKSUM' | awk 'BEGIN{FS="[>\"]"} {print $1}' | head -n1`
+  local checksumfileurl="${checksumfiledir}${checksumfile}"
+  echo $checksumfileurl
+  local sha256sum=`curl $checksumfileurl | grep -iE 'SHA256.*xfce' | awk '{print $NF}'`
+  echo $sha256sum
+  echo "$isotorrent $sha256sum"
+  echo "$isotorrent $sha256sum" | _transmission_cli Fedora
+}
+
+download_latest_debian(){
+  #transmission-cli https://cdimage.debian.org/debian-cd/current/amd64/bt-dvd/debian-12.1.0-amd64-DVD-1.iso.torrent
+}
+
+download_latest_lmde(){
+  local resources=`mktemp`
+  local editionphp=`curl https://linuxmint.com/download_lmde.php | grep -iEoh 'edition\.php\?id=[a-zA-Z0-9]*' | sort -u | head -n1`
+  echo $editionphp
+  curl "https://linuxmint.com/${editionphp}" | grep -iEoh 'https:.*(.*lmde.*64bit.*\.torrent|sha256sum\.txt)' | awk 'BEGIN{FS=">"} {print $1}' | sort | tr -d '"' | grep -vE '\.gpg$' > $resources
+  local isotorrent=`cat $resources | grep '.torrent'`
+  local sha256sumtxt=`cat $resources | grep 'sha256sum.txt'`
+  echo $isotorrent
+  echo $sha256sumtxt
+  local iso=`echo $isotorrent | grep -iEoh 'lmde.*\.iso'`
+  echo $iso
+  local sha256sum=`curl $sha256sumtxt | grep $iso | awk '{print $1}'`
+  echo $sha256sum
+  echo "$isotorrent $sha256sum" | _transmission_cli lmde
+  rm -f $resources
+}
+
 get_hpv() {
   which $1 > /dev/null && echo "new_instance_$1" && return 0
   local _default='qemu-system-x86_64'
@@ -103,7 +162,7 @@ new_instance_qemu-system-x86_64() {
   # format consiteration
   # https://qemu.weilnetz.de/doc/qemu-doc.html#disk_005fimages_005fformats
   # https://research.sakura.ad.jp/2010/03/23/kvm-diskperf1/
-  qemu-img create -f vmdk $1.img 40G
+  qemu-img create -f vmdk $1.img 58G
 
   readonly random_ssh_port=`get_random_ssh_port`
   readonly kvm_net_hostfwd_ssh="user,hostfwd=tcp::$random_ssh_port-:22"
