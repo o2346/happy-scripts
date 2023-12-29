@@ -135,6 +135,8 @@ get_random_ssh_port() {
 
 }
 
+function hostfwdtrans () { cat  | awk '{print ",hostfwd=tcp::"$1"-:"$1}' | tr -d '\n' }
+
 #https://fosspost.org/tutorials/use-qemu-test-operating-systems-distributions
 new_instance_qemu-system-x86_64() {
   cd `mktemp -d`
@@ -765,8 +767,9 @@ _vm() {
     #https://serverfault.com/a/704300
     readonly kvm_net_hostfwd_ssh="user,hostfwd=tcp::$random_ssh_port-:22"
     sudo firewall-cmd --zone=public --add-port=$random_ssh_port/tcp
+    readonly kvm_net_hostfwd_default="`printf '80\n443\n18383' | hostfwdtrans`"
     if [ -f "./hostfwd" ]; then
-      kvm_net_hostfwd_miscs="`cat hostfwd | awk '{print ",hostfwd=tcp::"$1"-:"$1}' | tr -d '\n'`"
+      kvm_net_hostfwd_miscs="`cat hostfwd | hostfwdtrans`"
       cat hostfwd | while read port; do
         sudo firewall-cmd --zone=public --add-port=${port}/tcp
       done
@@ -774,7 +777,7 @@ _vm() {
     else
       kvm_net_hostfwd_miscs=''
     fi
-    readonly kvm_net_hostfwd="$kvm_net_hostfwd_ssh$kvm_net_hostfwd_miscs"
+    readonly kvm_net_hostfwd="$kvm_net_hostfwd_ssh$kvm_net_hostfwd_default$kvm_net_hostfwd_miscs"
     echo "$kvm_net_hostfwd" >&2
 
     echo "port $random_ssh_port"
