@@ -763,7 +763,7 @@ _vm() {
       esac
     done
 
-    readonly default_allowed_ports='80\n443\n18383'
+    readonly default_allowed_ports='443\n18383'
     readonly random_ssh_port=`get_random_ssh_port 2>/dev/null`
     #https://serverfault.com/a/704300
     readonly kvm_net_hostfwd_ssh="user,hostfwd=tcp::$random_ssh_port-:22"
