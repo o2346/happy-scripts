@@ -783,6 +783,8 @@ _vm() {
     echo "$kvm_net_hostfwd" >&2
 
     echo "port $random_ssh_port"
+				#In order to specify mac addy add an option like below
+				#-nic mac=88:77:66:55:44:33 \
     qemu-system-x86_64                                    \
       -m `cat kvm | grep -e 'ramsize' | awk '{print $2}'` \
       -boot c -enable-kvm                                 \
