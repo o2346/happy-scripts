@@ -2,6 +2,21 @@
 
 alias aws='aws2'
 
+macaddy=`echo $* | tr ' ' '\n' | grep '\-\-mac\=' | tr -d '-'`
+if [ -n "$macaddy" ]; then
+  netdevice="$macaddy"
+else
+  netdevice="user"
+fi
+
+location=`echo $* | tr ' ' '\n' | grep '\-\-location\=' | awk 'BEGIN { FS = "=" } ; { print $NF }'`
+if [ -z "$location" ]; then
+  location=`mktemp -d`
+else
+  mkdir -p $location
+fi
+echo $location >&2
+
 help() {
   printf "# wrapper script of Virtual Machines Operation\n"
   printf "# wraps vmrun VBoxManage, quemu, aws ec2\n"
@@ -139,7 +154,7 @@ function hostfwdtrans () { cat  | awk '{print ",hostfwd=tcp::"$1"-:"$1}' | tr -d
 
 #https://fosspost.org/tutorials/use-qemu-test-operating-systems-distributions
 new_instance_qemu-system-x86_64() {
-  cd `mktemp -d`
+  cd $location
   pwd
   local medium=`echo $* | tr ' ' '\n' | grep -e '.iso$' | tail -1`
   local memrate=8
@@ -160,6 +175,7 @@ new_instance_qemu-system-x86_64() {
   echo "name $1"          >> $info_file
   echo "disk $1.img"      >> $info_file
   echo "vga $vga"         >> $info_file
+  echo "netdevice ${netdevice}"         >> $info_file
 
   # format consiteration
   # https://qemu.weilnetz.de/doc/qemu-doc.html#disk_005fimages_005fformats
@@ -181,6 +197,7 @@ new_instance_qemu-system-x86_64() {
     -smp $cpus                       \
     -net $kvm_net_hostfwd_ssh        \
     -net nic                         \
+    -nic ${netdevice} \
     -vga $vga                        \
     -name $1                         \
     -cdrom "$medium"                   \
@@ -793,6 +810,7 @@ _vm() {
       -net nic                                            \
       -vga `cat kvm | grep -e 'vga' | awk '{print $2}'`   \
       -name `cat kvm | grep -e 'name' | awk '{print $2}'` \
+      -nic `cat kvm | grep -e 'netdevice' | awk '{print $2}'` \
       $temporarily \
       "`cat kvm | grep -e 'disk' | awk '{print $2}'`"  &
 #      -usb -usbdevice tablet                              \
