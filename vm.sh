@@ -185,6 +185,14 @@ new_instance_qemu-system-x86_64() {
   printf 'on kali: systemctl start ssh.service\n'
   #https://www.liquidweb.com/kb/enable-root-login-via-ssh/
   #
+  #https://wiki.debian.org/SecureBoot/VirtualMachine
+  #https://wiki.archlinux.jp/index.php/QEMU
+  #https://www.youtube.com/watch?v=i-OHcENVMG0
+  #
+  #https://www.reddit.com/r/linuxquestions/comments/y4qc8k/can_you_install_windows_11_with_kvmqemu/
+  #https://www.server-world.info/query?os=Ubuntu_24.04&p=kvm&f=12#google_vignette
+  #https://serverfault.com/questions/1096400/qemu-cannot-run-windows-11
+  #https://www.microsoft.com/ja-jp/evalcenter/download-windows-11-enterprise
   init_windows() {
     OVMF_CODE="/usr/share/OVMF/OVMF_CODE_4M.ms.fd"
     OVMF_VARS_ORIG="/usr/share/OVMF/OVMF_VARS_4M.ms.fd"
