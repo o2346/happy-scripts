@@ -177,11 +177,6 @@ new_instance_qemu-system-x86_64() {
   echo "vga $vga"         >> $info_file
   echo "netdevice ${netdevice}"         >> $info_file
 
-  # format consiteration
-  # https://qemu.weilnetz.de/doc/qemu-doc.html#disk_005fimages_005fformats
-  # https://research.sakura.ad.jp/2010/03/23/kvm-diskperf1/
-  qemu-img create -f vmdk $1.img 58G
-
   readonly random_ssh_port=`get_random_ssh_port`
   readonly kvm_net_hostfwd_ssh="user,hostfwd=tcp::$random_ssh_port-:22"
 
@@ -189,7 +184,56 @@ new_instance_qemu-system-x86_64() {
   printf 'on fedora: sudo passwd root; su; echo root:pass | chpasswd && service sshd start && systemctl enable sshd\n'
   printf 'on kali: systemctl start ssh.service\n'
   #https://www.liquidweb.com/kb/enable-root-login-via-ssh/
+  #
+  init_windows() {
+    OVMF_CODE="/usr/share/OVMF/OVMF_CODE_4M.ms.fd"
+    OVMF_VARS_ORIG="/usr/share/OVMF/OVMF_VARS_4M.ms.fd"
+    OVMF_VARS="$(basename "${OVMF_VARS_ORIG}")"
+    if [ ! -e "${OVMF_VARS}" ]; then
+            cp "${OVMF_VARS_ORIG}" "${OVMF_VARS}"
+    fi
 
+    echo $OVMF_CODE
+    echo $OVMF_VARS
+
+    socket=`mktemp -d`
+    swtpm socket --tpm2 --tpmstate dir=$socket --ctrl type=unixio,path=$socket/swtpm-sock &
+    QEMU_IMG=$1
+    qemu-img create -f qcow2 "${QEMU_IMG}.img" 64G
+    qemu-system-x86_64                                                   \
+      -m 4g                                                        \
+      -boot d -enable-kvm                                                \
+      -smp 2                                                         \
+      -net $kvm_net_hostfwd_ssh                                          \
+      -nic ${netdevice}                                                  \
+      -name $1                                                           \
+      -cdrom "$medium"                                                   \
+      -enable-kvm \
+      -object rng-random,filename=/dev/urandom,id=rng0 \
+      -device virtio-rng-pci,rng=rng0 \
+      -net nic,model=virtio \
+      -vga virtio                                                        \
+      -machine q35,smm=on                                                \
+      -global driver=cfi.pflash01,property=secure,value=on               \
+      -drive if=pflash,format=raw,unit=0,file="${OVMF_CODE}",readonly=on \
+      -drive if=pflash,format=raw,unit=1,file="${OVMF_VARS}"             \
+      -chardev socket,id=chrtpm,path=$socket/swtpm-sock                  \
+      -tpmdev emulator,id=tpm0,chardev=chrtpm                            \
+      -device tpm-tis,tpmdev=tpm0 \
+      -boot menu=on \
+      ${QEMU_IMG}.img
+  }
+
+  if exiftool $medium | grep Publisher | grep 'MICROSOFT CORPORATION'; then
+    init_windows $1
+    exit 0
+  fi
+
+
+  # format consiteration
+  # https://qemu.weilnetz.de/doc/qemu-doc.html#disk_005fimages_005fformats
+  # https://research.sakura.ad.jp/2010/03/23/kvm-diskperf1/
+  qemu-img create -f vmdk $1.img 58G
   echo medium=$medium
   qemu-system-x86_64                 \
     -m $ramsize                      \
