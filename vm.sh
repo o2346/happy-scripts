@@ -233,6 +233,8 @@ new_instance_qemu-system-x86_64() {
   }
 
   if exiftool $medium | grep Publisher | grep 'MICROSOFT CORPORATION'; then
+    echo "ssh -oStrictHostKeyChecking=no `whoami`@localhost -p $random_ssh_port" > ./ssh.sh
+    echo "$random_ssh_port"
     init_windows $1
     exit 0
   fi
