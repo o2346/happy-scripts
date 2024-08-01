@@ -152,11 +152,77 @@ get_random_ssh_port() {
 
 function hostfwdtrans () { cat  | awk '{print ",hostfwd=tcp::"$1"-:"$1}' | tr -d '\n' }
 
+readonly random_ssh_port=`get_random_ssh_port`
+readonly kvm_net_hostfwd_ssh="user,hostfwd=tcp::$random_ssh_port-:22"
+echo "ssh=$kvm_net_hostfwd_ssh"
+
+medium=`echo $* | tr ' ' '\n' | grep -e '.iso$' | tail -1`
+
+function qemu_windows() {
+  #https://www.liquidweb.com/kb/enable-root-login-via-ssh/
+  #
+  #https://wiki.debian.org/SecureBoot/VirtualMachine
+  #https://wiki.archlinux.jp/index.php/QEMU
+  #https://www.youtube.com/watch?v=i-OHcENVMG0
+  #
+  #https://www.reddit.com/r/linuxquestions/comments/y4qc8k/can_you_install_windows_11_with_kvmqemu/
+  #https://www.server-world.info/query?os=Ubuntu_24.04&p=kvm&f=12#google_vignette
+  #https://serverfault.com/questions/1096400/qemu-cannot-run-windows-11
+  #https://www.microsoft.com/ja-jp/evalcenter/download-windows-11-enterprise
+  OVMF_CODE="/usr/share/OVMF/OVMF_CODE_4M.ms.fd"
+  OVMF_VARS_ORIG="/usr/share/OVMF/OVMF_VARS_4M.ms.fd"
+  OVMF_VARS="$(basename "${OVMF_VARS_ORIG}")"
+  if [ ! -e "${OVMF_VARS}" ]; then
+          cp "${OVMF_VARS_ORIG}" "${OVMF_VARS}"
+  fi
+
+  echo $OVMF_CODE
+  echo $OVMF_VARS
+
+  socket=`mktemp -d`
+  swtpm socket --tpm2 --tpmstate dir=$socket --ctrl type=unixio,path=$socket/swtpm-sock &
+  QEMU_IMG=`cat kvm | grep disk | awk '{print $2}'`
+
+  if [ -f "$medium" ]; then
+    qemu-img create -f qcow2 "${QEMU_IMG}" 64G
+  else
+    echo "$medium is not a file" >&2
+    touch /tmp/dummy.iso
+    medium="/tmp/dummy.iso"
+  fi
+  echo "QEMU_IMG=${QEMU_IMG}"
+  #kvm_net_hostfwd_ssh=user,hostfwd=tcp::31422-:22
+  #replace to own
+  netdevice='mac=xxxxxxxxxxxxxxxxx'
+  #-net nic,model=virtio prevents ssh connection from host to guest                                             \
+  qemu-system-x86_64                                                   \
+    -m 4g                                                              \
+    -boot d -enable-kvm                                                \
+    -smp 2                                                             \
+    -net $kvm_net_hostfwd_ssh                                          \
+    -nic ${netdevice}                                                  \
+    -name  win                                                          \
+    -cdrom "$medium"                                                   \
+    -enable-kvm                                                        \
+    -object rng-random,filename=/dev/urandom,id=rng0                   \
+    -device virtio-rng-pci,rng=rng0                                    \
+    -net nic                                              \
+    -vga virtio                                                        \
+    -machine q35,smm=on                                                \
+    -global driver=cfi.pflash01,property=secure,value=on               \
+    -drive if=pflash,format=raw,unit=0,file="${OVMF_CODE}",readonly=on \
+    -drive if=pflash,format=raw,unit=1,file="${OVMF_VARS}"             \
+    -chardev socket,id=chrtpm,path=$socket/swtpm-sock                  \
+    -tpmdev emulator,id=tpm0,chardev=chrtpm                            \
+    -device tpm-tis,tpmdev=tpm0                                        \
+    -boot menu=on                                                      \
+    ${QEMU_IMG}
+}
+
 #https://fosspost.org/tutorials/use-qemu-test-operating-systems-distributions
 new_instance_qemu-system-x86_64() {
   cd $location
   pwd
-  local medium=`echo $* | tr ' ' '\n' | grep -e '.iso$' | tail -1`
   local memrate=8
   local hostramsize=`get_host_ram_size`
   local ramsize=`bc <<< "$hostramsize/$memrate"`
@@ -177,65 +243,12 @@ new_instance_qemu-system-x86_64() {
   echo "vga $vga"         >> $info_file
   echo "netdevice ${netdevice}"         >> $info_file
 
-  readonly random_ssh_port=`get_random_ssh_port`
-  readonly kvm_net_hostfwd_ssh="user,hostfwd=tcp::$random_ssh_port-:22"
 
-  #echo "port $random_ssh_port"
   printf 'on fedora: sudo passwd root; su; echo root:pass | chpasswd && service sshd start && systemctl enable sshd\n'
   printf 'on kali: systemctl start ssh.service\n'
-  #https://www.liquidweb.com/kb/enable-root-login-via-ssh/
-  #
-  #https://wiki.debian.org/SecureBoot/VirtualMachine
-  #https://wiki.archlinux.jp/index.php/QEMU
-  #https://www.youtube.com/watch?v=i-OHcENVMG0
-  #
-  #https://www.reddit.com/r/linuxquestions/comments/y4qc8k/can_you_install_windows_11_with_kvmqemu/
-  #https://www.server-world.info/query?os=Ubuntu_24.04&p=kvm&f=12#google_vignette
-  #https://serverfault.com/questions/1096400/qemu-cannot-run-windows-11
-  #https://www.microsoft.com/ja-jp/evalcenter/download-windows-11-enterprise
-  init_windows() {
-    OVMF_CODE="/usr/share/OVMF/OVMF_CODE_4M.ms.fd"
-    OVMF_VARS_ORIG="/usr/share/OVMF/OVMF_VARS_4M.ms.fd"
-    OVMF_VARS="$(basename "${OVMF_VARS_ORIG}")"
-    if [ ! -e "${OVMF_VARS}" ]; then
-            cp "${OVMF_VARS_ORIG}" "${OVMF_VARS}"
-    fi
-
-    echo $OVMF_CODE
-    echo $OVMF_VARS
-
-    socket=`mktemp -d`
-    swtpm socket --tpm2 --tpmstate dir=$socket --ctrl type=unixio,path=$socket/swtpm-sock &
-    QEMU_IMG=$1
-    qemu-img create -f qcow2 "${QEMU_IMG}.img" 64G
-    qemu-system-x86_64                                                   \
-      -m 4g                                                        \
-      -boot d -enable-kvm                                                \
-      -smp 2                                                         \
-      -net $kvm_net_hostfwd_ssh                                          \
-      -nic ${netdevice}                                                  \
-      -name $1                                                           \
-      -cdrom "$medium"                                                   \
-      -enable-kvm \
-      -object rng-random,filename=/dev/urandom,id=rng0 \
-      -device virtio-rng-pci,rng=rng0 \
-      -net nic,model=virtio \
-      -vga virtio                                                        \
-      -machine q35,smm=on                                                \
-      -global driver=cfi.pflash01,property=secure,value=on               \
-      -drive if=pflash,format=raw,unit=0,file="${OVMF_CODE}",readonly=on \
-      -drive if=pflash,format=raw,unit=1,file="${OVMF_VARS}"             \
-      -chardev socket,id=chrtpm,path=$socket/swtpm-sock                  \
-      -tpmdev emulator,id=tpm0,chardev=chrtpm                            \
-      -device tpm-tis,tpmdev=tpm0 \
-      -boot menu=on \
-      ${QEMU_IMG}.img
-  }
 
   if exiftool $medium | grep Publisher | grep 'MICROSOFT CORPORATION'; then
-    echo "ssh -oStrictHostKeyChecking=no `whoami`@localhost -p $random_ssh_port" > ./ssh.sh
-    echo "$random_ssh_port"
-    init_windows $1
+    qemu_windows
     exit 0
   fi
 
@@ -856,6 +869,8 @@ _vm() {
     echo "port $random_ssh_port"
 				#In order to specify mac addy add an option like below
 				#-nic mac=88:77:66:55:44:33 \
+    qemu_windows
+    exit 0
     qemu-system-x86_64                                    \
       -m `cat kvm | grep -e 'ramsize' | awk '{print $2}'` \
       -boot c -enable-kvm                                 \
