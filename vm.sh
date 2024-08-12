@@ -191,23 +191,22 @@ function qemu_windows() {
     medium="/tmp/dummy.iso"
   fi
   echo "QEMU_IMG=${QEMU_IMG}"
+
+  kvm_net_hostfwdadd=",hostfwd=tcp::443-:443,hostfwd=tcp::50080-:50080"
   #kvm_net_hostfwd_ssh=user,hostfwd=tcp::31422-:22
   #replace to own
-  netdevice='mac=xxxxxxxxxxxxxxxxx'
   #-net nic,model=virtio prevents ssh connection from host to guest                                             \
   qemu-system-x86_64                                                   \
     -m 4g                                                              \
     -boot d -enable-kvm                                                \
     -smp 2                                                             \
-    -net $kvm_net_hostfwd_ssh                                          \
+    -net nic                                              \
+    -net $kvm_net_hostfwd_ssh$kvm_net_hostfwdadd                                          \
+    -object rng-random,filename=/dev/urandom,id=rng0                   \
+    -device virtio-rng-pci,rng=rng0                                    \
     -nic ${netdevice}                                                  \
     -name  win                                                          \
     -cdrom "$medium"                                                   \
-    -enable-kvm                                                        \
-    -object rng-random,filename=/dev/urandom,id=rng0                   \
-    -device virtio-rng-pci,rng=rng0                                    \
-    -net nic                                              \
-    -vga virtio                                                        \
     -machine q35,smm=on                                                \
     -global driver=cfi.pflash01,property=secure,value=on               \
     -drive if=pflash,format=raw,unit=0,file="${OVMF_CODE}",readonly=on \
@@ -217,6 +216,9 @@ function qemu_windows() {
     -device tpm-tis,tpmdev=tpm0                                        \
     -boot menu=on                                                      \
     ${QEMU_IMG}
+
+    #-device virtio-rng-pci,rng=rng0                                    \
+    #-vga virtio                                                        \
 }
 
 #https://fosspost.org/tutorials/use-qemu-test-operating-systems-distributions
