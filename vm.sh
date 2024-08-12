@@ -192,6 +192,10 @@ function qemu_windows() {
   fi
   echo "QEMU_IMG=${QEMU_IMG}"
 
+  if cat kvm | grep netdevice > /dev/null; then
+    netdevice=`cat kvm | grep netdevice | awk '{print $2}'`
+  fi
+
   kvm_net_hostfwdadd=",hostfwd=tcp::443-:443,hostfwd=tcp::50080-:50080"
   #kvm_net_hostfwd_ssh=user,hostfwd=tcp::31422-:22
   #replace to own
