@@ -186,7 +186,7 @@ function qemu_windows() {
   if [ -f "$medium" ]; then
     qemu-img create -f qcow2 "${QEMU_IMG}" 64G
   else
-    echo "$medium is not a file" >&2
+    echo "No iso $medium is specified" >&2
     touch /tmp/dummy.iso
     medium="/tmp/dummy.iso"
   fi
@@ -219,6 +219,7 @@ function qemu_windows() {
     -tpmdev emulator,id=tpm0,chardev=chrtpm                            \
     -device tpm-tis,tpmdev=tpm0                                        \
     -boot menu=on                                                      \
+    $* \
     ${QEMU_IMG}
 
     #-device virtio-rng-pci,rng=rng0                                    \
@@ -875,8 +876,10 @@ _vm() {
     echo "port $random_ssh_port"
 				#In order to specify mac addy add an option like below
 				#-nic mac=88:77:66:55:44:33 \
-    qemu_windows
-    exit 0
+    if cat kvm | grep os | grep windows; then
+      qemu_windows $temporarily
+      exit 0
+    fi
     qemu-system-x86_64                                    \
       -m `cat kvm | grep -e 'ramsize' | awk '{print $2}'` \
       -boot c -enable-kvm                                 \
