@@ -855,7 +855,6 @@ _vm() {
     done
 
     readonly default_allowed_ports='443\n18383'
-    readonly random_ssh_port=`get_random_ssh_port 2>/dev/null`
     #https://serverfault.com/a/704300
     readonly kvm_net_hostfwd_ssh="user,hostfwd=tcp::$random_ssh_port-:22"
     sudo firewall-cmd --zone=public --add-port=$random_ssh_port/tcp
