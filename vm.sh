@@ -11,11 +11,8 @@ fi
 
 location=`echo $* | tr ' ' '\n' | grep '\-\-location\=' | awk 'BEGIN { FS = "=" } ; { print $NF }'`
 if [ -z "$location" ]; then
-  location=`mktemp -d`
-else
-  mkdir -p $location
+  location=`mktemp -u`
 fi
-echo $location >&2
 
 help() {
   printf "# wrapper script of Virtual Machines Operation\n"
@@ -40,6 +37,8 @@ help() {
   printf "      One of \"kvm\" \"vboxmanage\" \"vmrun\" acceptable\n"
   printf "  --name=[VMNAME_as_you_like] specify name of instance with option -n\n"
   printf "  -e  COMMAND execute COMMAND via ssh when a connection was established\n"
+  printf "  --location=[local_path] create work folder in local_path\n"
+  printf "  --mac=[macaddy] create vm with specified macaddy. work with -n and its os was windows\n"
   #https://serverfault.com/questions/336298/can-i-change-a-user-password-in-linux-from-the-command-line-with-no-interactivit
 #  printf "     -e  [COMMAND ARGS1 2..] execute command on the guest\n"
 #  printf "     -a  enable ssh & pubkey auto on the guest\n"
@@ -154,7 +153,7 @@ function hostfwdtrans () { cat  | awk '{print ",hostfwd=tcp::"$1"-:"$1}' | tr -d
 
 readonly random_ssh_port=`get_random_ssh_port`
 readonly kvm_net_hostfwd_ssh="user,hostfwd=tcp::$random_ssh_port-:22"
-echo "ssh=$kvm_net_hostfwd_ssh"
+#echo "ssh=$kvm_net_hostfwd_ssh"
 
 medium=`echo $* | tr ' ' '\n' | grep -e '.iso$' | tail -1`
 
@@ -228,6 +227,7 @@ function qemu_windows() {
 
 #https://fosspost.org/tutorials/use-qemu-test-operating-systems-distributions
 new_instance_qemu-system-x86_64() {
+  mkdir -p $location
   cd $location
   pwd
   local memrate=8
