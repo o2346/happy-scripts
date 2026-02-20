@@ -107,6 +107,9 @@ crap(){
   readonly ignore="$HOME/(.vim|.themes|.tmux|n-api-article|.cache)/"
   #https://stackoverflow.com/questions/11981716/how-to-quickly-find-all-git-repos-under-a-directory/12010862#12010862
   find $PARENT -name 'branches' -o -name '.git' -type d -prune 2>/dev/null | grep -Ev "$ignore" | while read REPO; do
+
+    echo "$REPO" | grep '/node_modules/' > /dev/null && continue
+
     cd $REPO/..
     cd `dirname $REPO`
     #if [ "$PWD" = "$HOME/.uc" ]; then
