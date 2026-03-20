@@ -202,12 +202,13 @@ function qemu_windows() {
   qemu-system-x86_64                                                   \
     -m 4g                                                              \
     -boot d -enable-kvm                                                \
+    -cpu Haswell \
     -smp 2                                                             \
     -net nic                                              \
     -net $kvm_net_hostfwd_ssh$kvm_net_hostfwdadd                                          \
     -object rng-random,filename=/dev/urandom,id=rng0                   \
     -device virtio-rng-pci,rng=rng0                                    \
-    -nic ${netdevice}                                                  \
+    -nic "${netdevice}"                                                  \
     -name  win                                                          \
     -cdrom "$medium"                                                   \
     -machine q35,smm=on                                                \
