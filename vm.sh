@@ -44,6 +44,8 @@ help() {
 #  printf "     -a  enable ssh & pubkey auto on the guest\n"
 }
 
+guestos='unix'
+
 localisosum="/tmp/localisosum"
 _transmission_cli() {
   rm -rf ~/.config/transmission/torrents
@@ -208,7 +210,7 @@ function qemu_windows() {
     -net $kvm_net_hostfwd_ssh$kvm_net_hostfwdadd                                          \
     -object rng-random,filename=/dev/urandom,id=rng0                   \
     -device virtio-rng-pci,rng=rng0                                    \
-    -nic "${netdevice}"                                                  \
+    -nic ${netdevice}                                                  \
     -name  win                                                          \
     -cdrom "$medium"                                                   \
     -machine q35,smm=on                                                \
@@ -256,6 +258,8 @@ new_instance_qemu-system-x86_64() {
   printf 'on kali: systemctl start ssh.service\n'
 
   if exiftool $medium | grep Publisher | grep 'MICROSOFT CORPORATION'; then
+    guestos='windows'
+    echo "os ${guestos}"    >> $info_file
     qemu_windows
     exit 0
   fi
